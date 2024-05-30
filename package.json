@@ -5,6 +5,7 @@
   "main": "app.js",
   "scripts": {
     "start": "node src/server.js",
+    "build": "tsc",
     "watch": "nodemon --watch src/app.js --watch ./package.json --exec npm run start",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
