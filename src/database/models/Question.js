@@ -15,7 +15,6 @@ const Question = model("Question", new Schema({
     section_id: {
         type: Schema.Types.ObjectId,
         ref: "Section",
-        default: process.env.OTHER_SECTION_ID,
     },
     category_ids: {
         type: [Schema.Types.ObjectId],
