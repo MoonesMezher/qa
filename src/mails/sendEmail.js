@@ -6,8 +6,8 @@ const transporter = nodemailer.createTransport({
     port: 587,
     secure: false, // or 'STARTTLS'
     auth: {
-        user: 'moonesmezher9@gmail.com',
-        pass: 'moonesmezher123456789@like'
+        user: '',
+        pass: ''
     }
 });
 
@@ -15,7 +15,7 @@ const transporter = nodemailer.createTransport({
 async function sendEmail(to, subject, body) {
     try {
         const mailOptions = {
-            from: 'moonesmezher9@gmail.com',
+            from: '',
             to,
             subject,
             text: body

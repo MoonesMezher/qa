@@ -197,7 +197,7 @@ const infoUserByRole = async (req, res) => {
 
 // sign up as data entry
 const signupUserAsDataEntry = async (req, res) => {
-    const {username, email, password} = req.body;
+    const {username, password} = req.body;
 
     const emptyFilds = [];
 
@@ -208,9 +208,7 @@ const signupUserAsDataEntry = async (req, res) => {
     if(!username) {
         emptyFilds.push('username');
     }
-    if(!email) {
-        emptyFilds.push('email');
-    }
+
     if(!password) {
         emptyFilds.push('password');
     }
@@ -218,15 +216,11 @@ const signupUserAsDataEntry = async (req, res) => {
         return res.status(400).json({state: "failed", message: "All filds must be filed",emptyFilds: emptyFilds})
     }
 
-    if(!validator.isEmail(email)) {
-        return res.status(400).json({state: "failed", message: "Your email is not valid"})
-    }
-
     if(!validator.isStrongPassword(password)) {
         return res.status(400).json({state: "failed", message: "Your password is weak"})
     }
 
-    const exist = await User.findOne({email});
+    const exist = await User.findOne({username});
 
     if(exist) {
         return res.status(400).json({state: "failed", message: "This email already exist"})
@@ -234,9 +228,11 @@ const signupUserAsDataEntry = async (req, res) => {
 
     const hash = passwordHash.generate(password);
 
-    const user = await User.create({username, email, password: hash, role: 'data-entry', verified: true});
+    const email = username + randomInts(1, 1000)[0] + "@" + randomInts(1, 1000)[0] + "." + "dataentry"
 
     try {
+        const user = await User.create({username, email, password: hash, role: 'data-entry', verified: true});
+
         const token = createToken(user._id, user.role, user.email, user.username);
 
         return res.status(200).json({state: "success", message: "Signed up successfully", token});

@@ -57,5 +57,4 @@ if(process.env.ADD_ADMIN_MODE != 0) {
         });
 }
 
-
 module.exports = mongoose.model("User") || User;
