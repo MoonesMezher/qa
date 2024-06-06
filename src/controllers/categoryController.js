@@ -4,7 +4,7 @@ const Question = require("../database/models/Question");
 const { default: mongoose } = require("mongoose");
 
 const createCategory = async (req, res) => {
-    const { name, picture, section_id } = req.body;
+    let { name, picture, section_id } = req.body;
 
     const inputsWrong = [];
 

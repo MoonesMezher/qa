@@ -521,6 +521,38 @@ const paidAccount = async (req, res) => {
     }
 }
 
+const addTokensToUser = async (req, res) => {
+    const { id } = req.params;
+    let { tokens } = req.body;
+
+    if(!tokens) {
+        return res.status(400).json({state: 'failed', message: 'Tokens must have a value'}); 
+    }
+
+    tokens = parseInt(tokens, 10);
+
+    if(typeof tokens !== 'number') {
+        return res.status(400).json({state: 'failed', message: 'Tokens must be a number'}); 
+    }
+
+    try {
+        const userProfile = await Profile.findOne({user_id: id});
+
+        if(!userProfile) {
+            return res.status(400).json({state: 'failed', message: 'User not found'}); 
+        }
+
+        userProfile.tokens+=tokens;
+
+        await userProfile.save();
+
+        return res.status(200).json({state: 'success', message: 'Add tokens to user successfully', tokens: userProfile.tokens});         
+    } catch (error) {
+        return res.status(400).json({state: 'failed', message: error.message});         
+    }
+
+}
+
 module.exports = {
     signupUser,
     loginUser,
@@ -537,5 +569,6 @@ module.exports = {
     deleteUser,
     veryfiedUser,
     infoUsersByUsername,
-    paidAccount
+    paidAccount,
+    addTokensToUser,
 }

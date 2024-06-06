@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 // methods
-const { signupUser, loginUser, logoutUser, infoUsers, infoUser, updateUser, infoUserByRole, signupUserAsGuest, signupUserAsDataEntry, updateDataEntry, activateUser, disActivateUser, deleteUser, veryfiedUser, infoUsersByUsername, paidAccount } = require('../controllers/userController');
+const { signupUser, loginUser, logoutUser, infoUsers, infoUser, updateUser, infoUserByRole, signupUserAsGuest, signupUserAsDataEntry, updateDataEntry, activateUser, disActivateUser, deleteUser, veryfiedUser, infoUsersByUsername, paidAccount, addTokensToUser } = require('../controllers/userController');
 
 // middlewares
 const requireAuth = require('../middlewares/requireAuth');
@@ -44,6 +44,7 @@ router.put('/verified/:email', veryfiedUser);
 
 router.put('/change-to-paid/', [requireAuth, authorize(['user'])], paidAccount);
 
+router.put('/add-tokens/:id', [validateObjectId, requireAuth, authorize(['admin'])], addTokensToUser);
 // DELETE
 router.delete('/:id', [validateObjectId, requireAuth, authorize(['admin'])], deleteUser);
 

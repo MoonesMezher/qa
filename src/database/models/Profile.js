@@ -11,16 +11,16 @@ const Profile = model("Profile", new Schema({
         default: "default.png"
     },
     tokens: {
-        type: String,
-        default: "50"
+        type: Number,
+        default: 50
     },
     country: {
         type: String,
         default: "None",
     },
     exp: {
-        type: String,
-        default: "0"
+        type: Number,
+        default: 0
     },
     description: { 
         type: String, 

@@ -2,15 +2,12 @@ const express = require('express');
 const router = express.Router();
 
 // methods
-const { upload, uploadImage } = require('../controllers/uploadConrtoller');
+const { uploadImage, upload } = require('../controllers/uploadController');
 
 // middlewares
-const requireAuth = require('../middlewares/requireAuth');
-const authorize = require('../middlewares/roleMiddleware');
-
-// Routes
+// routes
 
 // POST
-router.post('/', [requireAuth, authorize(["user", "admin", "data-entry"]), upload.single('image')], uploadImage);
+router.post('/:folder', upload.single("image"), uploadImage);
 
 module.exports = router;

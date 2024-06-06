@@ -21,7 +21,7 @@ router.get('/not-active', [requireAuth, authorize(["admin"])], showAllNotActiveC
 router.get('/:id', [validateObjectId, requireAuth, authorize(["admin", "data-entry", "user", "guest"])], showCategory);
 
 // POST
-router.post('/', [requireAuth, authorize(["admin"])], createCategory);
+router.post('/:folder', [requireAuth, authorize(["admin"])], createCategory);
 
 // PUT
 router.put('/:id', [validateObjectId ,requireAuth, authorize(["admin"])], updateCategory);
