@@ -1,6 +1,7 @@
 const express = require('express');
 const logger = require('morgan')
 const path = require('path');
+const cors = require('cors');
 
 // Routes
 const userRouter = require('./routes/userRoute');
@@ -16,6 +17,8 @@ const app = express();
 
 app.use(logger('dev'));
 app.use(express.json());
+
+app.use(cors());
 
 app.use(express.static(path.join(__dirname, "dist")));
 app.use('/uploads', express.static('src/uploads'));
