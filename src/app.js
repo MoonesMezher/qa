@@ -1,5 +1,6 @@
 const express = require('express');
 const logger = require('morgan')
+const path = require('path');
 
 // Routes
 const userRouter = require('./routes/userRoute');
@@ -16,6 +17,7 @@ const app = express();
 app.use(logger('dev'));
 app.use(express.json());
 
+app.use(express.static(path.join(__dirname, "dist")));
 app.use('/uploads', express.static('src/uploads'));
 // routes
 app.use('/api/upload', uploadRouter)
