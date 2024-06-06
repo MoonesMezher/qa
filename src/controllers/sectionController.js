@@ -1,11 +1,16 @@
 const Category = require("../database/models/Category");
 const Question = require("../database/models/Question");
 const Section = require("../database/models/Section");
+const normalizePath = require("../helpers/normalizePathName");
 
 const createSection = async (req, res) => {
-    const { name, picture } = req.body;
+    const { name } = req.body;
 
     const inputsWrong = [];
+
+    const file = req.file;
+
+    const picture = normalizePath(file);
 
     if(!name) {
         inputsWrong.push('name');
@@ -48,7 +53,15 @@ const createSection = async (req, res) => {
 }
 
 const updateSection = async (req, res) => {
-    const { name, picture } = req.body;
+    let { name } = req.body;
+
+    const file = req.file;
+
+    let picture;
+
+    if(file) {
+        picture = normalizePath(file);
+    }
 
     const { id } = req.params;
 
@@ -64,15 +77,11 @@ const updateSection = async (req, res) => {
         inputsWrong.push('name');
     }
 
-    if(!picture) {
-        inputsWrong.push('picture');
-    }
-
     if(inputsWrong.length > 0) {
-        return res.status(400).send({ state: 'failed', message: 'Picture & Name must have a value', inputsWrong: inputsWrong });
+        return res.status(400).send({ state: 'failed', message: 'Name must have a value', inputsWrong: inputsWrong });
     }
 
-    if(typeof picture !== 'string') {
+    if(picture && typeof picture !== 'string') {
         inputsWrong.push('picture');
     }
 
@@ -92,7 +101,11 @@ const updateSection = async (req, res) => {
     }
 
     try {
-        await Section.findByIdAndUpdate(id ,{ name: name, picture: picture });
+        if(!file) {
+            await Section.findByIdAndUpdate(id ,{ name: name });
+        } else {
+            await Section.findByIdAndUpdate(id ,{ name: name, picture: picture });
+        }
 
         return res.status(200).send({ state: 'success', message: 'Updated section successfully' });
     } catch(err) {

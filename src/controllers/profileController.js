@@ -1,5 +1,6 @@
 const Profile = require("../database/models/Profile");
 const User = require("../database/models/User");
+const normalizePath = require("../helpers/normalizePathName");
 
 const getProfile = async (req, res) => {
     const { id } = req.params;
@@ -18,7 +19,15 @@ const updateProfile = async (req, res) => {
 
     const { description, country } = req.body;
 
-    const data = { description, country };
+    let data = { description, country };
+
+    const file = req.file;
+
+    if(file) {
+        const picture = normalizePath(file);
+
+        data = { description, country, picture };
+    }
 
     const lastProfile = await Profile.findOne({user_id: id});
 
@@ -35,9 +44,9 @@ const updateProfile = async (req, res) => {
     }
 
     try {
-        const profile = await Profile.findByIdAndUpdate(lastProfile._id, data);
+        await Profile.findByIdAndUpdate(lastProfile._id, data);
 
-        return res.status(200).json({state: "success", message: "Get profile successfully",profile: profile});
+        return res.status(200).json({state: "success", message: "Updated profile successfully"});
     } catch (error) {
         return res.status(400).json({state: "failed", message: error.message});        
     }

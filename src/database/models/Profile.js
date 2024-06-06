@@ -8,7 +8,6 @@ const Profile = model("Profile", new Schema({
     },
     picture: {
         type: String,
-        default: "default.png"
     },
     tokens: {
         type: Number,

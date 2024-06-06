@@ -2,6 +2,7 @@ const { default: mongoose } = require("mongoose");
 const Category = require("../database/models/Category");
 const Question = require("../database/models/Question");
 const User = require("../database/models/User");
+const normalizePath = require("../helpers/normalizePathName");
 
 const limit = 50;
 
@@ -112,9 +113,13 @@ const showQuestionsByUser = async (req, res) => {
 }
 
 const createQuestion = async (req, res) => {
-    let { category_ids, type, text, answers, picture, section_id } = req.body;
+    let { category_ids, type, text, answers, section_id } = req.body;
 
     const inputsWrong = [];
+
+    const file = req.file;
+
+    const picture = normalizePath(file);
 
     if(!section_id) {
         inputsWrong.push("section_id");
@@ -225,6 +230,9 @@ const createQuestion = async (req, res) => {
                 inputsWrong.push('answers');
                 return res.status(400).send({ state: 'failed', message: 'Answer field in answers must be a string', inputsWrong: inputsWrong});
             }
+
+            answer.state = Boolean(answer.answer);
+
             if(typeof answer.state !== 'boolean') {
                 answer.state = false;
             }
@@ -254,6 +262,9 @@ const createQuestion = async (req, res) => {
                 inputsWrong.push('answers');
                 return res.status(400).send({ state: 'failed', message: 'Answer field in answers must be a string', inputsWrong: inputsWrong});
             }
+
+            answer.state = Boolean(answer.answer);
+            
             if(typeof answer.state !== 'boolean') {
                 inputsWrong.push('answers');
                 return res.status(400).send({ state: 'failed', message: 'Answer state must be boolean', inputsWrong: inputsWrong});
@@ -283,6 +294,9 @@ const createQuestion = async (req, res) => {
                 inputsWrong.push('answers');
                 return res.status(400).send({ state: 'failed', message: 'Answer field in answers must be a string', inputsWrong: inputsWrong});
             }
+
+            answer.state = Boolean(answer.answer);
+
             if(typeof answer.state !== 'boolean') {
                 answer.state = false;
             }
@@ -311,7 +325,15 @@ const updateQuestion = async (req, res) => {
         return res.status(400).send({ state: 'failed', message: `You cannot access to this action`});
     }
 
-    const { category_ids, type, text, answers, picture, section_id } = req.body;
+    const { category_ids, type, text, answers, section_id } = req.body;
+
+    const file = req.file;
+
+    let picture;
+
+    if(file) {
+        picture = normalizePath(file);
+    }
 
     const inputsWrong = [];
 
@@ -323,10 +345,6 @@ const updateQuestion = async (req, res) => {
     if(!mongoose.Types.ObjectId.isValid(section_id)) {
         inputsWrong.push("section_id");
         return res.status(400).send({ state: 'failed', message: `Section Id does not valid`, inputsWrong: inputsWrong});
-    }
-
-    if(!picture) {
-        inputsWrong.push('picture');
     }
 
     if(!type) {
@@ -345,7 +363,7 @@ const updateQuestion = async (req, res) => {
         return res.status(400).send({ state: 'failed', message: `Type & Text & Answers must have a value`, inputsWrong: inputsWrong});
     }
     
-    if(typeof picture !== 'string') {
+    if(picture && typeof picture !== 'string') {
         inputsWrong.push('picture');
     }
 
@@ -489,7 +507,11 @@ const updateQuestion = async (req, res) => {
     }
 
     try {
-        await Question.findByIdAndUpdate(id ,{ section_id, category_ids, type, text, answers, picture, $push: { user_ids: user_id }});
+        if(file) {
+            await Question.findByIdAndUpdate(id ,{ section_id, category_ids, type, text, answers, picture, $push: { user_ids: user_id }});
+        } else {
+            await Question.findByIdAndUpdate(id ,{ section_id, category_ids, type, text, answers, $push: { user_ids: user_id }});
+        }
 
         return res.status(200).send({ state: 'success', message: `Updated question successfully`});
     } catch (error) {

@@ -9,6 +9,7 @@ const requireAuth = require('../middlewares/requireAuth');
 const authorize = require('../middlewares/roleMiddleware');
 const validateObjectId = require('../middlewares/checkFromIdMiddleware');
 const validatePageParameter = require('../middlewares/checkFromPageKeyMiddleware');
+const { uploadImage, upload, uploadImageWhenUpdate } = require('../middlewares/checkFromImageMiddleware');
 
 // routes
 
@@ -30,14 +31,14 @@ router.get('/user/:id/page/:page', [validateObjectId, validatePageParameter,requ
 router.get('/:id', [validateObjectId,requireAuth, authorize(["admin", "user", "guest", "data-entry"])], showQuestion);
 
 // POST
-router.post('/', [requireAuth, authorize(["admin", "data-entry"])], createQuestion);
+router.post('/:folder', [requireAuth, authorize(["admin", "data-entry"]), upload.single("picture"), uploadImage], createQuestion);
 
 // PUT
 router.put('/activate/:id', [validateObjectId ,requireAuth, authorize(["admin"])], activateQuestion);
 
 router.put('/disactivate/:id', [validateObjectId ,requireAuth, authorize(["admin"])], disactivateQuestion);
 
-router.put('/:id', [validateObjectId ,requireAuth, authorize(["admin", "data-entry"])], updateQuestion);
+router.put('/:id', [validateObjectId ,requireAuth, authorize(["admin", "data-entry"]), upload.single("picture"), uploadImageWhenUpdate], updateQuestion);
 
 // DELETE
 router.delete('/:id', [validateObjectId ,requireAuth, authorize(["admin", "data-entry"])], deleteQuestion);

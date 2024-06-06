@@ -8,6 +8,7 @@ const { showCategory, createCategory, updateCategory, deleteCategory, activateCa
 const requireAuth = require('../middlewares/requireAuth');
 const authorize = require('../middlewares/roleMiddleware');
 const validateObjectId = require('../middlewares/checkFromIdMiddleware');
+const { upload, uploadImage, uploadImageWhenUpdate } = require('../middlewares/checkFromImageMiddleware');
 
 // routes
 
@@ -21,10 +22,10 @@ router.get('/not-active', [requireAuth, authorize(["admin"])], showAllNotActiveC
 router.get('/:id', [validateObjectId, requireAuth, authorize(["admin", "data-entry", "user", "guest"])], showCategory);
 
 // POST
-router.post('/:folder', [requireAuth, authorize(["admin"])], createCategory);
+router.post('/:folder', [requireAuth, authorize(["admin"]) ,upload.single("picture"), uploadImage], createCategory);
 
 // PUT
-router.put('/:id', [validateObjectId ,requireAuth, authorize(["admin"])], updateCategory);
+router.put('/:id', [validateObjectId ,requireAuth, authorize(["admin"]), upload.single("picture"), uploadImageWhenUpdate], updateCategory);
 
 router.put('/activate/:id', [validateObjectId ,requireAuth, authorize(["admin"])], activateCategory);
 

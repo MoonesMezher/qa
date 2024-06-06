@@ -2,10 +2,15 @@ const Category = require("../database/models/Category");
 const Section = require("../database/models/Section");
 const Question = require("../database/models/Question");
 const { default: mongoose } = require("mongoose");
+const normalizePath = require("../helpers/normalizePathName");
 
 const createCategory = async (req, res) => {
-    let { name, picture, section_id } = req.body;
+    let { name, section_id } = req.body;
 
+    const file = req.file;
+
+    const picture = normalizePath(file);
+    
     const inputsWrong = [];
 
     if(!section_id) {
@@ -57,7 +62,15 @@ const createCategory = async (req, res) => {
 }
 
 const updateCategory = async (req, res) => {
-    const { name, picture, section_id } = req.body;
+    const { name, section_id } = req.body;
+
+    const file = req.file;
+
+    let picture;
+
+    if(file) {
+        picture = normalizePath(file);
+    }
 
     if(!section_id) {
         return res.status(400).send({ state: 'failed', message: 'Section Id cannot be empty' });        
@@ -81,15 +94,11 @@ const updateCategory = async (req, res) => {
         inputsWrong.push('name');
     }
 
-    if(!picture) {
-        inputsWrong.push('picture');
-    }
-
     if(inputsWrong.length > 0) {
-        return res.status(400).send({ state: 'failed', message: 'Picture & Name must have a value', inputsWrong: inputsWrong });
+        return res.status(400).send({ state: 'failed', message: 'Name must have a value', inputsWrong: inputsWrong });
     }
 
-    if(typeof picture !== 'string') {
+    if(picture && typeof picture !== 'string') {
         inputsWrong.push('picture');
     }
 
@@ -109,7 +118,11 @@ const updateCategory = async (req, res) => {
     }
 
     try {
-        await Category.findByIdAndUpdate(id ,{ name: name, picture: picture, section_id: section_id });
+        if(file) {
+            await Category.findByIdAndUpdate(id ,{ name, picture, section_id });
+        } else {
+            await Category.findByIdAndUpdate(id ,{ name, section_id });
+        }
 
         return res.status(200).send({ state: 'success', message: 'Updated category successfully' });
     } catch(err) {

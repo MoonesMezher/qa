@@ -1,5 +1,6 @@
 const Offer = require("../database/models/Offer");
 const Profile = require("../database/models/Profile");
+const normalizePath = require("../helpers/normalizePathName");
 
 const showOffer = async (req, res) => {
     const { id } = req.params;
@@ -28,9 +29,13 @@ const showOffers = async (req, res) => {
 }
 
 const createOffer = async (req, res) => {
-    const { name, description, tokens, price, picture } = req.body;
+    let { name, description, tokens, price } = req.body;
 
     const inputsWorng = [];
+
+    const file = req.file;
+
+    const picture = normalizePath(file);
 
     if(!name) {
         inputsWorng.push('name');
@@ -59,6 +64,8 @@ const createOffer = async (req, res) => {
     if(typeof name !== 'string') {
         return res.status(400).json({state: 'failed', message: 'Name must be a string', field: 'name'});        
     }
+
+    tokens = parseInt(tokens, 10);
 
     if(typeof tokens !== 'number') {
         return res.status(400).json({state: 'failed', message: 'Tokens must be a number', field: 'tokens'});        
@@ -94,7 +101,15 @@ const updateOffer = async (req, res) => {
         return res.status(400).json({state: 'failed', message: 'This offer does not exist'});                 
     }
 
-    const { name, description, tokens, price, picture } = req.body;
+    const { name, description, tokens, price } = req.body;
+
+    const file = req.file;
+
+    let picture;
+
+    if(file) {
+        picture = normalizePath(file)
+    }
 
     const inputsWorng = [];
 
@@ -108,10 +123,6 @@ const updateOffer = async (req, res) => {
 
     if(!price) {
         inputsWorng.push('price');
-    }
-
-    if(!picture) {
-        inputsWorng.push('picture');
     }
 
     if(!description) {
@@ -134,7 +145,7 @@ const updateOffer = async (req, res) => {
         return res.status(400).json({state: 'failed', message: 'Price must be a string', field: 'price'});        
     }
 
-    if(typeof picture !== 'string') {
+    if(picture && typeof picture !== 'string') {
         return res.status(400).json({state: 'failed', message: 'Picture must be a string', field: 'picture'});        
     }
 
@@ -143,7 +154,11 @@ const updateOffer = async (req, res) => {
     }
 
     try {
-        await Offer.findByIdAndUpdate(id, { name, description, price, tokens, picture});
+        if(file) {
+            await Offer.findByIdAndUpdate(id, { name, description, price, tokens, picture});
+        } else {
+            await Offer.findByIdAndUpdate(id, { name, description, price, tokens });
+        }
 
         return res.status(200).json({state: 'success', message: 'Updated offer successfully'});        
     } catch (error) {

@@ -1,4 +1,5 @@
 const express = require('express');
+
 const logger = require('morgan')
 const path = require('path');
 const cors = require('cors');
@@ -11,7 +12,6 @@ const categoryRouter = require('./routes/categoryRoute');
 const questionRouter = require('./routes/questionRoute');
 const offerRouter = require('./routes/offerRoute');
 const reportRouter = require('./routes/reportRoute');
-const uploadRouter = require('./routes/uploadRoute');
 
 const app = express();
 
@@ -22,8 +22,8 @@ app.use(cors());
 
 app.use(express.static(path.join(__dirname, "dist")));
 app.use('/uploads', express.static('src/uploads'));
+
 // routes
-app.use('/api/upload', uploadRouter)
 app.use('/api/users',userRouter);
 app.use('/api/profile',profileRouter);
 app.use('/api/sections',sectionRouter);
