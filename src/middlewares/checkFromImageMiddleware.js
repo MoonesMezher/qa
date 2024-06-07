@@ -1,4 +1,4 @@
-// const array_of_allowed_files = ['png', 'jpeg', 'jpg', 'webp'];
+const array_of_allowed_files = ['png', 'jpeg', 'jpg', 'webp'];
 // const array_of_allowed_file_types = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
 
 const multer = require('multer');
@@ -49,9 +49,9 @@ const uploadImage = async (req, res, next) => {
     const fileExtension = file.originalname.slice(
         ((file.originalname.lastIndexOf('.') - 1) >>> 0) + 2
     );
-    // if (!array_of_allowed_files.includes(fileExtension) || !array_of_allowed_file_types.includes(file.mimetype)) {
-    //     return res.status(400).json({ state: "failed", message: "Invalid file type" })        
-    // }
+    if (!array_of_allowed_files.includes(fileExtension)) {
+        return res.status(400).json({ state: "failed", message: "Invalid file type" })        
+    }
     // // Additional check to ensure the file is an image file
     // if (!file.mimetype.startsWith('image/')) {
     //     return res.status(400).json({ state: "failed", message: "Invalid image file" })        
@@ -84,9 +84,9 @@ const uploadImageWhenUpdate = async (req, res, next) => {
             return res.status(400).json({ state: "failed", message: "Invalid file type" })        
         }
         // Additional check to ensure the file is an image file
-        if (!file.mimetype.startsWith('image/')) {
-            return res.status(400).json({ state: "failed", message: "Invalid image file" })        
-        }
+        // if (!file.mimetype.startsWith('image/')) {
+        //     return res.status(400).json({ state: "failed", message: "Invalid image file" })        
+        // }
 
         next();
     }

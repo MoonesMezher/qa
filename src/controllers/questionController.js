@@ -113,13 +113,9 @@ const showQuestionsByUser = async (req, res) => {
 }
 
 const createQuestion = async (req, res) => {
-    let { category_ids, type, text, answers, section_id } = req.body;
+    let { category_ids, type, text, answers, picture, section_id } = req.body;
 
     const inputsWrong = [];
-
-    const file = req.file;
-
-    const picture = normalizePath(file);
 
     if(!section_id) {
         inputsWrong.push("section_id");
@@ -325,15 +321,7 @@ const updateQuestion = async (req, res) => {
         return res.status(400).send({ state: 'failed', message: `You cannot access to this action`});
     }
 
-    const { category_ids, type, text, answers, section_id } = req.body;
-
-    const file = req.file;
-
-    let picture;
-
-    if(file) {
-        picture = normalizePath(file);
-    }
+    const { category_ids, type, text, answers, section_id, picture } = req.body;
 
     const inputsWrong = [];
 
@@ -507,7 +495,7 @@ const updateQuestion = async (req, res) => {
     }
 
     try {
-        if(file) {
+        if(picture) {
             await Question.findByIdAndUpdate(id ,{ section_id, category_ids, type, text, answers, picture, $push: { user_ids: user_id }});
         } else {
             await Question.findByIdAndUpdate(id ,{ section_id, category_ids, type, text, answers, $push: { user_ids: user_id }});
