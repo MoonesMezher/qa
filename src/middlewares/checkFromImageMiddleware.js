@@ -27,69 +27,17 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
-const uploadImage = async (req, res, next) => {
-    const file = req.file;
+const isImage = (req, res, next) => {
+    const { picture } = req.body
 
-    console.log(file)
-
-    const { folder } = req.params;
-
-    if(!folder) {
-        return res.status(400).json({ state: "failed", message: "You must select a folder" })        
+    if(picture) {
+        const fileExtension = picture.split(".")[picture.split(".").length - 1];
+    
+        if (!array_of_allowed_files.includes(fileExtension)) {
+            return res.status(400).json({ state: "failed", message: "Invalid image type" })        
+        }
     }
-
-    if(!['questions', 'offers', 'category','section', 'profile'].includes(folder)) {
-        return res.status(400).json({ state: "failed", message: "Invalid folder name" })        
-    }
-
-    if(!file) {
-        return res.status(400).json({ state: "failed", message: "You must select a file as picture" })        
-    }
-
-    const fileExtension = file.originalname.slice(
-        ((file.originalname.lastIndexOf('.') - 1) >>> 0) + 2
-    );
-    if (!array_of_allowed_files.includes(fileExtension)) {
-        return res.status(400).json({ state: "failed", message: "Invalid file type" })        
-    }
-    // // Additional check to ensure the file is an image file
-    // if (!file.mimetype.startsWith('image/')) {
-    //     return res.status(400).json({ state: "failed", message: "Invalid image file" })        
-    // }
-
-    next();
+    next();    
 }
 
-const uploadImageWhenUpdate = async (req, res, next) => {
-    const file = req.file;
-
-    if(!file) {
-        next();
-    } else {    
-        const { folder } = req.params;
-        
-        if(!folder) {
-            return res.status(400).json({ state: "failed", message: "You must select a folder" })        
-        }
-
-        if(!['questions', 'offers', 'category','section', 'profile'].includes(folder)) {
-            return res.status(400).json({ state: "failed", message: "Invalid folder name" })        
-        }
-
-        const fileExtension = file.originalname.slice(
-            ((file.originalname.lastIndexOf('.') - 1) >>> 0) + 2
-        );
-
-        if (!array_of_allowed_files.includes(fileExtension) || !array_of_allowed_file_types.includes(file.mimetype)) {
-            return res.status(400).json({ state: "failed", message: "Invalid file type" })        
-        }
-        // Additional check to ensure the file is an image file
-        // if (!file.mimetype.startsWith('image/')) {
-        //     return res.status(400).json({ state: "failed", message: "Invalid image file" })        
-        // }
-
-        next();
-    }
-}
-
-module.exports = { upload, uploadImage, uploadImageWhenUpdate };
+module.exports = { upload, isImage };

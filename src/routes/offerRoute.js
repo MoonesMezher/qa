@@ -8,7 +8,7 @@ const { showOffer, showOffers, createOffer, updateOffer, activateOffer, disactiv
 const requireAuth = require('../middlewares/requireAuth');
 const authorize = require('../middlewares/roleMiddleware');
 const validateObjectId = require('../middlewares/checkFromIdMiddleware');
-const { upload, uploadImage, uploadImageWhenUpdate } = require('../middlewares/checkFromImageMiddleware');
+const { isImage } = require('../middlewares/checkFromImageMiddleware');
 
 // routes
 
@@ -18,12 +18,12 @@ router.get('/', [requireAuth, authorize(["admin", "user", "guest"])], showOffers
 router.get('/:id', [validateObjectId, requireAuth, authorize(["admin", "user", "guest"])], showOffer);
 
 // POST
-router.post('/:folder', [requireAuth, authorize(["admin"]), upload.single("picture"), uploadImage], createOffer);
+router.post('/:folder', [requireAuth, authorize(["admin"]), isImage], createOffer);
 
 // PUT
 router.put('/add-tokens-to-user/offer/:id', [validateObjectId, requireAuth, authorize(["user"])], addTokensToUserAfterBuyOffer);
 
-router.put('/:id', [validateObjectId ,requireAuth, authorize(["admin"]), upload.single("picture"), uploadImageWhenUpdate], updateOffer);
+router.put('/:id', [validateObjectId ,requireAuth, authorize(["admin"]), isImage], updateOffer);
 
 router.put('/activate/:id', [validateObjectId ,requireAuth, authorize(["admin"])], activateOffer);
 

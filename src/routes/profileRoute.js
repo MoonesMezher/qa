@@ -8,7 +8,7 @@ const { getProfile, updateProfile, showTopUsersByExp, showTopUsersByExpDepandLas
 const requireAuth = require('../middlewares/requireAuth');
 const authorize = require('../middlewares/roleMiddleware');
 const validateObjectId = require('../middlewares/checkFromIdMiddleware');
-const { upload, uploadImage, uploadImageWhenUpdate } = require('../middlewares/checkFromImageMiddleware');
+const { isImage } = require('../middlewares/checkFromImageMiddleware');
 
 // routes
 
@@ -24,6 +24,6 @@ router.get('/top-users/last-day', [requireAuth, authorize(["admin", "user"])], s
 router.get('/:id', [validateObjectId, requireAuth, authorize(["user", "guest"])], getProfile);
 
 // PUT
-router.put('/update/:id/:folder', [validateObjectId, requireAuth, authorize(["user"]), upload.single("picture"), uploadImageWhenUpdate], updateProfile);
+router.put('/update/:id/:folder', [validateObjectId, requireAuth, authorize(["user"]), isImage], updateProfile);
 
 module.exports = router;

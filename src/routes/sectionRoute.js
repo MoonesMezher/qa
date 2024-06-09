@@ -8,7 +8,7 @@ const { showSection, showAllActiveSections, showAllNotActiveSections, createSect
 const requireAuth = require('../middlewares/requireAuth');
 const authorize = require('../middlewares/roleMiddleware');
 const validateObjectId = require('../middlewares/checkFromIdMiddleware');
-const { uploadImage, upload, uploadImageWhenUpdate } = require('../middlewares/checkFromImageMiddleware');
+const { isImage } = require('../middlewares/checkFromImageMiddleware');
 
 // routes
 
@@ -24,10 +24,10 @@ router.get('/not-active', [requireAuth, authorize(["admin"])], showAllNotActiveS
 router.get('/:id', [validateObjectId, requireAuth, authorize(["admin", "data-entry", "user", "guest"])], showSection);
 
 // POST
-router.post('/:folder', [requireAuth, authorize(["admin"]), upload.single("picture"), uploadImage], createSection);
+router.post('/:folder', [requireAuth, authorize(["admin"]), isImage], createSection);
 
 // PUT
-router.put('/:id', [validateObjectId ,requireAuth, authorize(["admin"]), upload.single("picture"), uploadImageWhenUpdate], updateSection);
+router.put('/:id', [validateObjectId ,requireAuth, authorize(["admin"]), isImage], updateSection);
 
 router.put('/activate/:id', [validateObjectId ,requireAuth, authorize(["admin"])], activateSection);
 

@@ -29,13 +29,9 @@ const showOffers = async (req, res) => {
 }
 
 const createOffer = async (req, res) => {
-    let { name, description, tokens, price } = req.body;
+    let { name, description, tokens, price, picture } = req.body;
 
     const inputsWorng = [];
-
-    const file = req.file;
-
-    const picture = normalizePath(file);
 
     if(!name) {
         inputsWorng.push('name');
@@ -101,15 +97,7 @@ const updateOffer = async (req, res) => {
         return res.status(400).json({state: 'failed', message: 'This offer does not exist'});                 
     }
 
-    const { name, description, tokens, price } = req.body;
-
-    const file = req.file;
-
-    let picture;
-
-    if(file) {
-        picture = normalizePath(file)
-    }
+    const { name, description, tokens, price, picture } = req.body;
 
     const inputsWorng = [];
 
@@ -154,7 +142,7 @@ const updateOffer = async (req, res) => {
     }
 
     try {
-        if(file) {
+        if(picture) {
             await Offer.findByIdAndUpdate(id, { name, description, price, tokens, picture});
         } else {
             await Offer.findByIdAndUpdate(id, { name, description, price, tokens });

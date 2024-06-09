@@ -17,15 +17,11 @@ const getProfile = async (req, res) => {
 const updateProfile = async (req, res) => {
     const { id } = req.params;
 
-    const { description, country } = req.body;
+    const { description, country, picture } = req.body;
 
     let data = { description, country };
 
-    const file = req.file;
-
-    if(file) {
-        const picture = normalizePath(file);
-
+    if(picture) {
         data = { description, country, picture };
     }
 

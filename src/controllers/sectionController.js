@@ -4,13 +4,9 @@ const Section = require("../database/models/Section");
 const normalizePath = require("../helpers/normalizePathName");
 
 const createSection = async (req, res) => {
-    const { name } = req.body;
+    const { name, picture } = req.body;
 
     const inputsWrong = [];
-
-    const file = req.file;
-
-    const picture = normalizePath(file);
 
     if(!name) {
         inputsWrong.push('name');
@@ -53,15 +49,9 @@ const createSection = async (req, res) => {
 }
 
 const updateSection = async (req, res) => {
-    let { name } = req.body;
+    let { name, picture } = req.body;
 
     const file = req.file;
-
-    let picture;
-
-    if(file) {
-        picture = normalizePath(file);
-    }
 
     const { id } = req.params;
 
@@ -101,7 +91,7 @@ const updateSection = async (req, res) => {
     }
 
     try {
-        if(!file) {
+        if(!picture) {
             await Section.findByIdAndUpdate(id ,{ name: name });
         } else {
             await Section.findByIdAndUpdate(id ,{ name: name, picture: picture });
@@ -140,11 +130,13 @@ const showSection = async (req, res) => {
 
     const section = await Section.findById(id);
 
+    const questions = await Question.countDocuments({ section_id: id });
+
     if(!section) {
         return res.status(400).send({ state: 'failed', message: 'This section doesnot exist' });
     }
 
-    return res.status(200).send({ state: 'success', message: 'Get section successfully', section: section });
+    return res.status(200).send({ state: 'success', message: 'Get section successfully', section: section, count_questions: questions });
 }
 
 const showSections = async (req, res) => {

@@ -2,14 +2,9 @@ const Category = require("../database/models/Category");
 const Section = require("../database/models/Section");
 const Question = require("../database/models/Question");
 const { default: mongoose } = require("mongoose");
-const normalizePath = require("../helpers/normalizePathName");
 
 const createCategory = async (req, res) => {
-    let { name, section_id } = req.body;
-
-    const file = req.file;
-
-    const picture = normalizePath(file);
+    let { name, section_id, picture } = req.body;
     
     const inputsWrong = [];
 
@@ -62,15 +57,7 @@ const createCategory = async (req, res) => {
 }
 
 const updateCategory = async (req, res) => {
-    const { name, section_id } = req.body;
-
-    const file = req.file;
-
-    let picture;
-
-    if(file) {
-        picture = normalizePath(file);
-    }
+    const { name, section_id, picture } = req.body;
 
     if(!section_id) {
         return res.status(400).send({ state: 'failed', message: 'Section Id cannot be empty' });        
@@ -118,7 +105,7 @@ const updateCategory = async (req, res) => {
     }
 
     try {
-        if(file) {
+        if(picture) {
             await Category.findByIdAndUpdate(id ,{ name, picture, section_id });
         } else {
             await Category.findByIdAndUpdate(id ,{ name, section_id });
@@ -161,11 +148,13 @@ const showCategory = async (req, res) => {
 
     const category = await Category.findById(id);
 
+    const questions = await Question.countDocuments({ category_ids: { $in: category._id } });
+
     if(!category) {
         return res.status(400).send({ state: 'failed', message: 'This category doesnot exist' });
     }
 
-    return res.status(200).send({ state: 'success', message: 'Get category successfully', category: category });
+    return res.status(200).send({ state: 'success', message: 'Get category successfully', category: category, questions_count: questions });
 }
 
 const showCategoryBySection = async (req, res) => {

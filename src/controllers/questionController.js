@@ -444,9 +444,9 @@ const updateQuestion = async (req, res) => {
     }
 
     if(type === 'true-false') {
-        if(answers.length != 2) {
+        if(answers.length != 1) {
             inputsWrong.push('answers');
-            return res.status(400).send({ state: 'failed', message: 'True an False question accept 2 answers only', inputsWrong: inputsWrong});
+            return res.status(400).send({ state: 'failed', message: 'True an False question accept 1 answers only', inputsWrong: inputsWrong});
         }
 
         let trueAnswers = 0;
