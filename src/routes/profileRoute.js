@@ -24,6 +24,6 @@ router.get('/top-users/last-day', [requireAuth, authorize(["admin", "user"])], s
 router.get('/:id', [validateObjectId, requireAuth, authorize(["user", "guest"])], getProfile);
 
 // PUT
-router.put('/update/:id/:folder', [validateObjectId, requireAuth, authorize(["user"]), isImage], updateProfile);
+router.put('/update/:id/', [validateObjectId, requireAuth, authorize(["user"]), isImage], updateProfile);
 
 module.exports = router;

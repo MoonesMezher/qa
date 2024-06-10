@@ -22,7 +22,7 @@ router.get('/not-active', [requireAuth, authorize(["admin"])], showAllNotActiveC
 router.get('/:id', [validateObjectId, requireAuth, authorize(["admin", "data-entry", "user", "guest"])], showCategory);
 
 // POST
-router.post('/:folder', [requireAuth, authorize(["admin"]), isImage], createCategory);
+router.post('/', [requireAuth, authorize(["admin"]), isImage], createCategory);
 
 // PUT
 router.put('/:id', [validateObjectId ,requireAuth, authorize(["admin"]), isImage], updateCategory);

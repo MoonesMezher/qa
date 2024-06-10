@@ -24,7 +24,7 @@ router.get('/not-active', [requireAuth, authorize(["admin"])], showAllNotActiveS
 router.get('/:id', [validateObjectId, requireAuth, authorize(["admin", "data-entry", "user", "guest"])], showSection);
 
 // POST
-router.post('/:folder', [requireAuth, authorize(["admin"]), isImage], createSection);
+router.post('/', [requireAuth, authorize(["admin"]), isImage], createSection);
 
 // PUT
 router.put('/:id', [validateObjectId ,requireAuth, authorize(["admin"]), isImage], updateSection);

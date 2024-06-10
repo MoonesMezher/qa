@@ -30,7 +30,7 @@ router.get('/user/:id/page/:page', [validateObjectId, validatePageParameter,requ
 router.get('/:id', [validateObjectId,requireAuth, authorize(["admin", "user", "guest", "data-entry"])], showQuestion);
 
 // POST
-router.post('/:folder', [requireAuth, authorize(["admin", "data-entry"], isImage)], createQuestion);
+router.post('/', [requireAuth, authorize(["admin", "data-entry"], isImage)], createQuestion);
 
 // PUT
 router.put('/activate/:id', [validateObjectId ,requireAuth, authorize(["admin"])], activateQuestion);

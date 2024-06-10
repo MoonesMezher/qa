@@ -516,6 +516,8 @@ const deleteQuestion = async (req, res) => {
 
     const question = await Question.findById(id);
 
+    console.log(question);
+
     if(!question) {
         return res.status(400).send({ state: 'failed', message: 'This question is already not exist'});
     }

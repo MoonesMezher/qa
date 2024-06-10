@@ -18,7 +18,7 @@ router.get('/', [requireAuth, authorize(["admin", "user", "guest"])], showOffers
 router.get('/:id', [validateObjectId, requireAuth, authorize(["admin", "user", "guest"])], showOffer);
 
 // POST
-router.post('/:folder', [requireAuth, authorize(["admin"]), isImage], createOffer);
+router.post('/', [requireAuth, authorize(["admin"]), isImage], createOffer);
 
 // PUT
 router.put('/add-tokens-to-user/offer/:id', [validateObjectId, requireAuth, authorize(["user"])], addTokensToUserAfterBuyOffer);
