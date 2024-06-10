@@ -97,7 +97,7 @@ const updateCategory = async (req, res) => {
         return res.status(400).send({ state: 'failed', message: 'Picture & Name must be a string', inputsWrong: inputsWrong });
     }
 
-    const category = await Category.findOne({ name: name, section_id: section_id });
+    const category = await Category.findOne({ name: name, section_id: section_id, _id: { $ne: id } });
 
     if(category) {
         inputsWrong.push('name');
