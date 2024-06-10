@@ -105,13 +105,14 @@ const updateCategory = async (req, res) => {
     }
 
     try {
+        let category;
         if(picture) {
-            await Category.findByIdAndUpdate(id ,{ name, picture, section_id });
+            category = await Category.findByIdAndUpdate(id ,{ name, picture, section_id });
         } else {
-            await Category.findByIdAndUpdate(id ,{ name, section_id });
+            category = await Category.findByIdAndUpdate(id ,{ name, section_id });
         }
 
-        return res.status(200).send({ state: 'success', message: 'Updated category successfully' });
+        return res.status(200).send({ state: 'success', message: 'Updated category successfully', category});
     } catch(err) {
         return res.status(400).send({ state: 'failed', message: err.message });
     }
@@ -169,6 +170,20 @@ const showCategoryBySection = async (req, res) => {
     const categorys = await Category.find({ section_id: sectionObj._id });
 
     return res.status(200).send({ state: 'success', message: 'Get categorys successfully', categorys: categorys });
+}
+
+const showCategoryByWord = async (req, res) => {
+    const { word } = req.params;
+
+    try {
+        const regex = new RegExp(`.*${word}.*`, "i");
+
+        const categorys = await Category.find({ name: { $regex: regex } });
+        
+        return res.status(200).send({ state: 'success', message: `Get categorys has word: ${word} successfully`, categorys: categorys });
+    } catch (error) {        
+        return res.status(400).send({ state: 'failed', message: error.message});
+    }
 }
 
 const showAllActiveCategorys = async (req, res) => {
@@ -244,5 +259,6 @@ module.exports = {
     showAllActiveCategorys,
     showAllNotActiveCategorys,
     activateCategory,
-    disactivateCategory
+    disactivateCategory,
+    showCategoryByWord
 }

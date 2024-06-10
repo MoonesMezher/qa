@@ -495,13 +495,14 @@ const updateQuestion = async (req, res) => {
     }
 
     try {
+        let question;
         if(picture) {
-            await Question.findByIdAndUpdate(id ,{ section_id, category_ids, type, text, answers, picture, $push: { user_ids: user_id }});
+            question = await Question.findByIdAndUpdate(id ,{ section_id, category_ids, type, text, answers, picture, $push: { user_ids: user_id }});
         } else {
-            await Question.findByIdAndUpdate(id ,{ section_id, category_ids, type, text, answers, $push: { user_ids: user_id }});
+            question = await Question.findByIdAndUpdate(id ,{ section_id, category_ids, type, text, answers, $push: { user_ids: user_id }});
         }
 
-        return res.status(200).send({ state: 'success', message: `Updated question successfully`});
+        return res.status(200).send({ state: 'success', message: `Updated question successfully`, question});
     } catch (error) {
         return res.status(400).send({ state: 'failed', message: error.message });        
     }

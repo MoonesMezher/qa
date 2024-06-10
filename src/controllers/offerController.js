@@ -142,13 +142,14 @@ const updateOffer = async (req, res) => {
     }
 
     try {
+        let offer;
         if(picture) {
-            await Offer.findByIdAndUpdate(id, { name, description, price, tokens, picture});
+            offer = await Offer.findByIdAndUpdate(id, { name, description, price, tokens, picture});
         } else {
-            await Offer.findByIdAndUpdate(id, { name, description, price, tokens });
+            offer = await Offer.findByIdAndUpdate(id, { name, description, price, tokens });
         }
 
-        return res.status(200).json({state: 'success', message: 'Updated offer successfully'});        
+        return res.status(200).json({state: 'success', message: 'Updated offer successfully', offer});        
     } catch (error) {
         return res.status(400).json({state: 'failed', message: error.message});                
     }

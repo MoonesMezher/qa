@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 // methods
-const { showCategory, createCategory, updateCategory, deleteCategory, activateCategory, disactivateCategory, showAllActiveCategorys, showAllNotActiveCategorys, showCategoryBySection } = require('../controllers/categoryController');
+const { showCategoryByWord, showCategory, createCategory, updateCategory, deleteCategory, activateCategory, disactivateCategory, showAllActiveCategorys, showAllNotActiveCategorys, showCategoryBySection } = require('../controllers/categoryController');
 
 // middlewares
 const requireAuth = require('../middlewares/requireAuth');
@@ -14,6 +14,8 @@ const { isImage } = require('../middlewares/checkFromImageMiddleware');
 
 // GET
 router.get('/filter-by-section/:section', [requireAuth, authorize(["admin", "data-entry"])], showCategoryBySection);
+
+router.get('/filter-by-word/:word', [requireAuth, authorize(["admin", "data-entry"])], showCategoryByWord);
 
 router.get('/active', [requireAuth, authorize(["admin", "data-entry", "user", "guest"])], showAllActiveCategorys);
 

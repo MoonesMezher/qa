@@ -40,9 +40,9 @@ const updateProfile = async (req, res) => {
     }
 
     try {
-        await Profile.findByIdAndUpdate(lastProfile._id, data);
+        const profile = await Profile.findByIdAndUpdate(id, data);
 
-        return res.status(200).json({state: "success", message: "Updated profile successfully"});
+        return res.status(200).json({state: "success", message: "Updated profile successfully", profile});
     } catch (error) {
         return res.status(400).json({state: "failed", message: error.message});        
     }

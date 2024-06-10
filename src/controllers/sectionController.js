@@ -51,8 +51,6 @@ const createSection = async (req, res) => {
 const updateSection = async (req, res) => {
     let { name, picture } = req.body;
 
-    const file = req.file;
-
     const { id } = req.params;
 
     const isExist = await Section.findById(id);
@@ -91,13 +89,14 @@ const updateSection = async (req, res) => {
     }
 
     try {
+        let section;
         if(!picture) {
-            await Section.findByIdAndUpdate(id ,{ name: name });
+            section = await Section.findByIdAndUpdate(id ,{ name: name });
         } else {
-            await Section.findByIdAndUpdate(id ,{ name: name, picture: picture });
+            section = await Section.findByIdAndUpdate(id ,{ name: name, picture: picture });
         }
 
-        return res.status(200).send({ state: 'success', message: 'Updated section successfully' });
+        return res.status(200).send({ state: 'success', message: 'Updated section successfully', section });
     } catch(err) {
         return res.status(400).send({ state: 'failed', message: err.message });
     }
