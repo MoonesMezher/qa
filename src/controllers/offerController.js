@@ -144,9 +144,9 @@ const updateOffer = async (req, res) => {
     try {
         let offer;
         if(picture) {
-            offer = await Offer.findByIdAndUpdate(id, { name, description, price, tokens, picture});
+            offer = await Offer.findByIdAndUpdate(id, { name, description, price, tokens, picture},{ new: true });
         } else {
-            offer = await Offer.findByIdAndUpdate(id, { name, description, price, tokens });
+            offer = await Offer.findByIdAndUpdate(id, { name, description, price, tokens }, { new: true });
         }
 
         return res.status(200).json({state: 'success', message: 'Updated offer successfully', offer});        

@@ -107,9 +107,9 @@ const updateCategory = async (req, res) => {
     try {
         let category;
         if(picture) {
-            category = await Category.findByIdAndUpdate(id ,{ name, picture, section_id });
+            category = await Category.findByIdAndUpdate(id ,{ name, picture, section_id }, { new: true });
         } else {
-            category = await Category.findByIdAndUpdate(id ,{ name, section_id });
+            category = await Category.findByIdAndUpdate(id ,{ name, section_id }, { new: true });
         }
 
         return res.status(200).send({ state: 'success', message: 'Updated category successfully', category});

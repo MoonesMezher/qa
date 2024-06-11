@@ -81,7 +81,7 @@ const updateSection = async (req, res) => {
         return res.status(400).send({ state: 'failed', message: 'Picture & Name must be a string', inputsWrong: inputsWrong });
     }
 
-    const section = await Section.findOne({ name: name });
+    const section = await Section.findOne({ name: name, _id :{ $ne: id } });
 
     if(section) {
         inputsWrong.push('name');
@@ -91,9 +91,9 @@ const updateSection = async (req, res) => {
     try {
         let section;
         if(!picture) {
-            section = await Section.findByIdAndUpdate(id ,{ name: name });
+            section = await Section.findByIdAndUpdate(id ,{ name: name }, { new: true });
         } else {
-            section = await Section.findByIdAndUpdate(id ,{ name: name, picture: picture });
+            section = await Section.findByIdAndUpdate(id ,{ name: name, picture: picture }, { new: true });
         }
 
         return res.status(200).send({ state: 'success', message: 'Updated section successfully', section });

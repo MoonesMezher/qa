@@ -497,9 +497,9 @@ const updateQuestion = async (req, res) => {
     try {
         let question;
         if(picture) {
-            question = await Question.findByIdAndUpdate(id ,{ section_id, category_ids, type, text, answers, picture, $push: { user_ids: user_id }});
+            question = await Question.findByIdAndUpdate(id ,{ section_id, category_ids, type, text, answers, picture, $push: { user_ids: user_id }}, { new: true });
         } else {
-            question = await Question.findByIdAndUpdate(id ,{ section_id, category_ids, type, text, answers, $push: { user_ids: user_id }});
+            question = await Question.findByIdAndUpdate(id ,{ section_id, category_ids, type, text, answers, $push: { user_ids: user_id }}, { new: true });
         }
 
         return res.status(200).send({ state: 'success', message: `Updated question successfully`, question});
