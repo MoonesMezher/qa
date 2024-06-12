@@ -182,8 +182,6 @@ const infoUserByRole = async (req, res) => {
         return res.status(400).json({state: "failed", message: 'This data is secure'})        
     }
 
-    console.log(role);
-
     if(!(role == 'guest' || role == 'user' || role == 'data-entry')) {
         return res.status(400).json({state: "failed", message: "This role doesnot exist"})
     }

@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 // methods
-const { showQuestion, showQuestions, showAllActiveQuestions, showAllNotActiveQuestions, showQuestionsByUser, showQuestionsByType, showQuestionsByWord, createQuestion, updateQuestion, activateQuestion, disactivateQuestion, deleteQuestion, showDataEntryQuestions, showQuestionsByTypeForOneUser, showQuestionsByTypeForOneUserWithFilter } = require('../controllers/questionController');
+const { showQuestion, showQuestions, showAllActiveQuestions, showAllNotActiveQuestions, showQuestionsByUser, showQuestionsByType, showQuestionsByWord, createQuestion, updateQuestion, activateQuestion, disactivateQuestion, deleteQuestion, showDataEntryQuestions, showQuestionsByTypeForOneUser, showQuestionsByTypeForOneUserWithFilter, showQuestionsForOneUserWithFilter } = require('../controllers/questionController');
 
 // middlewares
 const requireAuth = require('../middlewares/requireAuth');
@@ -26,6 +26,8 @@ router.get('/type/:type/page/:page', [validateObjectId, validatePageParameter,re
 router.get('/id/:id/type/:type/page/:page', [validateObjectId, validatePageParameter,requireAuth, authorize(["admin"])], showQuestionsByTypeForOneUser);
 
 router.get('/id/:id/type/:type/word/:word/page/:page', [validateObjectId, validatePageParameter, requireAuth, authorize(["admin"])], showQuestionsByTypeForOneUserWithFilter);
+
+router.get('/id/:id/word/:word/page/:page', [validateObjectId, validatePageParameter, requireAuth, authorize(["admin"])], showQuestionsForOneUserWithFilter);
 
 router.get('/word/:word/page/:page', [validatePageParameter,requireAuth, authorize(["admin"])], showQuestionsByWord);
 

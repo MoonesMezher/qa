@@ -112,6 +112,10 @@ const showQuestionsByTypeForOneUserWithFilter = async (req, res) => {
         return res.status(400).send({ state: 'failed', message: `Type as attribute must be a string` });
     }
 
+    if(typeof word !== 'string') {
+        return res.status(400).send({ state: 'failed', message: `Word as attribute must be a string` });
+    }
+
     if(!(type == 'true-false' || type == 'normal' || type == 'multipale')) {
         return res.status(400).send({ state: 'failed', message: `This Type doesnot exist in the system`});
     }
@@ -124,6 +128,27 @@ const showQuestionsByTypeForOneUserWithFilter = async (req, res) => {
         const questions = await Question.find({ user_ids: { $in: id }, type: type, text: { $regex: regex } }).skip((page - 1) * limit).limit(limit);
 
         return res.status(200).send({ state: 'success', message: `Get ${type} questions has ${word} for user has id ${id} successfully`, questions: questions, total: count });
+    } catch (error) {
+        return res.status(400).send({ state: 'failed', message: error.message });        
+    }
+}
+
+const showQuestionsForOneUserWithFilter = async (req, res) => {
+    const { id, page, word } = req.params;
+
+
+    if(typeof word !== 'string') {
+        return res.status(400).send({ state: 'failed', message: `Word as attribute must be a string` });
+    }
+
+    try {
+        const regex = new RegExp(`.*${word}.*`, "i");
+        
+        const count = await Question.countDocuments({ user_ids: { $in: id }, text: { $regex: regex } });
+
+        const questions = await Question.find({ user_ids: { $in: id }, text: { $regex: regex } }).skip((page - 1) * limit).limit(limit);
+
+        return res.status(200).send({ state: 'success', message: `Get questions has ${word} for user has id ${id} successfully`, questions: questions, total: count });
     } catch (error) {
         return res.status(400).send({ state: 'failed', message: error.message });        
     }
@@ -678,5 +703,6 @@ module.exports = {
     activateQuestion,
     disactivateQuestion,
     showQuestionsByTypeForOneUser,
-    showQuestionsByTypeForOneUserWithFilter
+    showQuestionsByTypeForOneUserWithFilter,
+    showQuestionsForOneUserWithFilter
 }
