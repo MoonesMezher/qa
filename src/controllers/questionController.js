@@ -74,6 +74,61 @@ const showQuestionsByType = async (req, res) => {
     }
 }
 
+const showQuestionsByTypeForOneUser = async (req, res) => {
+    const { id, page, type } = req.params;
+
+    if(!type) {
+        return res.status(400).send({ state: 'failed', message: `You should insert a type to filter questions` });
+    }
+
+    if(typeof type !== 'string') {
+        return res.status(400).send({ state: 'failed', message: `Type as attribute must be a string` });
+    }
+
+    if(!(type == 'true-false' || type == 'normal' || type == 'multipale')) {
+        return res.status(400).send({ state: 'failed', message: `This Type doesnot exist in the system`});
+    }
+
+    try {
+        console.log(req.params);
+        const count = await Question.countDocuments({ user_ids: { $in: id }, type: type });
+
+        const questions = await Question.find({ user_ids: { $in: id }, type: type }).skip((page - 1) * limit).limit(limit);
+
+        return res.status(200).send({ state: 'success', message: `Get ${type} questions for user has id ${id} successfully`, questions: questions, total: count });
+    } catch (error) {
+        return res.status(400).send({ state: 'failed', message: error.message });        
+    }
+}
+
+const showQuestionsByTypeForOneUserWithFilter = async (req, res) => {
+    const { id, page, type, word } = req.params;
+
+    if(!type) {
+        return res.status(400).send({ state: 'failed', message: `You should insert a type to filter questions` });
+    }
+
+    if(typeof type !== 'string') {
+        return res.status(400).send({ state: 'failed', message: `Type as attribute must be a string` });
+    }
+
+    if(!(type == 'true-false' || type == 'normal' || type == 'multipale')) {
+        return res.status(400).send({ state: 'failed', message: `This Type doesnot exist in the system`});
+    }
+
+    try {
+        const regex = new RegExp(`.*${word}.*`, "i");
+        
+        const count = await Question.countDocuments({ user_ids: { $in: id }, type: type, text: { $regex: regex } });
+
+        const questions = await Question.find({ user_ids: { $in: id }, type: type, text: { $regex: regex } }).skip((page - 1) * limit).limit(limit);
+
+        return res.status(200).send({ state: 'success', message: `Get ${type} questions has ${word} for user has id ${id} successfully`, questions: questions, total: count });
+    } catch (error) {
+        return res.status(400).send({ state: 'failed', message: error.message });        
+    }
+}
+
 const showQuestionsByWord = async (req, res) => {
     const { word, page } = req.params;
 
@@ -227,7 +282,7 @@ const createQuestion = async (req, res) => {
                 return res.status(400).send({ state: 'failed', message: 'Answer field in answers must be a string', inputsWrong: inputsWrong});
             }
 
-            answer.state = Boolean(answer.answer);
+            answer.state = Boolean(answer.state);
 
             if(typeof answer.state !== 'boolean') {
                 answer.state = false;
@@ -259,7 +314,7 @@ const createQuestion = async (req, res) => {
                 return res.status(400).send({ state: 'failed', message: 'Answer field in answers must be a string', inputsWrong: inputsWrong});
             }
 
-            answer.state = Boolean(answer.answer);
+            answer.state = Boolean(answer.state);
             
             if(typeof answer.state !== 'boolean') {
                 inputsWrong.push('answers');
@@ -291,7 +346,7 @@ const createQuestion = async (req, res) => {
                 return res.status(400).send({ state: 'failed', message: 'Answer field in answers must be a string', inputsWrong: inputsWrong});
             }
 
-            answer.state = Boolean(answer.answer);
+            answer.state = Boolean(answer.state);
 
             if(typeof answer.state !== 'boolean') {
                 answer.state = false;
@@ -621,5 +676,7 @@ module.exports = {
     deleteQuestion,
     updateQuestion,
     activateQuestion,
-    disactivateQuestion
+    disactivateQuestion,
+    showQuestionsByTypeForOneUser,
+    showQuestionsByTypeForOneUserWithFilter
 }

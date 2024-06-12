@@ -130,13 +130,17 @@ const deleteCategory = async (req, res) => {
     try {
         await Category.findByIdAndDelete(id);
 
-        let otherCategory = await Category.findOne({ name: 'Other', section_id: category.section_id });
+        const countOfQuestions = await Question.countDocuments({ category_ids: { $size: 1, $in: id }});
 
-        if(!otherCategory) {
-            otherCategory = await Category.create({ name: 'Other', section_id: category.section_id});
+        if(countOfQuestions > 0) {
+            let otherCategory = await Category.findOne({ name: 'Other', section_id: category.section_id });
+
+            if(!otherCategory) {
+                otherCategory = await Category.create({ name: 'Other', section_id: category.section_id, picture: 'uploads/category/1717689559650-Turkish coffee.jpeg'});
+            }
+
+            await Question.updateMany({ category_ids: { $size: 1, $in: id }}, { category_ids: [otherCategory._id]});
         }
-
-        await Question.updateMany({ category_ids: { $size: 1, $in: id }}, { category_ids: [otherCategory._id]});
 
         return res.status(200).send({ state: 'success', message: 'Deleted category successfully' });
     } catch(err) {
