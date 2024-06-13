@@ -254,7 +254,6 @@ const createQuestion = async (req, res) => {
             return res.status(400).send({ state: 'failed', message: 'Answers is not an array of objects', inputsWrong: inputsWrong});
         }
     }
-
     if(!category_ids) {
         const otherCategory = await Category.find({ name: 'Other', section_id: section_id });
     
@@ -381,6 +380,14 @@ const createQuestion = async (req, res) => {
 
     try {
         await Question.create({ category_ids, type, text, answers, picture, section_id, user_ids: [req.user._id]});
+
+        if(type == 'true-false') {
+            await User.findByIdAndUpdate(req.user._id, { $inc: { totalQuestions: 1, countTrueFalseQuestions: 1 }});
+        } else if(type == 'normal') {
+            const i = await User.findByIdAndUpdate(req.user._id, { $inc: { totalQuestions: 1, countNormalQuestions: 1 }})
+        } else {
+            await User.findByIdAndUpdate(req.user._id, { $inc: { totalQuestions: 1 , countMultipleQuestions: 1 }});
+        }
 
         return res.status(200).send({ state: 'success', message: `Created question successfully`});
     } catch (error) {
@@ -597,8 +604,6 @@ const deleteQuestion = async (req, res) => {
 
     const question = await Question.findById(id);
 
-    console.log(question);
-
     if(!question) {
         return res.status(400).send({ state: 'failed', message: 'This question is already not exist'});
     }
@@ -608,7 +613,17 @@ const deleteQuestion = async (req, res) => {
     }
 
     try {
-        await Question.findByIdAndDelete(id);
+        const deletedQuestion = await Question.findByIdAndDelete(id);
+
+        deletedQuestion.user_ids.forEach(async (userId) => {
+            if (deletedQuestion.type === 'true-false') {
+                await User.findByIdAndUpdate(userId, { $inc: { totalQuestions: -1, countTrueFalseQuestions: -1 } });
+            } else if (deletedQuestion.type === 'normal') {
+                await User.findByIdAndUpdate(userId, { $inc: { totalQuestions: -1, countNormalQuestions: -1 } });
+            } else {
+                await User.findByIdAndUpdate(userId, { $inc: { totalQuestions: -1, countMultipleQuestions: -1 } });
+            }
+        });
 
         return res.status(200).send({ state: 'success', message: 'Deleted question successfully'});        
     } catch (error) {

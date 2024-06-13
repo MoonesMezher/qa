@@ -34,6 +34,22 @@ const User = model("User", new Schema({
         enum: ['user', 'admin', 'data-entry', 'guest'], 
         default: 'guest'
     },
+    totalQuestions: {
+        type: Number,
+        default: 0
+    },
+    countTrueFalseQuestions: {
+        type: Number,
+        default: 0
+    },
+    countNormalQuestions: {
+        type: Number,
+        default: 0
+    },
+    countMultipleQuestions: {
+        type: Number,
+        default: 0
+    },
 }, { timestamps : true }))
 
 if(process.env.ADD_ADMIN_MODE != 0) {
