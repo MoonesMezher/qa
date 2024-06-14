@@ -10,8 +10,8 @@ const Offer = model("Offer", new Schema({
         required: true
     },
     price: {
-        type: String,
-        default: "0"
+        type: Number,
+        default: 0
     },
     picture: {
         type: String,

@@ -1,6 +1,5 @@
 const Offer = require("../database/models/Offer");
 const Profile = require("../database/models/Profile");
-const normalizePath = require("../helpers/normalizePathName");
 
 const showOffer = async (req, res) => {
     const { id } = req.params;
@@ -67,8 +66,8 @@ const createOffer = async (req, res) => {
         return res.status(400).json({state: 'failed', message: 'Tokens must be a number', field: 'tokens'});        
     }
 
-    if(typeof price !== 'string') {
-        return res.status(400).json({state: 'failed', message: 'Price must be a string', field: 'price'});        
+    if(typeof price !== 'number') {
+        return res.status(400).json({state: 'failed', message: 'Price must be a number', field: 'price'});        
     }
 
     if(typeof picture !== 'string') {
@@ -129,8 +128,8 @@ const updateOffer = async (req, res) => {
         return res.status(400).json({state: 'failed', message: 'Tokens must be a number', field: 'tokens'});        
     }
 
-    if(typeof price !== 'string') {
-        return res.status(400).json({state: 'failed', message: 'Price must be a string', field: 'price'});        
+    if(typeof price !== 'number') {
+        return res.status(400).json({state: 'failed', message: 'Price must be a number', field: 'price'});        
     }
 
     if(picture && typeof picture !== 'string') {
