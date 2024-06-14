@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 // methods
-const { showOffer, showOffers, createOffer, updateOffer, activateOffer, disactivateOffer, deleteOffer, addTokensToUserAfterBuyOffer } = require('../controllers/offerController');
+const { showOffer, showOffers, createOffer, updateOffer, activateOffer, disactivateOffer, deleteOffer, addTokensToUserAfterBuyOffer, showOffersByWord } = require('../controllers/offerController');
 
 // middlewares
 const requireAuth = require('../middlewares/requireAuth');
@@ -16,6 +16,8 @@ const { isImage } = require('../middlewares/checkFromImageMiddleware');
 router.get('/', [requireAuth, authorize(["admin", "user", "guest"])], showOffers);
 
 router.get('/:id', [validateObjectId, requireAuth, authorize(["admin", "user", "guest"])], showOffer);
+
+router.get('/by-word/:word', [requireAuth, authorize(["admin", "user", "guest"])], showOffersByWord);
 
 // POST
 router.post('/', [requireAuth, authorize(["admin"]), isImage], createOffer);

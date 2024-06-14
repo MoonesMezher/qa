@@ -235,6 +235,28 @@ const addTokensToUserAfterBuyOffer = async (req, res) => {
     }   
 }
 
+const showOffersByWord = async (req, res) => {
+    const { word } = req.params;
+
+    if(!word) {
+        return res.status(400).json({state: 'failed', message: 'Word must be inserted'});
+    }
+
+    if(typeof word !== 'string') {
+        return res.status(400).json({state: 'failed', message: 'Word must be string'});
+    }
+
+    try {
+        const regex =  new RegExp(`.*${word}.*`,"i");
+
+        const offers = await Offer.find({ name: { $regex: regex } });
+
+        return res.status(200).json({state: 'success', message: `Get all offers has ${word} as name`, offers});        
+    } catch (error) {
+        return res.status(400).json({state: 'failed', message: error.message});        
+    }
+}
+
 module.exports = {
     showOffer,
     showOffers,
@@ -243,5 +265,6 @@ module.exports = {
     deleteOffer,
     activateOffer,
     disactivateOffer,
-    addTokensToUserAfterBuyOffer
+    addTokensToUserAfterBuyOffer,
+    showOffersByWord
 }
