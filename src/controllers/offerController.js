@@ -48,9 +48,9 @@ const createOffer = async (req, res) => {
         inputsWorng.push('picture');
     }
 
-    if(!description) {
-        inputsWorng.push('description');
-    }
+    // if(!description) {
+    //     inputsWorng.push('description');
+    // }
 
     if(inputsWorng.length > 0) {
         return res.status(400).json({state: 'failed', message: 'You must insert all fields', fields: inputsWorng});        
@@ -79,7 +79,7 @@ const createOffer = async (req, res) => {
     }
 
     try {
-        await Offer.create({ name, description, price, tokens, picture});
+        await Offer.create({ name, description: description || '', price, tokens, picture});
 
         return res.status(200).json({state: 'success', message: 'Created offer successfully'});        
     } catch (error) {
@@ -112,9 +112,9 @@ const updateOffer = async (req, res) => {
         inputsWorng.push('price');
     }
 
-    if(!description) {
-        inputsWorng.push('description');
-    }
+    // if(!description) {
+    //     inputsWorng.push('description');
+    // }
 
     if(inputsWorng.length > 0) {
         return res.status(400).json({state: 'failed', message: 'You must insert all fields', fields: inputsWorng});        
@@ -143,9 +143,9 @@ const updateOffer = async (req, res) => {
     try {
         let offer;
         if(picture) {
-            offer = await Offer.findByIdAndUpdate(id, { name, description, price, tokens, picture},{ new: true });
+            offer = await Offer.findByIdAndUpdate(id, { name, description: description || '', price, tokens, picture},{ new: true });
         } else {
-            offer = await Offer.findByIdAndUpdate(id, { name, description, price, tokens }, { new: true });
+            offer = await Offer.findByIdAndUpdate(id, { name, description: description || '', price, tokens }, { new: true });
         }
 
         return res.status(200).json({state: 'success', message: 'Updated offer successfully', offer});        
