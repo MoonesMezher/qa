@@ -17,9 +17,6 @@ const Offer = model("Offer", new Schema({
         type: String,
         required: true
     },
-    description: {
-        type: String,
-    },
     active: {
         type: Boolean,
         default: true,

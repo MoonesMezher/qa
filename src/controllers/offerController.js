@@ -28,7 +28,7 @@ const showOffers = async (req, res) => {
 }
 
 const createOffer = async (req, res) => {
-    let { name, description, tokens, price, picture } = req.body;
+    let { name, tokens, price, picture } = req.body;
 
     const inputsWorng = [];
 
@@ -47,10 +47,6 @@ const createOffer = async (req, res) => {
     if(!picture) {
         inputsWorng.push('picture');
     }
-
-    // if(!description) {
-    //     inputsWorng.push('description');
-    // }
 
     if(inputsWorng.length > 0) {
         return res.status(400).json({state: 'failed', message: 'You must insert all fields', fields: inputsWorng});        
@@ -74,12 +70,8 @@ const createOffer = async (req, res) => {
         return res.status(400).json({state: 'failed', message: 'Picture must be a string', field: 'picture'});        
     }
 
-    if(typeof description !== 'string') {
-        return res.status(400).json({state: 'failed', message: 'Description must be a string', field: 'description'});        
-    }
-
     try {
-        await Offer.create({ name, description: description || '', price, tokens, picture});
+        await Offer.create({ name, price, tokens, picture});
 
         return res.status(200).json({state: 'success', message: 'Created offer successfully'});        
     } catch (error) {
@@ -96,7 +88,7 @@ const updateOffer = async (req, res) => {
         return res.status(400).json({state: 'failed', message: 'This offer does not exist'});                 
     }
 
-    const { name, description, tokens, price, picture } = req.body;
+    const { name, tokens, price, picture } = req.body;
 
     const inputsWorng = [];
 
@@ -111,10 +103,6 @@ const updateOffer = async (req, res) => {
     if(!price) {
         inputsWorng.push('price');
     }
-
-    // if(!description) {
-    //     inputsWorng.push('description');
-    // }
 
     if(inputsWorng.length > 0) {
         return res.status(400).json({state: 'failed', message: 'You must insert all fields', fields: inputsWorng});        
@@ -136,16 +124,12 @@ const updateOffer = async (req, res) => {
         return res.status(400).json({state: 'failed', message: 'Picture must be a string', field: 'picture'});        
     }
 
-    if(typeof description !== 'string') {
-        return res.status(400).json({state: 'failed', message: 'Description must be a string', field: 'description'});        
-    }
-
     try {
         let offer;
         if(picture) {
-            offer = await Offer.findByIdAndUpdate(id, { name, description: description || '', price, tokens, picture},{ new: true });
+            offer = await Offer.findByIdAndUpdate(id, { name, price, tokens, picture },{ new: true });
         } else {
-            offer = await Offer.findByIdAndUpdate(id, { name, description: description || '', price, tokens }, { new: true });
+            offer = await Offer.findByIdAndUpdate(id, { name, price, tokens }, { new: true });
         }
 
         return res.status(200).json({state: 'success', message: 'Updated offer successfully', offer});        
