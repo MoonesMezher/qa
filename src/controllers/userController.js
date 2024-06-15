@@ -566,7 +566,7 @@ const updatePassword = async (req, res) => {
     try {
         const hash = passwordHash.generate(password);
 
-        const user = await User.findByIdAndUpdate(id, { password: hash });
+        const user = await User.findByIdAndUpdate(id, { password: hash }, { new: true });
 
         return res.status(200).json({state: "success", message: 'Updated password successfully', user})        
     } catch (error) {
