@@ -10,6 +10,8 @@ const randomInts = require('../helpers/generateRandomNumbersToUsernames');
 
 const env = process.env;
 
+const limit = 50;
+
 const createToken = (id, role, email, username) => {
     return jwt.sign({id, role, email, username},env.JWT_SECRET_KEY);
 }
@@ -45,6 +47,12 @@ const signupUser = async (req, res) => {
         return res.status(400).json({state: "failed", message: "Your password is weak"})
     }
 
+    const existUsername = await User.findOne({username});
+
+    if(existUsername) {
+        return res.status(400).json({state: "failed", message: "This username already exist"})
+    }
+
     const exist = await User.findOne({email});
 
     if(exist) {
@@ -53,14 +61,15 @@ const signupUser = async (req, res) => {
 
     const hash = passwordHash.generate(password);
 
-    const user = await User.create({username, email, password: hash, role: 'user'});
-
-    const profile = await Profile.create({user_id: user._id});
-
+    
     try {
+        const user = await User.create({username, email, password: hash, role: 'user'});
+    
+        const profile = await Profile.create({user_id: user._id});
+
         const token = createToken(user._id, user.role, user.email, user.username);
 
-        return res.status(200).json({state: "success", message: "Signed up successfully", token, role: user.role});
+        return res.status(200).json({state: "success", message: "Signed up successfully", token, role: user.role, user, profile});
     } catch (error) {
         return res.status(400).json({state: "failed", message: error.message})
     }
@@ -89,15 +98,15 @@ const signupUserAsGuest = async (req, res) => {
     }
 
     const email = username +  randomInts(1, 100)[0] + process.env.GUEST_EMAIL;
-
-    const user = await User.create({username: username, email: email , password: hash});
-
-    const profile = await Profile.create({user_id: user._id});
-
+    
     try {
+        const user = await User.create({username: username, email: email , password: hash});
+
+        const profile = await Profile.create({user_id: user._id});
+
         const token = createToken(user._id, user.role, user.email, user.username);
 
-        return res.status(200).json({state: "success", message: 'Signed up successfully', token, role: user.role});
+        return res.status(200).json({state: "success", message: 'Signed up successfully', token, role: user.role, user, profile});
     } catch (error) {
         return res.status(400).json({state: "failed", message: error.message})
     }
@@ -140,7 +149,7 @@ const loginUser = async (req, res) => {
     try {
         const token = createToken(user._id, user.role, user.email, user.username);
 
-        res.status(200).json({state: "success", message: "Logged in successfully", token, role: user.role});
+        res.status(200).json({state: "success", message: "Logged in successfully", token, role: user.role, user});
     } catch (error) {
         res.status(400).json({state: "failed", message: error.message})
     }
@@ -155,24 +164,28 @@ const logoutUser = async (req, res) => {
         // Return a success response
         res.status(200).json({ state: "success", message: 'Logged out successfully' });
     } catch (err) {
-        res.status(500).json({ state: "failed", message: 'Internal Server Error' });
+        res.status(400).json({ state: "failed", message: err.message });
     }
 };
 
 // users info
 const infoUsers = async (req, res) => {
-    try {
-        const users = await User.find({ role: { $nin: ['admin', 'data-entry'] } });
+    const { page } = req.params;
 
-        res.status(200).json({state: "success", message: 'Get all users successfully',users: users});
+    try {
+        const count = await User.countDocuments({ role: { $nin: ['admin'] } });
+
+        const users = await User.find({ role: { $nin: ['admin'] } }).skip((page - 1) * limit).limit(limit);
+
+        res.status(200).json({state: "success", message: 'Get all users successfully',users: users, total: count});
     } catch (err) {
-        res.status(400).json({state: "failed", message: err})        
+        res.status(400).json({state: "failed", message: err.message})        
     }
 };
 
 // users info by role
 const infoUserByRole = async (req, res) => {
-    const { role } = req.params;
+    const { role, page } = req.params;
 
     if(typeof role != "string") {
         return res.status(400).json({state: "failed", message: 'The role must be a string'})        
@@ -187,11 +200,13 @@ const infoUserByRole = async (req, res) => {
     }
 
     try {
-        const users = await User.find({ role: role });
+        const count = await User.countDocuments({ role: role });
 
-        res.status(200).json({state: "success", message: `Get all ${role} successfully`,users: users});
+        const users = await User.find({ role: role }).skip((page - 1) * limit).limit(limit);;
+
+        res.status(200).json({state: "success", message: `Get all ${role} successfully`,users, total: count});
     } catch (err) {
-        res.status(400).json({state: "failed", message: err})        
+        res.status(400).json({state: "failed", message: err.message})        
     }
 }
 
@@ -257,29 +272,6 @@ const infoUser = async (req, res) => {
         return res.status(400).json({state: "failed", message: err.message})        
     }
 }
-
-// upload photo
-// const uploadPhoto = async (req, res) => {
-//     const files = req.files;
-
-//     const uploadedFiles = []
-
-//     for (let i = 0; i < files.length; i++) {
-//         const { path, originalname } = files[i];
-//         const extinsion = originalname.split(".")[1];
-//         const newPath = (`${path}.${extinsion}`)
-
-//         fs.renameSync(path, newPath);
-
-//         uploadedFiles.push(newPath.replace('uploads\\', ""))
-//     }
-
-//     try {
-//         res.status(200).json(...uploadedFiles)
-//     } catch (err) {
-//         res.status(400).json({error: err})        
-//     }
-// };
 
 // update user info
 const updateDataEntry = async (req, res) => {
@@ -475,7 +467,7 @@ const veryfiedUser = async (req, res) => {
     try {
         const user = await User.findOneAndUpdate({ email: email }, { verified: true });
 
-        return res.status(200).json({state: "success", message: "Veryfied user successfully"});
+        return res.status(200).json({state: "success", message: "Veryfied user successfully", user});
     } catch (err) {
         return res.status(400).json({state: "failed", message: err.message})
     }
@@ -483,7 +475,7 @@ const veryfiedUser = async (req, res) => {
 
 // users info by username
 const infoUsersByUsername = async (req, res) => {
-    const { username } = req.params;
+    const { username, page } = req.params;
 
     if(typeof username != "string") {
         return res.status(400).json({state: "failed", message: 'The username must be a string'})        
@@ -492,9 +484,11 @@ const infoUsersByUsername = async (req, res) => {
     const nameRegex = new RegExp(`.*${username}.*`, 'i');
 
     try {
-        const users = await User.find({ username: { $regex: nameRegex } });
+        const count = await User.countDocuments({ username: { $regex: nameRegex } });
 
-        res.status(200).json({state: "success", message: `Get all users have ${username} successfully`,users: users});
+        const users = await User.find({ username: { $regex: nameRegex } }).skip((page - 1) * limit).limit(limit);
+
+        res.status(200).json({state: "success", message: `Get all users have ${username} successfully`,users: users, total: count});
     } catch (err) {
         res.status(400).json({state: "failed", message: err.message})        
     }
@@ -515,9 +509,9 @@ const paidAccount = async (req, res) => {
 
         const token = createToken(user._id, user.role, user.email, user.username);
     
-        return res.status(200).json({state: 'success', message: 'Cahnged to paid account successfully', token});
+        return res.status(200).json({state: 'success', message: 'Changed to paid account successfully', token});
     } catch (err) {
-        return res.status(400).json({state: 'failed', message: 'Cannot change to paid account'});        
+        return res.status(400).json({state: 'failed', message: err.message});        
     }
 }
 
@@ -553,6 +547,32 @@ const addTokensToUser = async (req, res) => {
 
 }
 
+const updatePassword = async (req, res) => {
+    const { id } = req.params;
+
+    const { password } = req.body;
+
+    if(!password) {
+        return res.status(400).json({state: 'failed', message: 'Password can not be an empty'});         
+    }
+
+    if(typeof password !== 'string') {
+        return res.status(400).json({state: 'failed', message: 'Password must be a string'});         
+    }
+
+    if(!validator.isStrongPassword(password)) {
+        return res.status(400).json({state: "failed", message: "Your password is weak"})
+    }
+
+    try {
+        const user = await User.findByIdAndUpdate(id, { password });
+
+        return res.status(200).json({state: "success", message: 'Updated password successfully', user})        
+    } catch (error) {
+        return res.status(400).json({state: "failed", message: error.message})        
+    }
+}
+
 module.exports = {
     signupUser,
     loginUser,
@@ -571,4 +591,5 @@ module.exports = {
     infoUsersByUsername,
     paidAccount,
     addTokensToUser,
+    updatePassword
 }

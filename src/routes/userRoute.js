@@ -2,21 +2,22 @@ const express = require('express');
 const router = express.Router();
 
 // methods
-const { signupUser, loginUser, logoutUser, infoUsers, infoUser, updateUser, infoUserByRole, signupUserAsGuest, signupUserAsDataEntry, updateDataEntry, activateUser, disActivateUser, deleteUser, veryfiedUser, infoUsersByUsername, paidAccount, addTokensToUser } = require('../controllers/userController');
+const { signupUser, loginUser, logoutUser, infoUsers, infoUser, updateUser, infoUserByRole, signupUserAsGuest, signupUserAsDataEntry, updateDataEntry, activateUser, disActivateUser, deleteUser, veryfiedUser, infoUsersByUsername, paidAccount, addTokensToUser, updatePassword } = require('../controllers/userController');
 
 // middlewares
 const requireAuth = require('../middlewares/requireAuth');
 const authorize = require('../middlewares/roleMiddleware');
 const validateObjectId = require('../middlewares/checkFromIdMiddleware');
+const validatePageParameter = require('../middlewares/checkFromPageKeyMiddleware');
 
 // routes
 
 // GET
-router.get('/', infoUsers);
+router.get('/page/:page', [validatePageParameter], infoUsers);
 
-router.get('/filter-by-role/:role', [requireAuth, authorize(['admin'])], infoUserByRole);
+router.get('/filter-by-role/:role/page/:page', [validatePageParameter, requireAuth, authorize(['admin'])], infoUserByRole);
 
-router.get('/filter-by-username/:username', [requireAuth, authorize(['admin'])], infoUsersByUsername);
+router.get('/filter-by-username/:username/page/:page', [validatePageParameter, requireAuth, authorize(['admin', 'user'])], infoUsersByUsername);
 
 router.get('/:id', validateObjectId, infoUser);
 
@@ -45,6 +46,9 @@ router.put('/verified/:email', veryfiedUser);
 router.put('/change-to-paid/', [requireAuth, authorize(['user'])], paidAccount);
 
 router.put('/add-tokens/:id', [validateObjectId, requireAuth, authorize(['admin'])], addTokensToUser);
+
+router.put('/update-password/:id', [validateObjectId, requireAuth, authorize(['admin'])], updatePassword);
+
 // DELETE
 router.delete('/:id', [validateObjectId, requireAuth, authorize(['admin'])], deleteUser);
 
