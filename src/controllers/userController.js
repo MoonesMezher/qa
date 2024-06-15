@@ -60,7 +60,6 @@ const signupUser = async (req, res) => {
     }
 
     const hash = passwordHash.generate(password);
-
     
     try {
         const user = await User.create({username, email, password: hash, role: 'user'});
@@ -565,7 +564,9 @@ const updatePassword = async (req, res) => {
     }
 
     try {
-        const user = await User.findByIdAndUpdate(id, { password });
+        const hash = passwordHash.generate(password);
+
+        const user = await User.findByIdAndUpdate(id, { password: hash });
 
         return res.status(200).json({state: "success", message: 'Updated password successfully', user})        
     } catch (error) {
