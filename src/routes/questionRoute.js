@@ -13,7 +13,7 @@ const { isImage } = require('../middlewares/checkFromImageMiddleware');
 // routes
 
 // GET
-router.get('/page/:page', [validatePageParameter,requireAuth, authorize(["admin"])], showQuestions);
+router.get('/page/:page', [validatePageParameter,requireAuth, authorize(["admin", "user", "guest"])], showQuestions);
 
 router.get('/to-data-entry/page/:page', [validatePageParameter,requireAuth, authorize(["data-entry"])], showDataEntryQuestions);
 
