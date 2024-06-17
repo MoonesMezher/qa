@@ -27,6 +27,4 @@ async function sendEmail(to, subject, body) {
     }
 }
 
-// sendEmail('faresmezher9@gmail.com', 'gg', 'hi from moones');
-
 module.exports = sendEmail;

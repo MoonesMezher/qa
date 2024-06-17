@@ -27,11 +27,11 @@ router.get('/id/:id/type/:type/page/:page', [validateObjectId, validatePageParam
 
 router.get('/id/:id/type/:type/word/:word/page/:page', [validateObjectId, validatePageParameter, requireAuth, authorize(["admin"])], showQuestionsByTypeForOneUserWithFilter);
 
-router.get('/id/:id/word/:word/page/:page', [validateObjectId, validatePageParameter, requireAuth, authorize(["admin"])], showQuestionsForOneUserWithFilter);
+router.get('/id/:id/word/:word/page/:page', [validateObjectId, validatePageParameter, requireAuth, authorize(["admin", "user", "guest", "data-entry"])], showQuestionsForOneUserWithFilter);
 
-router.get('/word/:word/page/:page', [validatePageParameter,requireAuth, authorize(["admin"])], showQuestionsByWord);
+router.get('/word/:word/page/:page', [validatePageParameter,requireAuth, authorize(["admin", "user", "guest", "data-entry"])], showQuestionsByWord);
 
-router.get('/user/:id/page/:page', [validateObjectId, validatePageParameter,requireAuth, authorize(["admin"])], showQuestionsByUser);
+router.get('/user/:id/page/:page', [validateObjectId, validatePageParameter,requireAuth, authorize(["admin", "user", "guest", "data-entry"])], showQuestionsByUser);
 
 router.get('/:id', [validateObjectId,requireAuth, authorize(["admin", "user", "guest", "data-entry"])], showQuestion);
 
