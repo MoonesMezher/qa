@@ -574,6 +574,34 @@ const updatePassword = async (req, res) => {
     }
 }
 
+const infoUsersByUsernameByRole = async (req, res) => {
+    const { username, role , page } = req.params;
+
+    if(typeof username != "string") {
+        return res.status(400).json({state: "failed", message: 'The username must be a string'})        
+    }
+
+    if(typeof role != "string") {
+        return res.status(400).json({state: "failed", message: 'The role must be a string'})        
+    }
+
+    if(!['data-entry', 'guest', 'user'].includes(role)) {
+        return res.status(400).json({state: "failed", message: 'This role does not exist'})        
+    }
+
+    const nameRegex = new RegExp(`.*${username}.*`, 'i');
+
+    try {
+        const count = await User.countDocuments({ username: { $regex: nameRegex }, role });
+
+        const users = await User.find({ username: { $regex: nameRegex }, role }).skip((page - 1) * limit).limit(limit);
+
+        res.status(200).json({state: "success", message: `Get all users have role: ${role} and username: ${username} successfully`,users: users, total: count});
+    } catch (err) {
+        res.status(400).json({state: "failed", message: err.message})        
+    }
+}
+
 module.exports = {
     signupUser,
     loginUser,
@@ -592,5 +620,6 @@ module.exports = {
     infoUsersByUsername,
     paidAccount,
     addTokensToUser,
-    updatePassword
+    updatePassword,
+    infoUsersByUsernameByRole
 }
