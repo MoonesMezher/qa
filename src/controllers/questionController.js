@@ -326,8 +326,6 @@ const createQuestion = async (req, res) => {
             inputsWrong.push('answers');
             return res.status(400).send({ state: 'failed', message: 'True and False question accept 2 answers only', inputsWrong: inputsWrong});
         }
-
-        let trueAnswers = 0;
         
         for (const answer of answers) {
             if(!answer.answer) {
@@ -344,13 +342,6 @@ const createQuestion = async (req, res) => {
                 inputsWrong.push('answers');
                 return res.status(400).send({ state: 'failed', message: 'Answer state must be boolean', inputsWrong: inputsWrong});
             }
-            if(answer.state) {
-                trueAnswers+=1;
-            }
-        }
-        if(trueAnswers != 1) {
-            inputsWrong.push('answers');
-            return res.status(400).send({ state: 'failed', message: 'True and False question accept one answer only', inputsWrong: inputsWrong});
         }
     }
 
@@ -535,8 +526,6 @@ const updateQuestion = async (req, res) => {
             inputsWrong.push('answers');
             return res.status(400).send({ state: 'failed', message: 'True an False question accept 1 answers only', inputsWrong: inputsWrong});
         }
-
-        let trueAnswers = 0;
         
         for (const answer of answers) {
             if(!answer.answer) {
@@ -550,13 +539,6 @@ const updateQuestion = async (req, res) => {
             if(typeof answer.state !== 'boolean') {
                 answer.state = false;
             }
-            if(answer.state) {
-                trueAnswers+=1;
-            }
-        }
-        if(trueAnswers != 1) {
-            inputsWrong.push('answers');
-            return res.status(400).send({ state: 'failed', message: 'True an False question accept one right answer only', inputsWrong: inputsWrong});
         }
     }
 

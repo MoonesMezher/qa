@@ -337,7 +337,7 @@ const updateUser = async (req, res) => {
     const emptyFilds = [];
 
     if(typeof username != "string") {
-        return res.status(400).json({state: "failed", message: 'Username must be a string'})        
+        return res.status(400).json({state: "failed", message: 'Username must be a string'});        
     }
 
     if(!username) {
