@@ -13,6 +13,7 @@ const questionRouter = require('./routes/questionRoute');
 const offerRouter = require('./routes/offerRoute');
 const reportRouter = require('./routes/reportRoute');
 const uploadRouter = require('./routes/uploadRoute');
+const noteficationRouter = require('./routes/noteficationRoute');
 
 const app = express();
 
@@ -33,5 +34,6 @@ app.use('/api/categories',categoryRouter);
 app.use('/api/questions',questionRouter);
 app.use('/api/offers',offerRouter);
 app.use('/api/reports',reportRouter);
+app.use('/api/notefications', noteficationRouter);
 
 module.exports = app;

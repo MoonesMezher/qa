@@ -15,9 +15,9 @@ const Report = model("Report", new Schema({
         type: String,
         required: true
     },
-    ecm_token: {
-        type: String,
-        default: ""
+    read: {
+        type: Boolean,
+        default: false
     }
 }, { timestamps : true }));
 
