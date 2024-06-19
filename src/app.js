@@ -3,6 +3,7 @@ const express = require('express');
 const logger = require('morgan')
 const path = require('path');
 const cors = require('cors');
+const cron = require('node-cron');
 
 // Routes
 const userRouter = require('./routes/userRoute');
@@ -35,5 +36,10 @@ app.use('/api/questions',questionRouter);
 app.use('/api/offers',offerRouter);
 app.use('/api/reports',reportRouter);
 app.use('/api/notefications', noteficationRouter);
+
+// Jobs
+const checkFromReadedReports = require('./jobs/checkFromReadedReportsJob');
+
+cron.schedule('0 */2 * * *', checkFromReadedReports);
 
 module.exports = app;

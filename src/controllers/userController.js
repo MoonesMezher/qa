@@ -201,9 +201,14 @@ const infoUserByRole = async (req, res) => {
     try {
         const count = await User.countDocuments({ role: role });
 
-        const users = await User.find({ role: role }).skip((page - 1) * limit).limit(limit);;
+        const users = await User.find({ role: role }).skip((page - 1) * limit).limit(limit).lean(); // Convert to plain JavaScript objects
 
-        res.status(200).json({state: "success", message: `Get all ${role} successfully`,users, total: count});
+        const profiles = await Promise.all(users.map(async (user) => {
+            const profile = await Profile.findOne({ user_id: user._id });
+            return {...user, profile };
+        }));;
+
+        res.status(200).json({state: "success", message: `Get all ${role} successfully`,users: profiles, total: count});
     } catch (err) {
         res.status(400).json({state: "failed", message: err.message})        
     }
