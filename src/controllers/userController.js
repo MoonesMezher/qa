@@ -205,7 +205,7 @@ const infoUserByRole = async (req, res) => {
 
         const profiles = await Promise.all(users.map(async (user) => {
             const profile = await Profile.findOne({ user_id: user._id });
-            return {...user, profile };
+            return {...user, picture: profile.picture, tokens: profile.tokens };
         }));;
 
         res.status(200).json({state: "success", message: `Get all ${role} successfully`,users: profiles, total: count});
