@@ -37,7 +37,7 @@ app.use('/api/offers',offerRouter);
 app.use('/api/reports',reportRouter);
 app.use('/api/notefications', noteficationRouter);
 
-// Jobs
+// Jobss
 const checkFromReadedReports = require('./jobs/checkFromReadedReportsJob');
 
 cron.schedule('0 */2 * * *', checkFromReadedReports);
