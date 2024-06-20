@@ -203,10 +203,16 @@ const infoUserByRole = async (req, res) => {
 
         const users = await User.find({ role: role }).skip((page - 1) * limit).limit(limit).lean(); // Convert to plain JavaScript objects
 
-        const profiles = await Promise.all(users.map(async (user) => {
-            const profile = await Profile.findOne({ user_id: user._id });
-            return {...user, picture: profile.picture, tokens: profile.tokens };
-        }));;
+        let profiles;
+
+        if(role === 'user' || role === 'guest') {
+            profiles = await Promise.all(users.map(async (user) => {
+                const profile = await Profile.findOne({ user_id: user._id });
+                return {...user, picture: profile?.picture, tokens: profile.tokens };
+            }));
+        } else {
+            profiles = users;
+        }
 
         res.status(200).json({state: "success", message: `Get all ${role} successfully`,users: profiles, total: count});
     } catch (err) {
