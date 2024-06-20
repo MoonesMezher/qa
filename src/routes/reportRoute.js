@@ -11,7 +11,7 @@ const validateObjectId = require('../middlewares/checkFromIdMiddleware');
 // routes
 
 // GET
-router.get('/page/:page', [validatePageParameter, requireAuth, authorize(['admin', "data-entry"])], getReports);
+router.get('/page/:page', [validatePageParameter], getReports);
 
 router.get('/:id', [validateObjectId, requireAuth, authorize(['admin', "data-entry"])], getReport);
 

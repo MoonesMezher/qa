@@ -32,7 +32,7 @@ const saveToken = async (req, res) => {
             return res.status(200).json({ state: 'success', message: 'Saved FCM token successfully'});
         }
 
-        await FcmToken.create( { user_id, fcmTokens: [fcm_token] } );
+        await FcmToken.create( { user_id, fcmTokens: [fcm_token], role: user.role } );
 
         return res.status(200).json({ state: 'success', message: 'Saved FCM token successfully'});
     } catch (error) {
@@ -64,11 +64,9 @@ const createNotefication = async (req, res) => {
 
         const tokens = await FcmToken.find( { } );
 
-        const adminn = await User.find( { role: 'admin' } );
-
         if (tokens.length > 0) {
             for (const token of tokens) {
-                if(token.user_id === adminn.user_id) {
+                if(token.role === 'admin' || token.role === 'data-entry') {
                     continue;
                 }
                 for (tokenItem of token.fcmTokens) {

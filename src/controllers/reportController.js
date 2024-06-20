@@ -5,6 +5,7 @@ const Notefication = require("../database/models/Notefication");
 const FcmToken = require("../database/models/FcmToken");
 const { admin } = require("../services/firebase/notefications");
 const Question = require("../database/models/Question");
+const User = require("../database/models/User");
 
 const limit = 50;
 
@@ -44,9 +45,40 @@ const createReport = async (req, res) => {
     }
 
     try {
-        await Report.create( { text, user_id, question_id } );
+        const notification = await Notefication.create({ title: 'User make a report on question', body: text });
 
-        return res.status(200).json({ state: 'success', message: 'Created report successfully'});
+        // Send a notification to the user who made the report
+        const tokens = await FcmToken.find( {} );
+
+        if (tokens.length > 0) {
+            for (const token of tokens) {
+                if(!(token.role === 'admin' || token.role === 'data-entry')) {
+                    continue;
+                }
+
+                for (tokenItem of token.fcmTokens) {
+                    const message = {
+                        notification: {
+                            title: 'User make a report on question has id: ' + question_id,
+                            body: text,
+                        },
+                        token: tokenItem,
+                    };
+    
+                    try {
+                        const response = await admin.messaging().send(message);
+    
+                        console.log('Notification sent successfully:', response);
+                    } catch (error) {
+                        console.log('Error sending notification:', error);
+                    }
+                }
+            }
+        }
+
+        const report = await Report.create( { text, user_id, question_id } );
+
+        return res.status(200).json({ state: 'success', message: 'Created report successfully', notification, report});
     } catch (error) {
         return res.status(400).json({ state: 'failed', message: error.message});      
     }

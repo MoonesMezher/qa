@@ -9,6 +9,10 @@ const FcmToken = model("FcmToken", new Schema({
     fcmTokens: {
         type: [String],
     },
+    role: {
+        type: String,
+        required: true
+    }
 }, { timestamps : true }));
 
 module.exports = mongoose.model("FcmToken") || FcmToken;
