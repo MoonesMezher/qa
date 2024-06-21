@@ -27,9 +27,41 @@ admin.initializeApp({
         token_uri: 'https://oauth2.googleapis.com/token',
         auth_provider_x509_cert_url: 'https://www.googleapis.com/oauth2/v1/certs',
         client_x509_cert_url: env.FIRBASE_NOTIFICATION_CLIENT_CERT_URL
-})
+    }),
+    // databaseURL: env.MONGO_URI
 });
 
+async function sendNotification(notification) {
+    const { title, body, fcmToken, data } = notification;
+
+    const message = {
+        token: fcmToken,
+        notification: {
+            title: title,
+            body: body
+        },
+        data,
+    };
+    // const messages = fcmToken.map((token) => ({
+    //     token,
+    //     notification: {
+    //         title,
+    //         body,
+    //     },
+    //     data,
+    // }));
+
+    try {
+        // const responses = await Promise.all(messages.map(async (message) => await admin.messaging.send(message)));
+        const response = await admin.messaging().send(message);
+
+        console.log('Successfully sent message:', response);
+    } catch (error) {
+        console.log('Error sending message:', error);
+    }
+}
+
 module.exports = { 
-    admin
+    admin,
+    sendNotification
 }

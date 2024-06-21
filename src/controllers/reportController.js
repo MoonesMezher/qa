@@ -3,7 +3,7 @@ const { default: mongoose } = require("mongoose");
 const Report = require("../database/models/Report");
 const Notefication = require("../database/models/Notefication");
 const FcmToken = require("../database/models/FcmToken");
-const { admin } = require("../services/firebase/notefications");
+const { admin, sendNotification } = require("../services/firebase/notefications");
 const Question = require("../database/models/Question");
 const User = require("../database/models/User");
 
@@ -45,40 +45,31 @@ const createReport = async (req, res) => {
     }
 
     try {
-        const notification = await Notefication.create({ title: 'User make a report on question', body: text });
-
-        // Send a notification to the user who made the report
-        const tokens = await FcmToken.find( {} );
-
-        if (tokens.length > 0) {
-            for (const token of tokens) {
-                if(!(token.role === 'admin' || token.role === 'data-entry')) {
-                    continue;
-                }
-
-                for (tokenItem of token.fcmTokens) {
-                    const message = {
-                        notification: {
-                            title: 'User make a report on question has id: ' + question_id,
-                            body: text,
-                        },
-                        token: tokenItem,
-                    };
-    
-                    try {
-                        const response = await admin.messaging().send(message);
-    
-                        console.log('Notification sent successfully:', response);
-                    } catch (error) {
-                        console.log('Error sending notification:', error);
-                    }
-                }
-            }
-        }
+        const notefication = await Notefication.create({ title: 'User make a report on question', body: text });
 
         const report = await Report.create( { text, user_id, question_id } );
+        // Send a notification to the user who made the report
+        const { fcmTokens } = await FcmToken.findOne( { role: 'admin' } );
 
-        return res.status(200).json({ state: 'success', message: 'Created report successfully', notification, report});
+        console.log(JSON.stringify(report));
+
+        await sendNotification({ fcmToken: 'd5-71L0ZTjaO19B1bQKHYM:APA91bF4gqTJ9LCeAeruhAkMPsbhPr62VmTfGYbg7Qa39SXxDaiycbXgNAyt9mPeFTwYUzfXh1TezjnyoyKBbplZttqpDgmL1B4gxZQA2hHJupiOuLpdB4aSpmIRZl3g35_ODbC_ei1w',
+            title: 'User make a report on question',
+            body: text,
+            data: {
+                state: 'success', 
+                message: 'Created report successfully',
+                report: JSON.stringify(report),
+                notification: JSON.stringify({
+                    '_id': `${notefication._id}`,
+                    'createdAt': `${notefication.createdAt}`,
+                    'updatedAt': `${notefication.updatedAt}`,
+                    '__v': `${notefication.__v}` 
+                }),
+            }
+        });
+
+        return res.status(200).json({ state: 'success', message: 'Created report successfully', report});
     } catch (error) {
         return res.status(400).json({ state: 'failed', message: error.message});      
     }
@@ -160,7 +151,7 @@ const replayReport = async (req, res) => {
             return res.status(400).json({ state: 'failed', message: 'This report doesnot exist' });      
         }
 
-        await Notefication.create({ title, body });
+        const notefication = await Notefication.create({ title, body });
 
         // Send a notification to the user who made the report
         const tokens = await FcmToken.findOne( { user_id: report.user_id } );
@@ -172,23 +163,17 @@ const replayReport = async (req, res) => {
         const { fcmTokens } = tokens;
 
         if (fcmTokens && fcmTokens?.length > 0) {
-            for (const token of fcmTokens) {
-                const message = {
-                    notification: {
-                        title: title,
-                        body: body,
-                    },
-                    token: token,
-                };
-    
-                try {
-                    const response = await admin.messaging().send(message);
-    
-                    console.log('Notification sent successfully:', response);
-                } catch (error) {
-                    console.log('Error sending notification:', error);
-                }
-            }
+            await sendNotification({
+                fcmToken: fcmTokens,
+                title,
+                body,
+                data: {
+                    state: 'success', 
+                    message: 'Replay to report successfully',
+                    report,
+                    notefication,
+                },
+            });
         }
 
         return res.status(200).json({ state: 'success', message: 'Replay to report successfully'});

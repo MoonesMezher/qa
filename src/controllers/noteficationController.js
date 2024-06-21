@@ -1,7 +1,7 @@
 const { default: mongoose } = require("mongoose");
 const FcmToken = require("../database/models/FcmToken");
 const Notefication = require("../database/models/Notefication");
-const { admin } = require("../services/firebase/notefications");
+const { admin, sendNotification } = require("../services/firebase/notefications");
 const User = require("../database/models/User");
 
 const saveToken = async (req, res) => {
@@ -22,6 +22,13 @@ const saveToken = async (req, res) => {
     }
 
     try {
+        
+        const theSameUserDevice = await FcmToken.findOne({ user_id, fcmTokens: { $in : fcm_token } });
+        
+        if(theSameUserDevice) {
+            return res.status(400).json({ state: 'failed', message: 'FCM Token is already exist'});;            
+        }
+
         let userDevice = await FcmToken.findOne({ user_id });
 
         if(userDevice) {
@@ -64,29 +71,17 @@ const createNotefication = async (req, res) => {
 
         const tokens = await FcmToken.find( { } );
 
+        const mainTokens = tokens.filter((e) => e.role === 'user' || e.role === 'guest');
+
+        const mainUserDeviceTokens = mainTokens.map((e) => [...e.fcmTokens]);
+
         if (tokens.length > 0) {
-            for (const token of tokens) {
-                if(token.role === 'admin' || token.role === 'data-entry') {
-                    continue;
-                }
-                for (tokenItem of token.fcmTokens) {
-                    const message = {
-                        notification: {
-                            title: title,
-                            body: body,
-                        },
-                        token: tokenItem,
-                    };
-    
-                    try {
-                        const response = await admin.messaging().send(message);
-    
-                        console.log('Notification sent successfully:', response);
-                    } catch (error) {
-                        console.log('Error sending notification:', error);
-                    }
-                }
-            }
+            await sendNotification({
+                token: mainUserDeviceTokens,
+                title,
+                body,
+                data: {}
+            });
         }
 
         return res.status(200).json({ state: 'success', message: 'Created notefication successfully' });
