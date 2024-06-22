@@ -37,8 +37,21 @@ app.use('/api/offers',offerRouter);
 app.use('/api/reports',reportRouter);
 app.use('/api/notefications', noteficationRouter);
 
+app.use('/api/test/deleteall', async (req, res) => {
+    try {
+        await Report.deleteMany({});
+        await Notefication.deleteMany({});
+
+        return res.status(200).json({state: 'success', message: 'Deleted all successfully'})
+    } catch (error) {
+        return res.status(400).json({state: 'failed', message: error.message})        
+    }
+})
+
 // Jobss
 const checkFromReadedReports = require('./jobs/checkFromReadedReportsJob');
+const Report = require('./database/models/Report');
+const Notefication = require('./database/models/Notefication');
 
 cron.schedule('0 */2 * * *', checkFromReadedReports);
 
