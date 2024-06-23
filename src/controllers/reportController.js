@@ -51,25 +51,27 @@ const createReport = async (req, res) => {
         // Send a notification to the user who made the report
         const { fcmTokens } = await FcmToken.findOne( { role: 'admin' } );
 
-        console.log(JSON.stringify(report));
+        fcmTokens.map(async (fcmToken) => {
+            await sendNotification({ fcmToken: fcmToken,
+                title: 'User make a report on question',
+                body: text,
+                data: {
+                    state: 'success', 
+                    message: 'Created report successfully',
+                    report: JSON.stringify(report),
+                    notification: JSON.stringify({
+                        '_id': `${notefication._id}`,
+                        'createdAt': `${notefication.createdAt}`,
+                        'updatedAt': `${notefication.updatedAt}`,
+                        '__v': `${notefication.__v}` 
+                    }),
+                }
+            });
+        })
 
-        await sendNotification({ fcmToken: 'd5-71L0ZTjaO19B1bQKHYM:APA91bF4gqTJ9LCeAeruhAkMPsbhPr62VmTfGYbg7Qa39SXxDaiycbXgNAyt9mPeFTwYUzfXh1TezjnyoyKBbplZttqpDgmL1B4gxZQA2hHJupiOuLpdB4aSpmIRZl3g35_ODbC_ei1w',
-            title: 'User make a report on question',
-            body: text,
-            data: {
-                state: 'success', 
-                message: 'Created report successfully',
-                report: JSON.stringify(report),
-                notification: JSON.stringify({
-                    '_id': `${notefication._id}`,
-                    'createdAt': `${notefication.createdAt}`,
-                    'updatedAt': `${notefication.updatedAt}`,
-                    '__v': `${notefication.__v}` 
-                }),
-            }
-        });
+        // const findUser = await User.findById(user_id);
 
-        return res.status(200).json({ state: 'success', message: 'Created report successfully', report});
+        return res.status(200).json({ state: 'success', message: 'Created report successfully', report });
     } catch (error) {
         return res.status(400).json({ state: 'failed', message: error.message});      
     }
@@ -81,9 +83,14 @@ const getReports = async (req, res) => {
     try {
         const count = await Report.countDocuments( {} );
 
-        const reports = await Report.find( {} ).skip((page - 1) * limit).limit(limit);
+        const reports = await Report.find( {} ).skip((page - 1) * limit).limit(limit).lean();
 
-        return res.status(200).json({ state: 'success', message: 'Get reports successfully', reports, total: count});
+        const newReports = await Promise.all(reports.map(async (report) => {
+            const findUser = await User.findById(report.user_id);
+            return {...report, username: findUser.username };
+        }));
+
+        return res.status(200).json({ state: 'success', message: 'Get reports successfully', newReports, total: count});
     } catch (error) {
         return res.status(400).json({ state: 'failed', message: error.message});      
     }
@@ -99,7 +106,9 @@ const getReport = async (req, res) => {
             return res.status(400).json({ state: 'failed', message: 'This report does not exist'});      
         }
 
-        return res.status(200).json({ state: 'success', message: 'Get report successfully', report});
+        const findUser = await User.findById(report.user_id);
+
+        return res.status(200).json({ state: 'success', message: 'Get report successfully', report, username: findUser.username});
     } catch (error) {
         return res.status(400).json({ state: 'failed', message: error.message});      
     }

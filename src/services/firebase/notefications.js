@@ -42,17 +42,8 @@ async function sendNotification(notification) {
         },
         data,
     };
-    // const messages = fcmToken.map((token) => ({
-    //     token,
-    //     notification: {
-    //         title,
-    //         body,
-    //     },
-    //     data,
-    // }));
 
     try {
-        // const responses = await Promise.all(messages.map(async (message) => await admin.messaging.send(message)));
         const response = await admin.messaging().send(message);
 
         console.log('Successfully sent message:', response);

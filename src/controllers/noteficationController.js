@@ -76,12 +76,13 @@ const createNotefication = async (req, res) => {
         const mainUserDeviceTokens = mainTokens.map((e) => [...e.fcmTokens]);
 
         if (tokens.length > 0) {
-            await sendNotification({
-                token: mainUserDeviceTokens,
-                title,
-                body,
-                data: {}
-            });
+            mainUserDeviceTokens.map(async (fcmToken) => {
+                await sendNotification({ fcmToken: fcmToken,
+                    title,
+                    body,
+                    data: {}
+                });
+            })
         }
 
         return res.status(200).json({ state: 'success', message: 'Created notefication successfully' });
