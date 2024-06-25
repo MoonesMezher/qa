@@ -13,35 +13,35 @@ const { isImage } = require('../middlewares/checkFromImageMiddleware');
 // routes
 
 // GET
-router.get('/page/:page', [validatePageParameter,requireAuth, authorize(["admin", "user", "guest"])], showQuestions);
+router.get('/page/:page', [validatePageParameter,requireAuth], showQuestions);
 
-router.get('/to-data-entry/page/:page', [validatePageParameter,requireAuth, authorize(["data-entry"])], showDataEntryQuestions);
+router.get('/to-data-entry/page/:page', [validatePageParameter,requireAuth], showDataEntryQuestions);
 
-router.get('/active/page/:page', [validatePageParameter,requireAuth, authorize(["admin", "data-entry", "user", "guest"])], showAllActiveQuestions);
+router.get('/active/page/:page', [validatePageParameter,requireAuth], showAllActiveQuestions);
 
-router.get('/not-active/page/:page', [validatePageParameter,requireAuth, authorize(["admin"])], showAllNotActiveQuestions);
+router.get('/not-active/page/:page', [validatePageParameter,requireAuth], showAllNotActiveQuestions);
 
-router.get('/type/:type/page/:page', [validateObjectId, validatePageParameter,requireAuth, authorize(["admin"])], showQuestionsByType);
+router.get('/type/:type/page/:page', [validateObjectId, validatePageParameter,requireAuth], showQuestionsByType);
 
-router.get('/id/:id/type/:type/page/:page', [validateObjectId, validatePageParameter,requireAuth, authorize(["admin"])], showQuestionsByTypeForOneUser);
+router.get('/id/:id/type/:type/page/:page', [validateObjectId, validatePageParameter,requireAuth], showQuestionsByTypeForOneUser);
 
-router.get('/id/:id/type/:type/word/:word/page/:page', [validateObjectId, validatePageParameter, requireAuth, authorize(["admin"])], showQuestionsByTypeForOneUserWithFilter);
+router.get('/id/:id/type/:type/word/:word/page/:page', [validateObjectId, validatePageParameter, requireAuth], showQuestionsByTypeForOneUserWithFilter);
 
-router.get('/id/:id/word/:word/page/:page', [validateObjectId, validatePageParameter, requireAuth, authorize(["admin", "user", "guest", "data-entry"])], showQuestionsForOneUserWithFilter);
+router.get('/id/:id/word/:word/page/:page', [validateObjectId, validatePageParameter, requireAuth], showQuestionsForOneUserWithFilter);
 
-router.get('/word/:word/page/:page', [validatePageParameter,requireAuth, authorize(["admin", "user", "guest", "data-entry"])], showQuestionsByWord);
+router.get('/word/:word/page/:page', [validatePageParameter,requireAuth], showQuestionsByWord);
 
-router.get('/user/:id/page/:page', [validateObjectId, validatePageParameter,requireAuth, authorize(["admin", "user", "guest", "data-entry"])], showQuestionsByUser);
+router.get('/user/:id/page/:page', [validateObjectId, validatePageParameter,requireAuth], showQuestionsByUser);
 
-router.get('/:id', [validateObjectId,requireAuth, authorize(["admin", "user", "guest", "data-entry"])], showQuestion);
+router.get('/:id', [validateObjectId,requireAuth], showQuestion);
 
 // POST
 router.post('/', [requireAuth, authorize(["admin", "data-entry"], isImage)], createQuestion);
 
 // PUT
-router.put('/activate/:id', [validateObjectId ,requireAuth, authorize(["admin"])], activateQuestion);
+router.put('/activate/:id', [validateObjectId ,requireAuth, authorize(["admin", "data-entry"])], activateQuestion);
 
-router.put('/disactivate/:id', [validateObjectId ,requireAuth, authorize(["admin"])], disactivateQuestion);
+router.put('/disactivate/:id', [validateObjectId ,requireAuth, authorize(["admin", "data-entry"])], disactivateQuestion);
 
 router.put('/:id', [validateObjectId ,requireAuth, authorize(["admin", "data-entry"]), isImage], updateQuestion);
 

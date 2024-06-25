@@ -40,4 +40,19 @@ const isImage = (req, res, next) => {
     next();    
 }
 
-module.exports = { upload, isImage };
+const deleteImages = (folder, img) => {
+    const imagesFolder = `uploads/${folder}`;
+    const images = fs.readdirSync('src/'+imagesFolder);
+
+    images.forEach((image) => {
+      const imagePath = path.join(imagesFolder, image);
+      const imageName = path.basename(image);
+  
+      // Check if the image is associated with the item
+      if (imageName.includes(img)) {
+        fs.unlinkSync(imagePath);
+      }
+    });
+};
+
+module.exports = { upload, isImage, deleteImages };
