@@ -4,9 +4,6 @@ const array_of_allowed_files = ['png', 'jpeg', 'jpg', 'webp'];
 const multer = require('multer');
 const randomInts = require('../helpers/generateRandomNumbersToUsernames');
 const fs = require('fs');
-const webp = require('webp-converter');
-const sharp = require('sharp');
-const { execFile } = require('child_process');
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -28,7 +25,7 @@ const storage = multer.diskStorage({
     //     cb(null, randomInts(1, 100000)[0] + Date.now() + '-' + file.originalname);
     // }
     filename: (req, file, cb) => {
-        const webpFile = `${randomInts(1, 100000)[0] + Date.now() + randomInts(1, 100000)[0]}.webp`;
+        const webpFile = `${randomInts(1, 100000)[0] + Date.now() + randomInts(1, 100000)[0]}.`+file.originalname;
 
         cb(null, webpFile);
     },
