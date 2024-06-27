@@ -16,7 +16,7 @@ router.get('/page/:page', [validatePageParameter], getReports);
 router.get('/:id', [validateObjectId, requireAuth, authorize(['admin', "data-entry"])], getReport);
 
 // POST
-router.post('/create', [requireAuth], createReport);
+router.post('/create', createReport);
 
 router.post('/replay/report-id/:id', [validateObjectId, requireAuth, authorize(['admin', "data-entry"])], replayReport);
 

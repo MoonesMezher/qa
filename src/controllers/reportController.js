@@ -10,9 +10,7 @@ const User = require("../database/models/User");
 const limit = 50;
 
 const createReport = async (req, res) => {
-    const { question_id, text } = req.body;
-
-    const user_id = req.user._id;
+    const { question_id, text, user_id } = req.body;
 
     if(!text) {
         return res.status(400).json({ state: 'failed', message: 'Text can not be empty' });      
