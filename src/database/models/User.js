@@ -4,8 +4,6 @@ const passwordHash = require('password-hash')
 const User = model("User", new Schema({
     username: {
         type: String,
-        min: 3,
-        max: 255,
         required: true,
         unique: true,
     },

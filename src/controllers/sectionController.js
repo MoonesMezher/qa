@@ -1,6 +1,7 @@
 const Category = require("../database/models/Category");
 const Question = require("../database/models/Question");
 const Section = require("../database/models/Section");
+const { inSection } = require("../helpers/countOfQuestions");
 const normalizePath = require("../helpers/normalizePathName");
 
 const createSection = async (req, res) => {
@@ -140,7 +141,13 @@ const showSection = async (req, res) => {
 
 const showSections = async (req, res) => {
     try {
-        const sections = await Section.find({});
+        const sectionss = await Section.find({});
+
+        const sections = await Promise.all(sectionss.map(async e => {
+            const count = await inSection(e._id);
+    
+            return {section: e, questions_count: count}
+        }))
         
         return res.status(200).send({ state: 'success', message: 'Get sections successfully', sections: sections });
     } catch (error) {
@@ -157,27 +164,45 @@ const showSectionsByName = async (req, res) => {
 
     const nameRegex = new RegExp(`.*${name}.*`, 'i');
 
-    const sections = await Section.find({ name: { $regex: nameRegex} });
+    const sectionss = await Section.find({ name: { $regex: nameRegex} });
+
+    const sections = await Promise.all(sectionss.map(async e => {
+        const count = await inSection(e._id);
+
+        return {section: e, questions_count: count}
+    }))
 
     return res.status(200).send({ state: 'success', message: 'Get sections successfully', sections: sections });
 }
 
 const showAllActiveSections = async (req, res) => {
-    const sections = await Section.find({ active: true });
+    const sectionss = await Section.find({ active: true });
 
-    if(!sections) {
+    if(!sectionss) {
         return res.status(400).send({ state: 'failed', message: 'You dont have any active section' });
     }
+
+    const sections = await Promise.all(sectionss.map(async e => {
+        const count = await inSection(e._id);
+
+        return {section: e, questions_count: count}
+    }))
 
     return res.status(200).send({ state: 'success', message: 'Get active sections successfully', sections: sections });
 }
 
 const showAllNotActiveSections = async (req, res) => {
-    const sections = await Section.find({ active: false });
+    const sectionss = await Section.find({ active: false });
 
-    if(!sections) {
+    if(!sectionss) {
         return res.status(400).send({ state: 'failed', message: 'You dont have any none active sections' });
     }
+
+    const sections = await Promise.all(sectionss.map(async e => {
+        const count = await inSection(e._id);
+
+        return {section: e, questions_count: count}
+    }))
 
     return res.status(200).send({ state: 'success', message: 'Get not active sections successfully', sections: sections });
 }

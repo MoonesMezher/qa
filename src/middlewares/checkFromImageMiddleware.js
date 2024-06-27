@@ -3,6 +3,10 @@ const array_of_allowed_files = ['png', 'jpeg', 'jpg', 'webp'];
 
 const multer = require('multer');
 const randomInts = require('../helpers/generateRandomNumbersToUsernames');
+const fs = require('fs');
+const webp = require('webp-converter');
+const sharp = require('sharp');
+const { execFile } = require('child_process');
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -20,12 +24,25 @@ const storage = multer.diskStorage({
             return cb(new Error('Invalid folder'));
         }
     },
+    // filename: (req, file, cb) => {
+    //     cb(null, randomInts(1, 100000)[0] + Date.now() + '-' + file.originalname);
+    // }
     filename: (req, file, cb) => {
-        cb(null, randomInts(1, 100000)[0] + Date.now() + '-' + file.originalname);
-    }
+        const webpFile = `${randomInts(1, 100000)[0] + Date.now() + randomInts(1, 100000)[0]}.webp`;
+
+        cb(null, webpFile);
+    },
+    fileFilter: (req, file, cb) => {
+        const fileExtension = file.originalname.split(".")[file.originalname.split(".").length - 1];
+        if (!array_of_allowed_files.includes(fileExtension)) {
+            return cb(new Error('Invalid image type'));
+        }
+        cb(null, true);
+    },
 });
 
 const upload = multer({ storage });
+
 
 const isImage = (req, res, next) => {
     const { picture } = req.body

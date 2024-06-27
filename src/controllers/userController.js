@@ -43,7 +43,12 @@ const signupUser = async (req, res) => {
         return res.status(400).json({state: "failed", message: "Your email is not valid"})
     }
 
-    if(!validator.isStrongPassword(password)) {
+    // if(!validator.isStrongPassword(password)) {
+    //     return res.status(400).json({state: "failed", message: "Your password is weak"})
+    // }
+    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+
+    if (!regex.test(password)) {
         return res.status(400).json({state: "failed", message: "Your password is weak"})
     }
 

@@ -2,6 +2,7 @@ const Category = require("../database/models/Category");
 const Section = require("../database/models/Section");
 const Question = require("../database/models/Question");
 const { default: mongoose } = require("mongoose");
+const { inCategory } = require("../helpers/countOfQuestions");
 
 const createCategory = async (req, res) => {
     let { name, section_id, picture } = req.body;
@@ -153,13 +154,11 @@ const showCategory = async (req, res) => {
 
     const category = await Category.findById(id);
 
-    const questions = await Question.countDocuments({ category_ids: { $in: category._id } });
-
     if(!category) {
         return res.status(400).send({ state: 'failed', message: 'This category doesnot exist' });
     }
 
-    return res.status(200).send({ state: 'success', message: 'Get category successfully', category: category, questions_count: questions });
+    return res.status(200).send({ state: 'success', message: 'Get category successfully', category: category });
 }
 
 const showCategoryBySection = async (req, res) => {
@@ -171,7 +170,13 @@ const showCategoryBySection = async (req, res) => {
         return res.status(400).send({ state: 'failed', message: 'This section doesnot exist' });
     }
 
-    const categorys = await Category.find({ section_id: sectionObj._id });
+    const categoryss = await Category.find({ section_id: sectionObj._id });
+
+    const categorys = await Promise.all(categoryss.map(async e => {
+        const count = await inCategory(e._id);
+
+        return {category: e, questions_count: count}
+    }))
 
     return res.status(200).send({ state: 'success', message: 'Get categorys successfully', categorys: categorys });
 }
@@ -182,7 +187,13 @@ const showCategoryByWord = async (req, res) => {
     try {
         const regex = new RegExp(`.*${word}.*`, "i");
 
-        const categorys = await Category.find({ name: { $regex: regex } });
+        const categoryss = await Category.find({ name: { $regex: regex } });
+
+        const categorys = await Promise.all(categoryss.map(async e => {
+            const count = await inCategory(e._id);
+    
+            return {category: e, questions_count: count}
+        }))
         
         return res.status(200).send({ state: 'success', message: `Get categorys has word: ${word} successfully`, categorys: categorys });
     } catch (error) {        
@@ -191,21 +202,33 @@ const showCategoryByWord = async (req, res) => {
 }
 
 const showAllActiveCategorys = async (req, res) => {
-    const categorys = await Category.find({ active: true });
+    const categoryss = await Category.find({ active: true });
 
-    if(!categorys) {
+    if(!categoryss) {
         return res.status(400).send({ state: 'failed', message: 'You dont have any active category' });
     }
+
+    const categorys = await Promise.all(categoryss.map(async e => {
+        const count = await inCategory(e._id);
+
+        return {category: e, questions_count: count}
+    }))
 
     return res.status(200).send({ state: 'success', message: 'Get active categorys successfully', categorys: categorys });
 }
 
 const showAllNotActiveCategorys = async (req, res) => {
-    const categorys = await Category.find({ active: false });
+    const categoryss = await Category.find({ active: false });
 
-    if(!categorys) {
+    if(!categoryss) {
         return res.status(400).send({ state: 'failed', message: 'You dont have any none active categorys' });
     }
+
+    const categorys = await Promise.all(categoryss.map(async e => {
+        const count = await inCategory(e._id);
+
+        return {category: e, questions_count: count}
+    }))
 
     return res.status(200).send({ state: 'success', message: 'Get not active categorys successfully', categorys: categorys });
 }

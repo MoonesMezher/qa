@@ -13,11 +13,11 @@ const { isImage } = require('../middlewares/checkFromImageMiddleware');
 // routes
 
 // GET
-router.get('/filter-by-section/:section', [requireAuth, authorize(["admin", "data-entry"])], showCategoryBySection);
+router.get('/filter-by-section/:section', showCategoryBySection);
 
 router.get('/filter-by-word/:word', [requireAuth, authorize(["admin", "data-entry"])], showCategoryByWord);
 
-router.get('/active', [requireAuth, authorize(["admin", "data-entry", "user", "guest"])], showAllActiveCategorys);
+router.get('/active', showAllActiveCategorys);
 
 router.get('/not-active', [requireAuth, authorize(["admin"])], showAllNotActiveCategorys);
 
