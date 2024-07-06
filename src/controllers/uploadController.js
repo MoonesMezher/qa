@@ -11,7 +11,7 @@ const uploadImage = async (req, res) => {
         return res.status(400).json({ state: "failed", message: "You must select a folder" })        
     }
 
-    if(!['questions', 'offers', 'category','section', 'profile'].includes(folder)) {
+    if(!['questions', 'offers', 'category','section', 'profile', 'competitions'].includes(folder)) {
         return res.status(400).json({ state: "failed", message: "Invalid folder name" })        
     }
 

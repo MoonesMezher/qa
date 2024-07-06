@@ -2,6 +2,8 @@ const admin = require('firebase-admin');
 
 const env = process.env;
 
+const serviceAccount = require('../../../firebaseconfige.json');
+
 admin.initializeApp({
     // credential: admin.credential.cert({
     //     "type": env.FIRBASE_NOTIFICATION_TYPE,
@@ -16,19 +18,20 @@ admin.initializeApp({
     //     "client_x509_cert_url": env.FIRBASE_NOTIFICATION_CLIENT_CERT_URL,
     //     "universe_domain": env.FIRBASE_NOTIFICATION_UNIVERSE_DOMAIN
     // }),
-    credential: admin.credential.cert({
-        type: 'service_account',
-        project_id: env.FIRBASE_NOTIFICATION_PROJECT_ID,
-        private_key_id: env.FIRBASE_NOTIFICATION_PRIVATE_KEY_ID,
-        private_key: env.FIRBASE_NOTIFICATION_PRIVATE_KEY.replace(/\\n/g, '\n'),
-        client_email: env.FIRBASE_NOTIFICATION_CLIENT_EMAIL,
-        client_id: env.FIRBASE_NOTIFICATION_CLIENT_ID,
-        auth_uri: 'https://accounts.google.com/o/oauth2/auth',
-        token_uri: 'https://oauth2.googleapis.com/token',
-        auth_provider_x509_cert_url: 'https://www.googleapis.com/oauth2/v1/certs',
-        client_x509_cert_url: env.FIRBASE_NOTIFICATION_CLIENT_CERT_URL
-    }),
+    // credential: admin.credential.cert({
+    //     type: 'service_account',
+    //     project_id: env.FIRBASE_NOTIFICATION_PROJECT_ID,
+    //     private_key_id: env.FIRBASE_NOTIFICATION_PRIVATE_KEY_ID,
+    //     private_key: env.FIRBASE_NOTIFICATION_PRIVATE_KEY.replace(/\\n/g, '\n'),
+    //     client_email: env.FIRBASE_NOTIFICATION_CLIENT_EMAIL,
+    //     client_id: env.FIRBASE_NOTIFICATION_CLIENT_ID,
+    //     auth_uri: 'https://accounts.google.com/o/oauth2/auth',
+    //     token_uri: 'https://oauth2.googleapis.com/token',
+    //     auth_provider_x509_cert_url: 'https://www.googleapis.com/oauth2/v1/certs',
+    //     client_x509_cert_url: env.FIRBASE_NOTIFICATION_CLIENT_CERT_URL
+    // }),
     // databaseURL: env.MONGO_URI
+    credential: admin.credential.cert(serviceAccount)
 });
 
 async function sendNotification(notification) {

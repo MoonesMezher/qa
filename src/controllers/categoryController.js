@@ -3,6 +3,7 @@ const Section = require("../database/models/Section");
 const Question = require("../database/models/Question");
 const { default: mongoose } = require("mongoose");
 const { inCategory } = require("../helpers/countOfQuestions");
+const { deleteImages } = require("../middlewares/checkFromImageMiddleware");
 
 const createCategory = async (req, res) => {
     let { name, section_id, picture } = req.body;
@@ -142,6 +143,8 @@ const deleteCategory = async (req, res) => {
 
             await Question.updateMany({ category_ids: { $size: 1, $in: id }}, { category_ids: [otherCategory._id]});
         }
+
+        deleteImages('category', category.picture)
 
         return res.status(200).send({ state: 'success', message: 'Deleted category successfully' });
     } catch(err) {

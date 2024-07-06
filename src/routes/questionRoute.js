@@ -36,16 +36,16 @@ router.get('/user/:id/page/:page', [validateObjectId, validatePageParameter,requ
 router.get('/:id', [validateObjectId,requireAuth], showQuestion);
 
 // POST
-router.post('/', [requireAuth, authorize(["admin", "data-entry"], isImage)], createQuestion);
+router.post('/', [requireAuth, isImage], createQuestion);
 
 // PUT
-router.put('/activate/:id', [validateObjectId ,requireAuth, authorize(["admin", "data-entry"])], activateQuestion);
+router.put('/activate/:id', [validateObjectId ,requireAuth], activateQuestion);
 
-router.put('/disactivate/:id', [validateObjectId ,requireAuth, authorize(["admin", "data-entry"])], disactivateQuestion);
+router.put('/disactivate/:id', [validateObjectId ,requireAuth], disactivateQuestion);
 
-router.put('/:id', [validateObjectId ,requireAuth, authorize(["admin", "data-entry"]), isImage], updateQuestion);
+router.put('/:id', [validateObjectId ,requireAuth, isImage], updateQuestion);
 
 // DELETE
-router.delete('/:id', [validateObjectId ,requireAuth, authorize(["admin", "data-entry"])], deleteQuestion);
+router.delete('/:id', [validateObjectId ,requireAuth], deleteQuestion);
 
 module.exports = router;

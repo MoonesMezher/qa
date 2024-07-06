@@ -49,6 +49,10 @@ const createReport = async (req, res) => {
         // Send a notification to the user who made the report
         const { fcmTokens } = await FcmToken.findOne( { role: 'admin' } );
 
+        const findUser = await User.findById(user_id);
+
+        const newReport = { ...report._doc, username: findUser.username};
+
         fcmTokens.map(async (fcmToken) => {
             await sendNotification({ fcmToken: fcmToken,
                 title: 'User make a report on question',
@@ -56,7 +60,7 @@ const createReport = async (req, res) => {
                 data: {
                     state: 'success', 
                     message: 'Created report successfully',
-                    report: JSON.stringify(report),
+                    report: JSON.stringify(newReport),
                     notification: JSON.stringify({
                         '_id': `${notefication._id}`,
                         'createdAt': `${notefication.createdAt}`,
@@ -67,9 +71,8 @@ const createReport = async (req, res) => {
             });
         })
 
-        // const findUser = await User.findById(user_id);
 
-        return res.status(200).json({ state: 'success', message: 'Created report successfully', report });
+        return res.status(200).json({ state: 'success', message: 'Created report successfully' });
     } catch (error) {
         return res.status(400).json({ state: 'failed', message: error.message});      
     }
@@ -169,6 +172,10 @@ const replayReport = async (req, res) => {
 
         const { fcmTokens } = tokens;
 
+        const findUser = await User.findById(report.user_id);
+
+        const newReport = {...report, username: findUser?.username };
+
         if (fcmTokens && fcmTokens?.length > 0) {
             await sendNotification({
                 fcmToken: fcmTokens,
@@ -177,9 +184,14 @@ const replayReport = async (req, res) => {
                 data: {
                     state: 'success', 
                     message: 'Replay to report successfully',
-                    report,
-                    notefication,
-                },
+                    report: JSON.stringify(newReport),
+                    notification: JSON.stringify({
+                        '_id': `${notefication._id}`,
+                        'createdAt': `${notefication.createdAt}`,
+                        'updatedAt': `${notefication.updatedAt}`,
+                        '__v': `${notefication.__v}` 
+                    }),
+                }
             });
         }
 

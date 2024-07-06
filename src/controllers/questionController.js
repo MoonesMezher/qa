@@ -3,6 +3,7 @@ const Category = require("../database/models/Category");
 const Question = require("../database/models/Question");
 const User = require("../database/models/User");
 const normalizePath = require("../helpers/normalizePathName");
+const { deleteImages } = require("../middlewares/checkFromImageMiddleware");
 
 const limit = 50;
 
@@ -24,7 +25,7 @@ const showQuestions = async (req, res) => {
     try {
         const count = await Question.countDocuments({});
 
-        const questions = await Question.find({}).skip((page - 1) * limit).limit(limit);
+        const questions = await Question.find({}).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
 
         return res.status(200).send({ state: 'success', message: 'Get questions successfully', questions: questions, total: count });
     } catch (error) {
@@ -40,7 +41,7 @@ const showDataEntryQuestions = async (req, res) => {
     try {
         const count = await Question.countDocuments({ user_ids: { $in: user_id } });
 
-        const questions = await Question.find({ user_ids: { $in: user_id } }).skip((page - 1) * limit).limit(limit);
+        const questions = await Question.find({ user_ids: { $in: user_id } }).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
 
         return res.status(200).send({ state: 'success', message: 'Get questions successfully', questions: questions, total: count });
     } catch (error) {
@@ -66,7 +67,7 @@ const showQuestionsByType = async (req, res) => {
     try {
         const count = await Question.countDocuments({ type: type });
 
-        const questions = await Question.find({ type: type }).skip((page - 1) * limit).limit(limit);
+        const questions = await Question.find({ type: type }).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
 
         return res.status(200).send({ state: 'success', message: `Get ${type} questions successfully`, questions: questions, total: count });
     } catch (error) {
@@ -90,10 +91,9 @@ const showQuestionsByTypeForOneUser = async (req, res) => {
     }
 
     try {
-        console.log(req.params);
         const count = await Question.countDocuments({ user_ids: { $in: id }, type: type });
 
-        const questions = await Question.find({ user_ids: { $in: id }, type: type }).skip((page - 1) * limit).limit(limit);
+        const questions = await Question.find({ user_ids: { $in: id }, type: type }).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
 
         return res.status(200).send({ state: 'success', message: `Get ${type} questions for user has id ${id} successfully`, questions: questions, total: count });
     } catch (error) {
@@ -125,7 +125,7 @@ const showQuestionsByTypeForOneUserWithFilter = async (req, res) => {
         
         const count = await Question.countDocuments({ user_ids: { $in: id }, type: type, text: { $regex: regex } });
 
-        const questions = await Question.find({ user_ids: { $in: id }, type: type, text: { $regex: regex } }).skip((page - 1) * limit).limit(limit);
+        const questions = await Question.find({ user_ids: { $in: id }, type: type, text: { $regex: regex } }).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
 
         return res.status(200).send({ state: 'success', message: `Get ${type} questions has ${word} for user has id ${id} successfully`, questions: questions, total: count });
     } catch (error) {
@@ -146,7 +146,7 @@ const showQuestionsForOneUserWithFilter = async (req, res) => {
         
         const count = await Question.countDocuments({ user_ids: { $in: id }, text: { $regex: regex } });
 
-        const questions = await Question.find({ user_ids: { $in: id }, text: { $regex: regex } }).skip((page - 1) * limit).limit(limit);
+        const questions = await Question.find({ user_ids: { $in: id }, text: { $regex: regex } }).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
 
         return res.status(200).send({ state: 'success', message: `Get questions has ${word} for user has id ${id} successfully`, questions: questions, total: count });
     } catch (error) {
@@ -170,7 +170,7 @@ const showQuestionsByWord = async (req, res) => {
     try {
         const count = await Question.countDocuments({ text: { $regex: nameRegex } });
 
-        const questions = await Question.find({ text: { $regex: nameRegex } }).skip((page - 1) * limit).limit(limit);
+        const questions = await Question.find({ text: { $regex: nameRegex } }).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
 
         return res.status(200).send({ state: 'success', message: `Get questions have '${word}' word successfully`, questions: questions, total: count });
     } catch (error) {
@@ -184,7 +184,7 @@ const showQuestionsByUser = async (req, res) => {
     try {
         const count = await Question.countDocuments({ user_ids: { $in: id }});
 
-        const questions = await Question.find({ user_ids: { $in: id }}).skip((page - 1) * limit).limit(limit);
+        const questions = await Question.find({ user_ids: { $in: id }}).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
 
         return res.status(200).send({ state: 'success', message: `Get questions have user id: '${id}' successfully`, questions: questions, total: count });
     } catch (error) {
@@ -254,11 +254,12 @@ const createQuestion = async (req, res) => {
             return res.status(400).send({ state: 'failed', message: 'Answers is not an array of objects', inputsWrong: inputsWrong});
         }
     }
-    if(!category_ids) {
-        const otherCategory = await Category.find({ name: 'Other', section_id: section_id });
+
+    if(!category_ids || category_ids.length === 0) {
+        let otherCategory = await Category.findOne({ name: 'Other', section_id: section_id });
     
         if(!otherCategory) {
-            otherCategory = await Category.create({ name: 'Other', section_id: section_id});
+            otherCategory = await Category.create({ name: 'Other', section_id: section_id, picture: 'uploads/questions/1719757257722.Default-Question-Image-Quiz-App.jpg'});
         }
 
         category_ids = [otherCategory._id];        
@@ -266,21 +267,7 @@ const createQuestion = async (req, res) => {
 
     if (category_ids && !Array.isArray(category_ids)) {
         inputsWrong.push('category_ids');
-        return res.status(400).send({ state: 'failed', message: 'Question Ids must be an array', inputsWrong: inputsWrong });
-    }
-
-    for (const e of category_ids) {
-        if(!mongoose.Types.ObjectId.isValid(e)) {
-            inputsWrong.push('category_ids');
-            return res.status(400).send({ state: 'failed', message: 'Category Ids must have valid Ids', inputsWrong: inputsWrong });
-        }
-
-        const categoryIsExist = await Category.findOne({ _id: e, section_id });
-
-        if(!categoryIsExist) {
-            inputsWrong.push('category_ids');
-            return res.status(400).send({ state: 'failed', message: 'Category Ids must have Ids that exist in Category and related with the same section', inputsWrong: inputsWrong });
-        }
+        return res.status(400).send({ state: 'failed', message: 'Category Ids must be an array', inputsWrong: inputsWrong });
     }
 
     if(!(type == 'true-false' || type == 'normal' || type == 'multipale')) {
@@ -375,7 +362,7 @@ const createQuestion = async (req, res) => {
         if(type == 'true-false') {
             await User.findByIdAndUpdate(req.user._id, { $inc: { totalQuestions: 1, countTrueFalseQuestions: 1 }});
         } else if(type == 'normal') {
-            const i = await User.findByIdAndUpdate(req.user._id, { $inc: { totalQuestions: 1, countNormalQuestions: 1 }})
+            await User.findByIdAndUpdate(req.user._id, { $inc: { totalQuestions: 1, countNormalQuestions: 1 }})
         } else {
             await User.findByIdAndUpdate(req.user._id, { $inc: { totalQuestions: 1 , countMultipleQuestions: 1 }});
         }
@@ -394,10 +381,6 @@ const updateQuestion = async (req, res) => {
     const user = await User.findById(user_id);
 
     const question = await Question.findById(id);
-
-    if(user && user.role === 'data-entry' && !question.user_ids.includes(user_id)) {
-        return res.status(400).send({ state: 'failed', message: `You cannot access to this action`});
-    }
 
     const { category_ids, type, text, answers, section_id, picture } = req.body;
 
@@ -445,33 +428,18 @@ const updateQuestion = async (req, res) => {
         return res.status(400).send({ state: 'failed', message: 'Type & Text must be a string', inputsWrong: inputsWrong });
     }
 
-    if(!category_ids) {
-        const otherCategory = await Category.find({ name: 'Other', section_id: section_id });
-    
+    if(!category_ids || category_ids.length === 0) {
+        let otherCategory = await Category.findOne({ name: 'Other', section_id: section_id });
+
         if(!otherCategory) {
             otherCategory = await Category.create({ name: 'Other', section_id: section_id});
         }
-
         category_ids = [otherCategory._id];        
     }
 
     if (category_ids && !Array.isArray(category_ids)) {
         inputsWrong.push('category_ids');
         return res.status(400).send({ state: 'failed', message: 'Category Ids must be an array', inputsWrong: inputsWrong });
-    }
-
-    for (const e of category_ids) {
-        if(!mongoose.Types.ObjectId.isValid(e)) {
-            inputsWrong.push('category_ids');
-            return res.status(400).send({ state: 'failed', message: 'Category Ids must have valid Ids', inputsWrong: inputsWrong });
-        }
-
-        const categoryIsExist = await Category.findOne({ _id: e, section_id });
-
-        if(!categoryIsExist) {
-            inputsWrong.push('category_ids');
-            return res.status(400).send({ state: 'failed', message: 'Category Ids must have Ids that exist in Category and related with the same section', inputsWrong: inputsWrong });
-        }
     }
 
     if (!Array.isArray(answers)) {
@@ -515,6 +483,7 @@ const updateQuestion = async (req, res) => {
                 trueAnswers+=1;
             }
         }
+
         if(trueAnswers != 1) {
             inputsWrong.push('answers');
             return res.status(400).send({ state: 'failed', message: 'Normal question accept one right answer only', inputsWrong: inputsWrong});
@@ -566,9 +535,9 @@ const updateQuestion = async (req, res) => {
     try {
         let question;
         if(picture) {
-            question = await Question.findByIdAndUpdate(id ,{ section_id, category_ids, type, text, answers, picture, $push: { user_ids: user_id }}, { new: true });
+            question = await Question.findByIdAndUpdate(id ,{ section_id, category_ids, type, text, answers, picture}, { new: true });
         } else {
-            question = await Question.findByIdAndUpdate(id ,{ section_id, category_ids, type, text, answers, $push: { user_ids: user_id }}, { new: true });
+            question = await Question.findByIdAndUpdate(id ,{ section_id, category_ids, type, text, answers}, { new: true });
         }
 
         return res.status(200).send({ state: 'success', message: `Updated question successfully`, question});
@@ -590,10 +559,6 @@ const deleteQuestion = async (req, res) => {
         return res.status(400).send({ state: 'failed', message: 'This question is already not exist'});
     }
 
-    if(user && user.role === 'data-entry' && !question.user_ids.includes(user_id)) {
-        return res.status(400).send({ state: 'failed', message: `You cannot access to this action`});
-    }
-
     try {
         const deletedQuestion = await Question.findByIdAndDelete(id);
 
@@ -607,6 +572,8 @@ const deleteQuestion = async (req, res) => {
             }
         });
 
+        deleteImages('questions', question.picture);
+
         return res.status(200).send({ state: 'success', message: 'Deleted question successfully'});        
     } catch (error) {
         return res.status(400).send({ state: 'failed', message: error.message});       
@@ -618,7 +585,7 @@ const showAllActiveQuestions = async (req, res) => {
 
     const count = await Question.countDocuments({});
 
-    const questions = await Question.find({ active: true }).skip((page - 1) * limit).limit(limit);
+    const questions = await Question.find({ active: true }).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
 
     if(!questions) {
         return res.status(400).send({ state: 'failed', message: 'You dont have any active question' });
@@ -632,7 +599,7 @@ const showAllNotActiveQuestions = async (req, res) => {
 
     const count = await Question.countDocuments({});
 
-    const questions = await Question.find({ active: false }).skip((page - 1) * limit).limit(limit);
+    const questions = await Question.find({ active: false }).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
 
     if(!questions) {
         return res.status(400).send({ state: 'failed', message: 'You dont have any none active question' });

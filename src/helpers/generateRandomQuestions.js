@@ -1,11 +1,13 @@
 const Question = require("../database/models/Question");
 
-const generateRandomQuestions = async (categories, section, limit) => {
-    const questionsPromises = categories.map(async (category) => {
-            return Question.find({ category_ids: { $in: category }, section_id: section, active: true });
-    });
-    
-    const questions = await Promise.all(questionsPromises);
+const generateRandomQuestions = async (type, limit, typeQuestion) => {
+    let questions;
+
+    if(type.type === 'section') {
+        questions = await Question.find({ section_id: type._id, active: true, type: typeQuestion });
+    } else {
+        questions = await Question.find({ category_ids: { $in: type._id }, active: true, type: typeQuestion });
+    }
 
     const flatQuestions = [].concat(...questions);
 
@@ -22,22 +24,25 @@ const generateRandomQuestions = async (categories, section, limit) => {
     }
 
     return Array.from(selectedQuestions).map((id) => flatQuestions.find((q) => q._id === id));
-    // const latestQuestions = [];
-
-    // categories.forEach(async (category) => {
-    //     const questions = await Question.find( { category_ids: { $in: category }, section_id: section, active: true } );
-    //     latestQuestions.push(...questions);
-    // })
-
-    // const outputQuestions = [];
-
-    // for (const i = 0; i < limit; i++) {
-    //     const questionIndex = Math.floor(Math.random() * latestQuestions.length);
-
-    //     outputQuestions.push(latestQuestions[questionIndex]);
-    // }
-
-    // return outputQuestions;
 }
 
-module.exports = generateRandomQuestions;
+const generateRandomQuestionsForSpeedGame = async (type) => {
+    const limit = 100;
+    
+    const q1 = await generateRandomQuestions(type, limit, 'multipale');
+
+    const q2 = await generateRandomQuestions(type, limit, 'true-false');
+
+    const result = [];
+
+    for (let index = 0; index < limit; index++) {
+        result.push(q1[index]);        
+        result.push(q2[index]);        
+    }
+
+    return result;
+}
+
+module.exports = {
+    generateRandomQuestionsForSpeedGame
+};

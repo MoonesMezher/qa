@@ -53,13 +53,15 @@ const User = model("User", new Schema({
 if(process.env.ADD_ADMIN_MODE != 0) {
     // Create new admin user
     const adminUser = new User({
-        username: 'admin1',
-        password: passwordHash.generate('admin12345'),
+        username: 'admin',
+        password: passwordHash.generate('admin1234'),
         email: 'admin@admin.com',
         role: 'admin',
         verified: true,
         isFree: false
     });
+
+    // db.users.insertOne()
     
     // Save admin user to MongoDB
     adminUser.save()

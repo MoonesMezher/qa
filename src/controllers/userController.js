@@ -46,10 +46,10 @@ const signupUser = async (req, res) => {
     // if(!validator.isStrongPassword(password)) {
     //     return res.status(400).json({state: "failed", message: "Your password is weak"})
     // }
-    const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+    // const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/
 
-    if (!regex.test(password)) {
-        return res.status(400).json({state: "failed", message: "Your password is weak"})
+    if (password.length < 8) {
+        return res.status(400).json({state: "failed", message: "Your password must have 8 characters at least"})
     }
 
     const existUsername = await User.findOne({username});
@@ -206,7 +206,7 @@ const infoUserByRole = async (req, res) => {
     try {
         const count = await User.countDocuments({ role: role });
 
-        const users = await User.find({ role: role }).skip((page - 1) * limit).limit(limit).lean(); // Convert to plain JavaScript objects
+        const users = await User.find({ role: role }).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit).lean(); // Convert to plain JavaScript objects
 
         let profiles;
 

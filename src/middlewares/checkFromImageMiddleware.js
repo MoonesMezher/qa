@@ -4,6 +4,7 @@ const array_of_allowed_files = ['png', 'jpeg', 'jpg', 'webp'];
 const multer = require('multer');
 const randomInts = require('../helpers/generateRandomNumbersToUsernames');
 const fs = require('fs');
+const path = require('path');
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
@@ -17,13 +18,12 @@ const storage = multer.diskStorage({
             cb(null, 'src/uploads/section');
         } else if(req.params.folder === 'category') {
             cb(null, 'src/uploads/category');
+        } else if(req.params.folder === 'competitions') {
+            cb(null, 'src/uploads/competitions');
         } else {
             return cb(new Error('Invalid folder'));
         }
     },
-    // filename: (req, file, cb) => {
-    //     cb(null, randomInts(1, 100000)[0] + Date.now() + '-' + file.originalname);
-    // }
     filename: (req, file, cb) => {
         const webpFile = `${randomInts(1, 100000)[0] + Date.now() + randomInts(1, 100000)[0]}.`+file.originalname;
 
@@ -55,17 +55,22 @@ const isImage = (req, res, next) => {
 }
 
 const deleteImages = (folder, img) => {
+    const subImg = img.split("/")[img.split(".").length - 1];
+
     const imagesFolder = `uploads/${folder}`;
     const images = fs.readdirSync('src/'+imagesFolder);
 
     images.forEach((image) => {
-      const imagePath = path.join(imagesFolder, image);
-      const imageName = path.basename(image);
-  
-      // Check if the image is associated with the item
-      if (imageName.includes(img)) {
-        fs.unlinkSync(imagePath);
-      }
+        const imagePath = path.join(imagesFolder, image);
+        // console.log(101 , imagePath);
+        const imageName = path.basename(image);
+
+        // console.log(202, imageName);
+
+        // Check if the image is associated with the item
+        if (imageName.includes(subImg) && imageName != '1719757257722.Default-Question-Image-Quiz-App.jpg') {
+            fs.unlinkSync('src/'+imagePath);
+        }
     });
 };
 

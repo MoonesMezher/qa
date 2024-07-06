@@ -1,5 +1,6 @@
 const Offer = require("../database/models/Offer");
 const Profile = require("../database/models/Profile");
+const { deleteImages } = require("../middlewares/checkFromImageMiddleware");
 
 const showOffer = async (req, res) => {
     const { id } = req.params;
@@ -149,6 +150,8 @@ const deleteOffer = async (req, res) => {
         }
 
         await Offer.findByIdAndDelete(id);
+
+        deleteImages('offers', offer.picture);
 
         return res.status(200).json({state: 'success', message: 'Deleted offer successfully'});        
     } catch (error) {

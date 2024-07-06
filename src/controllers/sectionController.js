@@ -3,6 +3,7 @@ const Question = require("../database/models/Question");
 const Section = require("../database/models/Section");
 const { inSection } = require("../helpers/countOfQuestions");
 const normalizePath = require("../helpers/normalizePathName");
+const { deleteImages } = require("../middlewares/checkFromImageMiddleware");
 
 const createSection = async (req, res) => {
     const { name, picture } = req.body;
@@ -113,11 +114,19 @@ const deleteSection = async (req, res) => {
     }
 
     try {
-        await Section.findByIdAndDelete(id);
+        const section = await Section.findByIdAndDelete(id);
+
+        const categories = await Category.find({ section_id: id }).lean()
+                
+        await Promise.all(categories.map(async (category) => {
+            await deleteImages('category', category.picture);
+        }));
 
         await Category.deleteMany({ section_id: id });
 
         await Question.updateMany({ section_id: id }, { active: false });
+
+        deleteImages('section', section.picture);
 
         return res.status(200).send({ state: 'success', message: 'Deleted section successfully' });
     } catch(err) {
@@ -253,6 +262,46 @@ const disactivateSection = async (req, res) => {
     }
 }
 
+const getAllSectionsAndCategoris = async (req, res) => {
+    try {
+        const sections = await Section.find({ active: true }).sort({ name: 1 });
+
+        const categories = await Category.find({ active: true }).sort({ name: 1 });
+
+        let combinedData = [...sections, ...categories].sort((a, b) => {
+            if (a.title < b.title) return -1;
+            if (a.title > b.title) return 1;
+            return 0;
+        });
+
+        combinedData = await Promise.all(combinedData.map(async (e) => {
+            if(e.section_id) {
+                let sectionName = "";
+
+                if(e._doc.name === 'Other') {
+                    const section = await Section.findById(e.section_id);
+
+                    sectionName = section?.name;
+                }
+
+                return {id: e._doc._id, name: e._doc.name === 'Other'? "Other "+sectionName: e._doc.name, picture: e._doc.picture, type: 'category' }
+            } else {
+                return {id: e._doc._id, name: e._doc.name, picture: e._doc.picture, type: 'section' };
+            }
+        }));
+
+        const totalSectionsCount = await Section.countDocuments({ active: true });
+
+        const totalCategoriesCount = await Category.countDocuments({ active: true });
+
+        const totalCount = totalSectionsCount + totalCategoriesCount;
+
+        return res.status(200).json({state: 'success', message: 'Get all sections & categories successfully', combinedData, total: totalCount})
+    } catch (err) {
+        return res.status(400).json({state: 'failed', message: err.message })
+    }    
+}
+
 module.exports = {
     createSection,
     updateSection,
@@ -263,5 +312,6 @@ module.exports = {
     showAllActiveSections,
     showAllNotActiveSections,
     activateSection,
-    disactivateSection
+    disactivateSection,
+    getAllSectionsAndCategoris
 }
