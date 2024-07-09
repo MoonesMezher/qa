@@ -46,7 +46,13 @@ const Profile = model("Profile", new Schema({
         max: 255,
     },
     score: {
-        type: scoreSchema
+        type: scoreSchema,
+        default: {
+            speed: 0,
+            chain: 0,
+            online: 0,
+            group: 0
+        }
     }
 }, { timestamps : true }))
 
