@@ -2,7 +2,7 @@ const { default: mongoose } = require("mongoose");
 const { generateRandomQuestionsForSpeedGame, generateRandomQuestionsForChainGame } = require("../helpers/generateRandomQuestions");
 
 const getQuestionsToSpeedGame = async (req, res) => {
-    const { id, type } = req.body;
+    const { id, type } = req.params;
 
     if(!type || !id) {
         return res.status(400).json({ state: 'failed', message: 'You must choose section or category to play this game' })
@@ -16,12 +16,16 @@ const getQuestionsToSpeedGame = async (req, res) => {
         return res.status(400).json({ state: 'failed', message: 'Type must be a string'})
     }
 
+    if(type !== 'section' && type !== 'category') {
+        return res.status(400).json({ state: 'failed', message: 'Type value must be a section or category'})
+    }
+
     try {
         const questions = await generateRandomQuestionsForSpeedGame({ id, type });
 
         const total = questions.length;
 
-        return res.status(200).json({ state: 'success', message: 'Generate all questions for speed game successfully', questions, total })        
+        return res.status(200).json({ state: 'success', message: 'تم توليد جميع الأسئلة بنجاح', questions, total })        
     } catch (err) {
         return res.status(400).json({ state: 'failed', message: err.message})        
     }
