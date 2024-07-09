@@ -4,6 +4,7 @@ const Question = require("../database/models/Question");
 const User = require("../database/models/User");
 const normalizePath = require("../helpers/normalizePathName");
 const { deleteImages } = require("../middlewares/checkFromImageMiddleware");
+const Section = require("../database/models/Section");
 
 const limit = 50;
 
@@ -432,8 +433,9 @@ const updateQuestion = async (req, res) => {
         let otherCategory = await Category.findOne({ name: 'Other', section_id: section_id });
 
         if(!otherCategory) {
-            otherCategory = await Category.create({ name: 'Other', section_id: section_id});
+            otherCategory = await Category.create({ name: 'Other', section_id: section_id, picture: 'uploads/questions/1719757257722.Default-Question-Image-Quiz-App.jpg'});
         }
+        
         category_ids = [otherCategory._id];        
     }
 
@@ -652,6 +654,210 @@ const disactivateQuestion = async (req, res) => {
     }
 }
 
+const showQuestionsByCategory = async (req, res) => {
+    const { category, section,page } = req.params;
+
+    if(!category) {
+        return res.status(400).send({ state: 'failed', message: `You should insert a category to filter questions` });
+    }
+
+    if(typeof category !== 'string') {
+        return res.status(400).send({ state: 'failed', message: `Category must be a string` });
+    }
+
+    if(!section) {
+        return res.status(400).send({ state: 'failed', message: `You should insert a section to filter questions` });
+    }
+
+    if(typeof section !== 'string') {
+        return res.status(400).send({ state: 'failed', message: `Section must be a string` });
+    }
+    
+    try {
+        const findSection = await Section.findOne({ name: section });
+
+        if(!findSection) {
+            return res.status(400).send({ state: 'failed', message: 'This section not found' });        
+        }
+
+        const findCategory = await Category.findOne({ name: category, section_id: findSection._id });
+        
+        if(!findCategory) {
+            return res.status(400).send({ state: 'failed', message: 'This category not found' });        
+        }
+
+        const count = await Question.countDocuments({ section_id: findSection._id,category_ids: { $in: findCategory._id } });
+
+        const questions = await Question.find({ section_id: findSection._id,category_ids: { $in: findCategory._id } }).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
+
+        return res.status(200).send({ state: 'success', message: `Get questions have ${section} as section and '${category}' as category successfully`, questions: questions, total: count });
+    } catch (error) {
+        return res.status(400).send({ state: 'failed', message: error.message });        
+    }
+}
+
+const showQuestionsByCategoryAndWord = async (req, res) => {
+    const { category, section, word, page } = req.params;
+
+    if(!category) {
+        return res.status(400).send({ state: 'failed', message: `You should insert a category to filter questions` });
+    }
+
+    if(typeof category !== 'string') {
+        return res.status(400).send({ state: 'failed', message: `Category must be a string` });
+    }
+
+    if(!section) {
+        return res.status(400).send({ state: 'failed', message: `You should insert a section to filter questions` });
+    }
+
+    if(typeof section !== 'string') {
+        return res.status(400).send({ state: 'failed', message: `Section must be a string` });
+    }
+
+    if(typeof word !== 'string') {
+        return res.status(400).send({ state: 'failed', message: `Word must be string` });
+    }
+
+    const newRegex = new RegExp(`.*${word}.*`, 'i')
+    
+    try {
+        const findSection = await Section.findOne({ name: section });
+
+        if(!findSection) {
+            return res.status(400).send({ state: 'failed', message: 'This section not found' });        
+        }
+
+        const findCategory = await Category.findOne({ name: category, section_id: findSection._id  });
+        
+        if(!findCategory) {
+            return res.status(400).send({ state: 'failed', message: 'This category not found' });        
+        }
+
+        const count = await Question.countDocuments({ section_id: findSection._id,category_ids: { $in: findCategory._id }, text: { $regex: newRegex } });
+
+        const questions = await Question.find({ section_id: findSection._id,category_ids: { $in: findCategory._id }, text: { $regex: newRegex } }).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
+
+        return res.status(200).send({ state: 'success', message: `Get questions have ${section} as section and '${word}' in category: ${category} successfully`, questions: questions, total: count });
+    } catch (error) {
+        return res.status(400).send({ state: 'failed', message: error.message });        
+    }
+}
+
+const showQuestionsByCategoryAndType = async (req, res) => {
+    const { section, category, type, page } = req.params;
+
+    if(!category) {
+        return res.status(400).send({ state: 'failed', message: `You should insert a category to filter questions` });
+    }
+
+    if(typeof category !== 'string') {
+        return res.status(400).send({ state: 'failed', message: `Category must be a string` });
+    }
+
+    if(!section) {
+        return res.status(400).send({ state: 'failed', message: `You should insert a section to filter questions` });
+    }
+
+    if(typeof section !== 'string') {
+        return res.status(400).send({ state: 'failed', message: `Section must be a string` });
+    }
+
+    if(!type) {
+        return res.status(400).send({ state: 'failed', message: `You should insert a type to filter questions` });
+    }
+
+    if(typeof type !== 'string') {
+        return res.status(400).send({ state: 'failed', message: `Type must be string` });
+    }
+
+    if(!(type === 'true-false' || type === 'normal' || type === 'multipale')) {
+        return res.status(400).send({ state: 'failed', message: `This type doesnot exist in the system` });
+    }
+    
+    try {
+        const findSection = await Section.findOne({ name: section });
+
+        if(!findSection) {
+            return res.status(400).send({ state: 'failed', message: 'This section not found' });        
+        }
+
+        const findCategory = await Category.findOne({ name: category, section_id: findSection._id  });
+        
+        if(!findCategory) {
+            return res.status(400).send({ state: 'failed', message: 'This category not found' });        
+        }
+
+        const count = await Question.countDocuments({ section_id: findSection._id, category_ids: { $in: findCategory._id }, type });
+
+        const questions = await Question.find({ section_id: findSection._id,category_ids: { $in: findCategory._id }, type }).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
+
+        return res.status(200).send({ state: 'success', message: `Get questions have ${section} as section and '${type}' in category: ${category} successfully`, questions: questions, total: count });
+    } catch (error) {
+        return res.status(400).send({ state: 'failed', message: error.message });        
+    }
+}
+
+const showQuestionsByCategoryAndTypeAndWord = async (req, res) => {
+    const { section, category, type, page, word } = req.params;
+
+    if(!category) {
+        return res.status(400).send({ state: 'failed', message: `You should insert a category to filter questions` });
+    }
+
+    if(typeof category !== 'string') {
+        return res.status(400).send({ state: 'failed', message: `Category must be a string` });
+    }
+
+    if(!section) {
+        return res.status(400).send({ state: 'failed', message: `You should insert a section to filter questions` });
+    }
+
+    if(typeof section !== 'string') {
+        return res.status(400).send({ state: 'failed', message: `Section must be a string` });
+    }
+
+    if(!type) {
+        return res.status(400).send({ state: 'failed', message: `You should insert a type to filter questions` });
+    }
+
+    if(typeof type !== 'string') {
+        return res.status(400).send({ state: 'failed', message: `Type must be string` });
+    }
+
+    if(!(type === 'true-false' || type === 'normal' || type === 'multipale')) {
+        return res.status(400).send({ state: 'failed', message: `This type doesnot exist in the system` });
+    }
+
+    if(typeof word !== 'string') {
+        return res.status(400).send({ state: 'failed', message: `Word must be string` });
+    }
+    
+    try {
+        const newRegex = new RegExp(`.*${word}.*`, 'i');
+        
+        const findSection = await Section.findOne({ name: section });
+        
+        if(!findSection) {
+            return res.status(400).send({ state: 'failed', message: 'This section not found' });        
+        }
+
+        const findCategory = await Category.findOne({ name: category, section_id: findSection._id });
+        
+        if(!findCategory) {
+            return res.status(400).send({ state: 'failed', message: 'This category not found' });        
+        }
+
+        const count = await Question.countDocuments({ section_id: findSection._id, category_ids: { $in: findCategory._id }, type, text: { $regex: newRegex } });
+
+        const questions = await Question.find({ section_id: findSection._id, category_ids: { $in: findCategory._id }, type, text: { $regex: newRegex } }).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
+
+        return res.status(200).send({ state: 'success', message: `Get questions have ${section} as section and '${type}' and word: ${word} in category: ${category} successfully`, questions: questions, total: count });
+    } catch (error) {
+        return res.status(400).send({ state: 'failed', message: error.message });        
+    }
+}
+
 module.exports = {
     showQuestion,
     showQuestions,
@@ -668,5 +874,9 @@ module.exports = {
     disactivateQuestion,
     showQuestionsByTypeForOneUser,
     showQuestionsByTypeForOneUserWithFilter,
-    showQuestionsForOneUserWithFilter
+    showQuestionsForOneUserWithFilter,
+    showQuestionsByCategory,
+    showQuestionsByCategoryAndWord,
+    showQuestionsByCategoryAndType,
+    showQuestionsByCategoryAndTypeAndWord
 }

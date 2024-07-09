@@ -1,5 +1,24 @@
 const { Schema, model, default: mongoose } = require("mongoose");
 
+const scoreSchema = new mongoose.Schema({
+    speed: {
+        type: Number,
+        default: 0,
+    },
+    chain: {
+        type: Number,
+        default: 0
+    },
+    online: {
+        type: Number,
+        default: 0,
+    },
+    group: {
+        type: Number,
+        default: 0
+    },
+});
+
 const Profile = model("Profile", new Schema({
     user_id: {
         type: Schema.Types.ObjectId,
@@ -8,7 +27,7 @@ const Profile = model("Profile", new Schema({
     },
     picture: {
         type: String,
-        default: "uploads/profile/profileDefault.jpeg",
+        default: "uploads/questions/1719757257722.Default-Question-Image-Quiz-App.jpg",
     },
     tokens: {
         type: Number,
@@ -26,6 +45,9 @@ const Profile = model("Profile", new Schema({
         type: String, 
         max: 255,
     },
+    score: {
+        type: scoreSchema
+    }
 }, { timestamps : true }))
 
 module.exports = mongoose.model("Profile") || Profile

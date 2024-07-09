@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 // methods
-const { getProfile, updateProfile, showTopUsersByExp, showTopUsersByExpDepandLastMonth, showTopUsersByExpDepandLastWeek, showTopUsersByExpDepandLastDay } = require('../controllers/profileController');
+const { getProfile, updateProfile, showTopUsersByExp, showTopUsersByExpDepandLastMonth, showTopUsersByExpDepandLastWeek, showTopUsersByExpDepandLastDay, updateScoreOfUser, updateExpAndTokensToUser, paysCoastOfGame } = require('../controllers/profileController');
 
 // middlewares
 const requireAuth = require('../middlewares/requireAuth');
@@ -25,5 +25,11 @@ router.get('/:id', [validateObjectId, requireAuth, authorize(["user", "guest"])]
 
 // PUT
 router.put('/update/:id/', [validateObjectId, requireAuth, authorize(["user"]), isImage], updateProfile);
+
+router.put('/update-score', [requireAuth, authorize(["user", "guest", "admin"])], updateScoreOfUser);
+
+router.put('/update-tokens-and-exp', [requireAuth, authorize(["user", "guest", "admin"])], updateExpAndTokensToUser);
+
+router.put('/pays-coast', [requireAuth, authorize(["user", "guest", "admin"])], paysCoastOfGame);
 
 module.exports = router;

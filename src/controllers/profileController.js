@@ -134,11 +134,153 @@ const showTopUsersByExpDepandLastDay = async (req, res) => {
     }
 }
 
+const updateScoreOfUser = async (req, res) => {
+    let { type, score } = req.body;
+
+    const user_id = req.user._id;
+
+    if(!score) {
+        score = 0
+    }
+
+    if(typeof score !== 'number') {
+        return res.status(400).json({ state: "failed", message: 'Score must be number' });            
+    }
+
+    if(!type) {
+        return res.status(400).json({ state: "failed", message: 'Type cannot be empty' });            
+    }
+
+    if(typeof type !== "string") {
+        return res.status(400).json({ state: "failed", message: 'Type must be string' });            
+    }
+
+    const user = await User.findById(user_id);
+
+    if(!user) {
+        return res.status(400).json({ state: "failed", message: 'This user doesnot exist' });            
+    }
+
+    if(!["speed", "chain", "online", "group"].includes(type)) {
+        return res.status(400).json({ state: "failed", message: 'As type there are just { speed, chain, online, group }, you should insert one of them' });                    
+    }
+
+    try {
+        const profile = await Profile.findOne({ user_id });
+
+        if(!profile) {
+            return res.status(400).json({ state: "failed", message: 'This user doesnot have a profile right now' });                    
+        }
+
+        let scoreMessage;
+
+        if(profile.score.speed === score && score !== 0) {
+            scoreMessage = "You're still on top! Your score in game remains the same"
+        } else if(profile.score.speed < score) {
+            profile.score.speed = score
+            await profile.save();
+            scoreMessage = "Congratulations! You've broken your top score in game. Keep going!"
+        }
+
+        return res.status(200).json({ state: "success", message: `Updated score of user in ${type} game successfully`, profile, scoreMessage});            
+    } catch (error) {
+        return res.status(400).json({ state: "failed", message: error.message });                    
+    }
+}
+
+const updateExpAndTokensToUser = async (req, res) => {
+    let { tokens, exp } = req.body;
+
+    const user_id = req.user._id;
+
+    if(!tokens) {
+        tokens = 0;
+    }
+
+    if(!exp) {
+        exp = 0;
+    }
+
+    if(typeof tokens !== 'number') {
+        return res.status(400).json({ state: "failed", message: 'Tokens must be number' });            
+    }
+
+    if(typeof exp !== 'number') {
+        return res.status(400).json({ state: "failed", message: 'Exp must be number' });            
+    }
+
+    const user = await User.findById(user_id);
+
+    if(!user) {
+        return res.status(400).json({ state: "failed", message: 'This user doesnot exist' });            
+    }
+
+    try {
+        const profile = await Profile.findOne({ user_id });
+
+        if(!profile) {
+            return res.status(400).json({ state: "failed", message: 'This user doesnot have a profile right now' });                    
+        }
+
+        profile.tokens += tokens;
+        profile.exp += exp;
+
+        await profile.save();
+
+        return res.status(200).json({ state: "success", message: 'Updated tokens and exp to user successfully', profile });                    
+    } catch (error) {
+        return res.status(400).json({ state: "failed", message: error.message });                    
+    }
+}
+
+const paysCoastOfGame = async (req, res) => {
+    let { coast } = req.body;
+
+    if(!coast) {
+        coast = 0;
+    }
+
+    if(typeof coast !== 'number') {
+        return res.status(400).json({ state: "failed", message: 'Coast must be number' });            
+    }
+
+    const user_id = req.user._id;
+
+    const user = await User.findById(user_id);
+
+    if(!user) {
+        return res.status(400).json({ state: "failed", message: 'This user doesnot exist' });            
+    }
+
+    try {
+        const profile = await Profile.findOne({ user_id });
+
+        if(!profile) {
+            return res.status(400).json({ state: "failed", message: 'This user doesnot have a profile right now' });                    
+        }
+
+        if(profile.tokens < coast) {
+            return res.status(400).json({ state: "failed", message: 'Sorry! you dont have enough tokens to make this action' });                    
+        }
+
+        profile.tokens -= coast;
+
+        await profile.save();
+
+        return res.status(200).json({ state: "success", message: 'Pay proccess done successfully', profile });                    
+    } catch(error) {
+        return res.status(400).json({ state: "failed", message: error.message });                    
+    }
+}
+
 module.exports = {
     getProfile,
     updateProfile,
     showTopUsersByExp,
     showTopUsersByExpDepandLastDay,
     showTopUsersByExpDepandLastWeek,
-    showTopUsersByExpDepandLastMonth
+    showTopUsersByExpDepandLastMonth,
+    updateScoreOfUser,
+    updateExpAndTokensToUser,
+    paysCoastOfGame
 }

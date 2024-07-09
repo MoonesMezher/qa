@@ -67,13 +67,30 @@ const signupUser = async (req, res) => {
     const hash = passwordHash.generate(password);
     
     try {
-        const user = await User.create({username, email, password: hash, role: 'user'});
+        const user = await User.create({username, email, password: hash, role: 'user' });
     
-        const profile = await Profile.create({user_id: user._id});
+        const profile = await Profile.create({user_id: user._id, description: 'لاعب رائع'});
 
         const token = createToken(user._id, user.role, user.email, user.username);
 
-        return res.status(200).json({state: "success", message: "Signed up successfully", token, role: user.role, user, profile});
+        const userData = {
+            _id: user._id,
+            token,
+            username: user.username,
+            email: user.email,
+            password: user.password,
+            verified: user.verified,
+            active: user.active,
+            isFree: user.isFree,
+            description: profile.description, 
+            country: profile.country, 
+            picture: profile.picture,
+            tokens: profile.tokens,
+            exp: profile.exp,
+            score: profile.score,            
+        }
+
+        return res.status(200).json({state: "success", message: "Signed up successfully", user: userData});
     } catch (error) {
         return res.status(400).json({state: "failed", message: error.message})
     }
@@ -106,11 +123,28 @@ const signupUserAsGuest = async (req, res) => {
     try {
         const user = await User.create({username: username, email: email , password: hash});
 
-        const profile = await Profile.create({user_id: user._id});
+        const profile = await Profile.create({ user_id: user._id, description: 'لاعب مبدع' });
 
         const token = createToken(user._id, user.role, user.email, user.username);
 
-        return res.status(200).json({state: "success", message: 'Signed up successfully', token, role: user.role, user, profile});
+        const userData = {
+            _id: user._id,
+            token,
+            username: user.username,
+            email: user.email,
+            password: user.password,
+            verified: user.verified,
+            active: user.active,
+            isFree: user.isFree,
+            description: profile.description, 
+            country: profile.country, 
+            picture: profile.picture,
+            tokens: profile.tokens,
+            exp: profile.exp,
+            score: profile.score,            
+        }
+
+        return res.status(200).json({state: "success", message: 'Signed up successfully', user: userData});
     } catch (error) {
         return res.status(400).json({state: "failed", message: error.message})
     }
@@ -154,6 +188,67 @@ const loginUser = async (req, res) => {
         const token = createToken(user._id, user.role, user.email, user.username);
 
         res.status(200).json({state: "success", message: "Logged in successfully", token, role: user.role, user});
+    } catch (error) {
+        res.status(400).json({state: "failed", message: error.message})
+    }
+}
+
+const loginUserInApp = async (req, res) => {    
+    const { username, password } = req.body;
+
+    const emptyFilds = [];
+
+    if(typeof username !== 'string') {
+        return res.status(400).json({state: "failed", message: "Username must be a string"});
+    }
+
+    if(!username) {
+        emptyFilds.push('username');
+    }
+    if(!password) {
+        emptyFilds.push('password');
+    }
+    if(emptyFilds.length > 0) {
+        return res.status(400).json({state: "failed", message:"All filds must be filed",emptyFilds: emptyFilds})
+    }
+
+    const user = await User.findOne({username: username});  
+
+    if(!user) {
+        emptyFilds.push("username");
+        return res.status(400).json({state: "failed", message: "Incorecct username",emptyFilds: emptyFilds})
+    }
+
+    const match = passwordHash.verify(password, user.password);
+
+    if(!match) {
+        emptyFilds.push("password");
+        return res.status(400).json({state: "failed", message: "Incorecct password", emptyFilds: emptyFilds})
+    }
+
+    try {    
+        const profile = await Profile.findOne({user_id: user._id});
+
+        const token = createToken(user._id, user.role, user.email, user.username);
+
+        const userData = {
+            _id: user._id,
+            token,
+            username: user.username,
+            email: user.email,
+            password: user.password,
+            verified: user.verified,
+            active: user.active,
+            isFree: user.isFree,
+            description: profile.description, 
+            country: profile.country, 
+            picture: profile.picture,
+            tokens: profile.tokens,
+            exp: profile.exp,
+            score: profile.score,            
+        }
+
+        res.status(200).json({state: "success", message: "Logged in successfully", userData});
     } catch (error) {
         res.status(400).json({state: "failed", message: error.message})
     }
@@ -621,6 +716,7 @@ const infoUsersByUsernameByRole = async (req, res) => {
 module.exports = {
     signupUser,
     loginUser,
+    loginUserInApp,
     logoutUser,
     infoUsers,
     updateUser,

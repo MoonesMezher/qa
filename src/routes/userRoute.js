@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 // methods
-const { signupUser, loginUser, logoutUser, infoUsers, infoUser, updateUser, infoUserByRole, signupUserAsGuest, signupUserAsDataEntry, updateDataEntry, activateUser, disActivateUser, deleteUser, veryfiedUser, infoUsersByUsername, paidAccount, addTokensToUser, updatePassword, infoUsersByUsernameByRole } = require('../controllers/userController');
+const { signupUser, loginUser, logoutUser, infoUsers, infoUser, updateUser, infoUserByRole, signupUserAsGuest, signupUserAsDataEntry, updateDataEntry, activateUser, disActivateUser, deleteUser, veryfiedUser, infoUsersByUsername, paidAccount, addTokensToUser, updatePassword, infoUsersByUsernameByRole, loginUserInApp } = require('../controllers/userController');
 
 // middlewares
 const requireAuth = require('../middlewares/requireAuth');
@@ -31,6 +31,8 @@ router.post('/signup/as-data-entry', signupUserAsDataEntry);
 router.post('/signup', signupUser);
 
 router.post('/login', loginUser);
+
+router.post('/login-app', loginUserInApp);
 
 router.post('/logout', [requireAuth, authorize(['user', 'guest'])], logoutUser);
 

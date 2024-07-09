@@ -3,7 +3,7 @@ const express = require('express');
 const logger = require('morgan')
 const path = require('path');
 const cors = require('cors');
-const cron = require('node-cron');
+// const cron = require('node-cron');
 
 // Routes
 const userRouter = require('./routes/userRoute');
@@ -16,6 +16,7 @@ const reportRouter = require('./routes/reportRoute');
 const uploadRouter = require('./routes/uploadRoute');
 const noteficationRouter = require('./routes/noteficationRoute');
 const competitionRouter = require('./routes/competitionRoute');
+const gameRouter = require('./routes/gameRoute');
 
 const app = express();
 
@@ -38,6 +39,7 @@ app.use('/api/offers',offerRouter);
 app.use('/api/reports',reportRouter);
 app.use('/api/notefications', noteficationRouter);
 app.use('/api/competitions', competitionRouter);
+app.use('/api/games', gameRouter);
 
 app.use('/api/test/deleteall', async (req, res) => {
     try {
@@ -61,9 +63,9 @@ app.put('/api/test/questions/section/:id',async (req, res) => {
 
     const total = await Question.countDocuments({ category_ids: [] });
 
-    const totalTheSameQuestion = await Question.countDocuments({ category_ids: [], section_id: id });
+    const totalTheSameSection = await Question.countDocuments({ category_ids: [], section_id: id });
 
-    const findOtherCategory = await Category.findOne({ name: 'Other', section_id: id});
+    const findOtherCategory = await Category.findOne({ name: 'Other', section_id: id });
 
     if(!findOtherCategory) {
         const createdCategory = await Category.create({ name: 'Other', section_id: id, picture: 'uploads/questions/1719757257722.Default-Question-Image-Quiz-App.jpg'});
@@ -74,9 +76,14 @@ app.put('/api/test/questions/section/:id',async (req, res) => {
     }
 
     try {
-        await Question.updateMany({ category_ids: [], section_id: id }, { category_ids: [OtherId] });
+        // , { category_ids: [OtherId] }
+        const qs = await Question.find({ category_ids: [], section_id: id }).limit(10);
 
-        return res.status(200).json({ state: 'success', message: 'Updated questions successfully', total, totalTheSameQuestion })
+        await Promise.all(qs.map(async e => {
+            await Question.findByIdAndUpdate(e._id, { category_ids: [OtherId] });
+        }));
+
+        return res.status(200).json({ state: 'success', message: 'Updated questions successfully', total, totalTheSameSection })
     } catch (error) {
         return res.status(400).json({ state: 'failed', message: error.message });
     }
@@ -89,6 +96,5 @@ const User = require('./database/models/User');
 const Question = require('./database/models/Question');
 const Category = require('./database/models/Category');
 const { default: mongoose } = require('mongoose');
-
 
 module.exports = app;
