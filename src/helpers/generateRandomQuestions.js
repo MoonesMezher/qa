@@ -12,20 +12,20 @@ const generateRandomQuestions = async (type, limit, typeQuestion) => {
     if(typeQuestion === 'true-false') {
         questions = await Promise.all(questions.map(async (question) => {
             return {
-            "_id": question._id,
-            "section_id": question.section_id,
-            "category_ids": question.category_ids,
-            "user_ids": question.user_ids,
-            "picture": question.picture,
-            "type": question.type,
-            "text": question.text,
+            "_id": question?._id,
+            "section_id": question?.section_id,
+            "category_ids": question?.category_ids,
+            "user_ids": question?.user_ids,
+            "picture": question?.picture,
+            "type": question?.type,
+            "text": question?.text,
             "answers": [
                     {
-                        "answer": question.answer[0].state? 'صح': 'خطأ',
+                        "answer": question.answers[0].state? 'صح': 'خطأ',
                         "state": true,
                     },
                     {
-                        "answer": !question.answer[0].state? 'صح': 'خطأ',
+                        "answer": !question.answers[0].state? 'صح': 'خطأ',
                         "state": false,
                     }
                 ]

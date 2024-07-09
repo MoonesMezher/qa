@@ -17,7 +17,7 @@ const User = model("User", new Schema({
     },
     verified: {
         type: Boolean,
-        default: false
+        default: true
     },
     active: {
         type: Boolean,
