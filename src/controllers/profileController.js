@@ -172,17 +172,33 @@ const updateScoreOfUser = async (req, res) => {
             return res.status(400).json({ state: "failed", message: 'This user doesnot have a profile right now' });                    
         }
 
-        let scoreMessage;
+        // let scoreMessage;
 
-        if(profile.score.speed === score && score !== 0) {
-            scoreMessage = "You're still on top! Your score in game remains the same"
-        } else if(profile.score.speed < score) {
-            profile.score.speed = score
-            await profile.save();
-            scoreMessage = "Congratulations! You've broken your top score in game. Keep going!"
+        // if(profile.score.speed === score && score !== 0) {
+        //     scoreMessage = "أنت لا تزال على القمة! درجاتك في اللعبة مازالت كما هي"
+        // } else if(profile.score.speed < score) {
+        //     profile.score.speed = score
+        //     await profile.save();
+        //     scoreMessage = "تهانينا! لقد كسرت أعلى درجاتك في اللعبة. استمر في التقدم!"
+        // }
+
+        const userData = {
+            _id: user._id,
+            username: user.username,
+            email: user.email,
+            password: user.password,
+            verified: user.verified,
+            active: user.active,
+            isFree: user.isFree,
+            description: profile.description, 
+            country: profile.country, 
+            picture: profile.picture,
+            tokens: profile.tokens,
+            exp: profile.exp,
+            score: profile.score,            
         }
 
-        return res.status(200).json({ state: "success", message: `Updated score of user in ${type} game successfully`, profile, scoreMessage});            
+        return res.status(200).json({ state: "success", message: `تم تحديث درجات المستخدم بنجاح`, userData});            
     } catch (error) {
         return res.status(400).json({ state: "failed", message: error.message });                    
     }
@@ -227,7 +243,23 @@ const updateExpAndTokensToUser = async (req, res) => {
 
         await profile.save();
 
-        return res.status(200).json({ state: "success", message: 'Updated tokens and exp to user successfully', profile });                    
+        const userData = {
+            _id: user._id,
+            username: user.username,
+            email: user.email,
+            password: user.password,
+            verified: user.verified,
+            active: user.active,
+            isFree: user.isFree,
+            description: profile.description, 
+            country: profile.country, 
+            picture: profile.picture,
+            tokens: profile.tokens,
+            exp: profile.exp,
+            score: profile.score,            
+        }
+
+        return res.status(200).json({ state: "success", message: 'تم تحديث درجات الخبرة ورصيد المستخدمم بنجاح', userData });                    
     } catch (error) {
         return res.status(400).json({ state: "failed", message: error.message });                    
     }
@@ -260,14 +292,30 @@ const paysCoastOfGame = async (req, res) => {
         }
 
         if(profile.tokens < coast) {
-            return res.status(400).json({ state: "failed", message: 'Sorry! you dont have enough tokens to make this action' });                    
+            return res.status(400).json({ state: "failed", message: 'عذرا! ليس رصيدك كافي للعب هذه اللعبة' });                    
         }
 
         profile.tokens -= coast;
 
         await profile.save();
 
-        return res.status(200).json({ state: "success", message: 'Pay proccess done successfully', profile });                    
+        const userData = {
+            _id: user._id,
+            username: user.username,
+            email: user.email,
+            password: user.password,
+            verified: user.verified,
+            active: user.active,
+            isFree: user.isFree,
+            description: profile.description, 
+            country: profile.country, 
+            picture: profile.picture,
+            tokens: profile.tokens,
+            exp: profile.exp,
+            score: profile.score,            
+        }
+
+        return res.status(200).json({ state: "success", message: 'تمت عملية الدفع بنجاح', userData });                    
     } catch(error) {
         return res.status(400).json({ state: "failed", message: error.message });                    
     }

@@ -25,6 +25,10 @@ const getQuestionsToSpeedGame = async (req, res) => {
 
         const total = questions.length;
 
+        if(total === 0) {
+            return res.status(400).json({ state: 'failed', message: 'عذرا! لايوجد أسئلة تناسب اختيارك'})
+        }
+
         return res.status(200).json({ state: 'success', message: 'تم توليد جميع الأسئلة بنجاح', questions, total })        
     } catch (err) {
         return res.status(400).json({ state: 'failed', message: err.message})        
