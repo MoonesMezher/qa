@@ -1,13 +1,1 @@
-{
-    "type": "service_account",
-    "project_id": "footballd2",
-    "private_key_id": "c92aaca74a9db7acb3b17ab8dceb68d3a2481794",
-    "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCsx3/DLLyMIqKM\nUrxXsgqcU5IGifLp3FBSzG6SN69kW5EFq3GqZlxSz2dKDBX8SlrvBA5XtekYdVyg\nYxuacaojb4NMxBlPPgju9ownPGokPDf8oKJ0o4CknCCFDl5tlOhJXEN4Gu2cr7lX\nDqHBc/5WUYMeSOMvmiYXeRDwassZ0wBzaXY7ka+6pjFwqsWX8DcZir9CmOa21iqC\nGtV1jhCxaZt54dyRM3KIgfYSfpIzHk9dcWBoiXxmjF0f3hd3Um58EDBlDhRm3oN3\nZa8jWIyg6b1nPcuVvjl6gkxHSi+78/HkClixwNQtSiqrPUssVVyDH7AMd9FTAnSj\nQif5xR+VAgMBAAECggEACojvhVsI9BJ4js3Mphw5AWcnFDb9FL1WOHY2l7vFef0L\nTqkxeQ5cur/isGUkQgnWmZRJu5df6xnc1/qzCCu+EAMQonGiiW5i5Q8rZIkOf78c\nOs8gmLQPd/n9EZ/aqhvWPgLeKkiaDF+6kVBXFJCaBXFa6VHQaGqhv/Slz8LzN1PI\ni8qTVqWdfH2WQg3UJkBJuOW7/ithw6jOBK3wY7XV3U/tMQoO4UfpnJScVKK0IEcs\npYPDhbh32zQg91HsVPvGL8VkJThlmG38oHyXCKgrs701Zmp+Vmy4HwXpMBiV81VD\n5uPllOMCeOsXeP9CtBuaMV4RvswRS3BzwMv8+znhgQKBgQDkJU8Om6OMO3C4Hs7G\nG6jr7sRQq/KtIS4OCQh8xfqGstBN2uyZYboaKLWXN+J3FjjTwr0SXAScxZMhsrJN\nB361UXOvJfdTMH7H51IWdw6+gO8wFpemJ+PiXspLcNVlBH34d/zjuQvj4QNiVnpp\n5o70fx/oZ8gx1pUYxFir/Vih3QKBgQDB37aFRaq8FzpsRhDm4Tcms+gzZkHG19zK\n42u2HRyJBiv6RpkD7rfxU95ABfqdnNAnghPScDQNQ3Dkl0Srf/biMlN6KQQft89k\niJExUmSwZ6wQitN0jbBoS0CTCA5qHP0SA0Gz9dmf1o3/KgwwPW1Why+AF6ECsFXV\nxMpdB4QFGQKBgCfesUMvRdSS6q7yi1YprUqV7m7erck9vCutvnL3skFp7Gc+tAxV\n/MznglyL4qLHGmU/agVUWWYATScdcHVvsuAC/QGF1AQQvIc40KqmYcg/Bg3UVOov\nnG6J/DZU4KYHs/ABIAu34fEP+KRt0nTBWwg1UyEtSdoT0viCD7D21E9tAoGAWtmx\n11whOQkNiKWA0CCjzpAp9MQreLm5Lp5J4EpeD9wDicHBfLVGH2G02X2zxl4wsQLk\ntQ19ZuW+pnA4bsGFeNQqiClmVFK3bh4NI/a/VmcOm6Xil1C6ZPU2qm/xCUrSULmT\n9Xf05lENs5AJrCVs8kphOP5Zpj/pyUXxqoyWEikCgYEApguuw052r0fP+Ok91NeX\nHmX70NCvsMt+d6pMU4xoaugesWkcW0bkBChiQWBn6Wt8Fm04KNp7gM3jFlFAuuQp\n+j0QOUYQ6CWegveabNgE8rqFGq8OANVvUm29PbrS9oSSRkQHJtzKJGQVxcsuV6PF\ngcPpQ4R+9ElG2jG1WM2fyek=\n-----END PRIVATE KEY-----\n",
-    "client_email": "firebase-adminsdk-ecjvu@footballd2.iam.gserviceaccount.com",
-    "client_id": "113824489660686004564",
-    "auth_uri": "https://accounts.google.com/o/oauth2/auth",
-    "token_uri": "https://oauth2.googleapis.com/token",
-    "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
-    "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/firebase-adminsdk-ecjvu%40footballd2.iam.gserviceaccount.com",
-    "universe_domain": "googleapis.com"
-}
+
