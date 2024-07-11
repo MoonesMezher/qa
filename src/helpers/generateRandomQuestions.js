@@ -82,11 +82,18 @@ const generateRandomQuestionsForChainGame = async (type) => {
 
     const q2 = await generateRandomQuestions(type, limit, 'true-false');
 
-    const tmp = [q1, q2];
+    const tmp = [...q1, ...q2];
 
     const selectedQuestions = new Set();
+
+    let finalLimit = 2 * limit;
+
     
-    while (selectedQuestions.size < (2 * limit)) {
+    if(limit > tmp.length) {
+        finalLimit = tmp.length;
+    }
+    
+    while (selectedQuestions.size < finalLimit) {
         const randomIndex = Math.floor(Math.random() * tmp.length);
 
         const question = tmp[randomIndex];
@@ -94,11 +101,9 @@ const generateRandomQuestionsForChainGame = async (type) => {
         if (!selectedQuestions.has(question._id)) {
             selectedQuestions.add(question._id);
         }
-    }
+    };
 
-    result = result.filter(e => e != null);
-
-    return Array.from(selectedQuestions).map((id) => flatQuestions.find((q) => q._id === id));
+    return Array.from(selectedQuestions).map((id) => tmp.find((q) => q._id === id)).filter(e => e != null);
 }
 
 module.exports = {

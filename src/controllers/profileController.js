@@ -172,15 +172,15 @@ const updateScoreOfUser = async (req, res) => {
             return res.status(400).json({ state: "failed", message: 'This user doesnot have a profile right now' });                    
         }
 
-        // let scoreMessage;
+        let scoreMessage;
 
-        // if(profile.score.speed === score && score !== 0) {
-        //     scoreMessage = "أنت لا تزال على القمة! درجاتك في اللعبة مازالت كما هي"
-        // } else if(profile.score.speed < score) {
-        //     profile.score.speed = score
-        //     await profile.save();
-        //     scoreMessage = "تهانينا! لقد كسرت أعلى درجاتك في اللعبة. استمر في التقدم!"
-        // }
+        if(profile.score.speed === score && score !== 0) {
+            scoreMessage = "أنت لا تزال على القمة! درجاتك في اللعبة مازالت كما هي"
+        } else if(profile.score.speed < score) {
+            profile.score.speed = score
+            await profile.save();
+            scoreMessage = "تهانينا! لقد كسرت أعلى درجاتك في اللعبة. استمر في التقدم!"
+        }
 
         const userData = {
             _id: user._id,
