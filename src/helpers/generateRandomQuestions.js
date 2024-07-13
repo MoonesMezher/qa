@@ -126,8 +126,6 @@ const generateRandomQuestionsForOnlineGame = async (type) => {
     }
     
     while (selectedQuestions.size < finalLimit) {
-        console.log(finalLimit, tmp.length, limit);
-
         const randomIndex = Math.floor(Math.random() * tmp.length);
 
         const question = tmp[randomIndex];

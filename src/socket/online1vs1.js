@@ -12,14 +12,14 @@ const game1 = async (io, socket) => {
         }
     })
 
-    socket.on('player', async (playerId, roomId, state) => {
-        // item = JSON.parse(item);
+    socket.on('player', async (item) => {
+        item = JSON.parse(item);
 
         try {
-            const room = await Room.findById(roomId);
+            const room = await Room.findById(itme.roomId);
 
             if(room) {
-                const player = room.users.find(e => e.id === playerId);
+                const player = room.users.find(e => e.id === itme.playerId);
 
                 player.status = state;
 
@@ -27,28 +27,32 @@ const game1 = async (io, socket) => {
 
                 const players = userJson(room.users);
 
-                io.to(roomId).emit('players', players);
+                io.to(itme.roomId).emit('players', JSON.stringify(players));
             }
         } catch (error) {
             console.log('Error -> Start: ', error.message);            
         }
     })
 
-    socket.on('game', async (roomId, state) => {
-        // item = JSON.parse(item);
+    socket.on('game', async (item) => {
+        item = JSON.parse(item);
 
         try {
-            const room = await Room.findById(roomId);
+            const room = await Room.findById(item.roomId);
 
             if(room) {
+                room.gameState = item.state;
+
                 await room.save();
 
-                io.to(roomId).emit('gameState', room.gameState);
+                io.to(item.roomId).emit('gameState', room.gameState);
             }
+
+            console.log("Game:", room.gameState, room.players);
         } catch (error) {
             console.log('Error -> Start: ', error.message);            
         }
-    })
+    });
 
     // Handle user disconnection
     socket.on('disconnect', () => {

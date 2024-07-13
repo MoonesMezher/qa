@@ -2,10 +2,18 @@ require('dotenv').config();
 
 const app = require('./app');
 const mongoose = require('mongoose');
+
+const { instrument } = require('@socket.io/admin-ui')
+
 const game1 = require('./socket/online1vs1');
 
 const server = require('http').createServer(app);
-const io = require('socket.io')(server);
+const io = require('socket.io')(server, {
+    cors: {
+        origin: ["https://admin.socket.io"],
+        credentials: true
+    }
+});
 
 
 /*
@@ -33,6 +41,11 @@ online1vs1.on('connection', (socket) => {
     console.log('A user connected');
 
     game1(online1vs1, socket);
+});
+
+instrument(io, {
+    auth: false,
+    mode: "development",
 });
 
 const PORT = process.env.PORT || 3000;

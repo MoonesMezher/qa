@@ -68,6 +68,7 @@ const joinToRoom = async (req, res) => {
 
             const data = {
                 id: room._id,
+                gameState: room.gameState,
                 players: userJson(room.users),
                 questions: room.questions,
                 subject: room.subject,
@@ -89,6 +90,7 @@ const joinToRoom = async (req, res) => {
 
             const data = {
                 id: newRoom._id,
+                gameState: newRoom.gameState,
                 players: userJson(newRoom.users),
                 questions: newRoom.questions,
                 subject: newRoom.subject,
