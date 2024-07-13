@@ -17,6 +17,7 @@ const uploadRouter = require('./routes/uploadRoute');
 const noteficationRouter = require('./routes/noteficationRoute');
 const competitionRouter = require('./routes/competitionRoute');
 const gameRouter = require('./routes/gameRoute');
+const roomRouter = require('./routes/roomRoute');
 
 const app = express();
 
@@ -40,6 +41,7 @@ app.use('/api/reports',reportRouter);
 app.use('/api/notefications', noteficationRouter);
 app.use('/api/competitions', competitionRouter);
 app.use('/api/games', gameRouter);
+app.use('/api/rooms', roomRouter);
 
 app.use('/api/test/deleteall', async (req, res) => {
     try {

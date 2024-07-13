@@ -27,7 +27,7 @@ const Profile = model("Profile", new Schema({
     },
     picture: {
         type: String,
-        default: "uploads/questions/1719757257722.Default-Question-Image-Quiz-App.jpg",
+        default: "uploads/profile/profileDefault.jpeg",
     },
     tokens: {
         type: Number,

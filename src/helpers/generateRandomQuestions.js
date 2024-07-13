@@ -89,7 +89,7 @@ const generateRandomQuestionsForChainGame = async (type) => {
     let finalLimit = 2 * limit;
 
     
-    if(limit > tmp.length) {
+    if(finalLimit > tmp.length) {
         finalLimit = tmp.length;
     }
     
@@ -106,7 +106,42 @@ const generateRandomQuestionsForChainGame = async (type) => {
     return Array.from(selectedQuestions).map((id) => tmp.find((q) => q._id === id)).filter(e => e != null);
 }
 
+const generateRandomQuestionsForOnlineGame = async (type) => {
+    const limit = 10;
+    
+    const q1 = await generateRandomQuestions(type, limit, 'normal');
+
+    const q2 = await generateRandomQuestions(type, limit, 'true-false');
+
+    const q3 = await generateRandomQuestions(type, limit, 'multipale');
+
+    const tmp = [...q1, ...q2, ...q3];
+
+    const selectedQuestions = new Set();
+
+    let finalLimit = 3 * limit;
+    
+    if(finalLimit > tmp.length) {
+        finalLimit = tmp.length;
+    }
+    
+    while (selectedQuestions.size < finalLimit) {
+        console.log(finalLimit, tmp.length, limit);
+
+        const randomIndex = Math.floor(Math.random() * tmp.length);
+
+        const question = tmp[randomIndex];
+
+        if (!selectedQuestions.has(question._id)) {
+            selectedQuestions.add(question._id);
+        }
+    };
+
+    return Array.from(selectedQuestions).map((id) => tmp.find((q) => q._id === id)).filter(e => e != null);
+}
+
 module.exports = {
     generateRandomQuestionsForSpeedGame,
-    generateRandomQuestionsForChainGame
+    generateRandomQuestionsForChainGame,
+    generateRandomQuestionsForOnlineGame
 };

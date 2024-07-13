@@ -65,6 +65,8 @@ const getQuestionsToChainGame = async (req, res) => {
     }
 }
 
+
+
 module.exports = {
     getQuestionsToSpeedGame,
     getQuestionsToChainGame

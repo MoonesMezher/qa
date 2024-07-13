@@ -2,17 +2,37 @@ require('dotenv').config();
 
 const app = require('./app');
 const mongoose = require('mongoose');
+const game1 = require('./socket/online1vs1');
 
 const server = require('http').createServer(app);
 const io = require('socket.io')(server);
 
-io.on('connection', (socket) => {
+
+/*
+room: {
+    guid: id,
+    type: section or category id,
+    users: [
+        {
+            id: socket.id,
+            score: score,
+            username: username,
+            picture: picture,
+            state: enum("waiting", "ready", "start", "finished")
+        }
+    ],
+    questions: []
+}
+*/
+
+const online1vs1 = io.of('game1');
+
+const onlineGroup = io.of('game2');
+
+online1vs1.on('connection', (socket) => {
     console.log('A user connected');
 
-    // Handle user disconnection
-    socket.on('disconnect', () => {
-        console.log('A user disconnected');
-    });
+    game1(online1vs1, socket);
 });
 
 const PORT = process.env.PORT || 3000;

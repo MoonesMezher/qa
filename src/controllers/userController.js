@@ -7,6 +7,7 @@ const jwt = require('jsonwebtoken');
 // const fs = require('fs');
 
 const randomInts = require('../helpers/generateRandomNumbersToUsernames');
+const validateUsername = require('../helpers/usenameValidation');
 
 const env = process.env;
 
@@ -23,7 +24,7 @@ const signupUser = async (req, res) => {
     const emptyFilds = [];
 
     if(typeof username !== 'string') {
-        return res.status(400).json({state: "failed", message: "Username must be a string"})
+        return res.status(400).json({state: "failed", message: "الاسم يجب ان يكون من نوع نص"})
     }
 
     if(!username) {
@@ -36,11 +37,11 @@ const signupUser = async (req, res) => {
         emptyFilds.push('password');
     }
     if(emptyFilds.length > 0) {
-        return res.status(400).json({state: "failed", message: "All filds must be filed", emptyFilds: emptyFilds})
+        return res.status(400).json({state: "failed", message: "كل الحقول يجب أن تحمل قيمة", emptyFilds: emptyFilds})
     }
 
     if(!validator.isEmail(email)) {
-        return res.status(400).json({state: "failed", message: "Your email is not valid"})
+        return res.status(400).json({state: "failed", message: "الايميل غير صالح"})
     }
 
     // if(!validator.isStrongPassword(password)) {
@@ -49,19 +50,23 @@ const signupUser = async (req, res) => {
     // const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/
 
     if (password.length < 8) {
-        return res.status(400).json({state: "failed", message: "Your password must have 8 characters at least"})
+        return res.status(400).json({state: "failed", message: "كلمة السر يجب ان تحوي على الاقل ثمان محارف"})
     }
 
     const existUsername = await User.findOne({username});
 
     if(existUsername) {
-        return res.status(400).json({state: "failed", message: "This username already exist"})
+        return res.status(400).json({state: "failed", message: "هذا الاسم موجود بالفعل ولا يمكنك استخدامه"})
+    }
+
+    if(!validateUsername(username)) {
+        return res.status(400).json({state: "failed", message: "هذا الاسم غير صالح تأكد من أنه لا يحوي رموز غير النقطة وأن لا يحتوي محارف كبيرة ولا ينتهي بنقطة أو يحوي نقطتين"})
     }
 
     const exist = await User.findOne({email});
 
     if(exist) {
-        return res.status(400).json({state: "failed", message: "This email already exist"})
+        return res.status(400).json({state: "failed", message: "هذا الايميل موجود بالفعل ولا يمكنك استخدامه"})
     }
 
     const hash = passwordHash.generate(password);
@@ -90,7 +95,7 @@ const signupUser = async (req, res) => {
             score: profile.score,            
         }
 
-        return res.status(200).json({state: "success", message: "Signed up successfully", user: userData});
+        return res.status(200).json({state: "success", message: "تم التسجيل بنجاح", user: userData});
     } catch (error) {
         return res.status(400).json({state: "failed", message: error.message})
     }
@@ -144,7 +149,7 @@ const signupUserAsGuest = async (req, res) => {
             score: profile.score,            
         }
 
-        return res.status(200).json({state: "success", message: 'Signed up successfully', user: userData});
+        return res.status(200).json({state: "success", message: 'تم التسجيل بنجاح', user: userData});
     } catch (error) {
         return res.status(400).json({state: "failed", message: error.message})
     }
