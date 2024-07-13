@@ -2,6 +2,7 @@ const Room = require("../database/models/Room");
 const userJson = require("../helpers/handleUserJson");
 
 const game1 = async (io, socket) => {
+
     socket.on('join', (roomId) => {
         try {
             socket.join(roomId);
@@ -34,18 +35,38 @@ const game1 = async (io, socket) => {
         }
     })
 
-    socket.on('game', async (item) => {
+    socket.on('game', async (roomId) => {
+        // item = JSON.parse(item);
+
+        try {
+            const room = await Room.findById(roomId);
+
+            if(room) {
+                // room.gameState = item.state;
+
+                // await room.save();
+
+                io.to(roomId).emit('game', room.gameState);
+            }
+
+            console.log("Game:", room.gameState, room.players);
+        } catch (error) {
+            console.log('Error -> Start: ', error.message);            
+        }
+    });
+
+    socket.on('changeGame', async (item) => {
         item = JSON.parse(item);
 
         try {
-            const room = await Room.findById(item.roomId);
+            const room = await Room.findById(item.id);
 
             if(room) {
                 room.gameState = item.state;
 
                 await room.save();
 
-                io.to(item.roomId).emit('gameState', room.gameState);
+                io.to(item.id).emit('changeGame', room.gameState);
             }
 
             console.log("Game:", room.gameState, room.players);
