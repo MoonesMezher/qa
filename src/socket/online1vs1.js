@@ -4,8 +4,6 @@ const userJson = require("../helpers/handleUserJson");
 const game1 = async (io, socket, data) => {
 
     socket.on('join', (item) => {
-        console.log('join 1:',item);
-
         try {
             socket.join(item.roomId);
 
@@ -24,9 +22,14 @@ const game1 = async (io, socket, data) => {
             const room = await Room.findById(item.roomId);
 
             if(room) {
-                const player = [room.users.find(e => e.id !== item.playerId)];
+                const player = room.users.find(e => e.id !== item.playerId);
 
-                const player2 = userJson(player);
+                let player2 = {};
+
+                if(player) {
+                    player2 = userJson(player);
+                }
+
 
                 io.to(item.socketId).emit('player', JSON.stringify(player2));
             }
@@ -62,11 +65,7 @@ const game1 = async (io, socket, data) => {
     })
 
     socket.on('game', async () => {
-        console.log('game');
-
         const item = data.find(e => e.socketId === socket.id);
-
-        console.log(item, socket.id);
 
         try {
             const room = await Room.findById(item.roomId);
@@ -74,28 +73,28 @@ const game1 = async (io, socket, data) => {
             if(room) {
                 io.to(item.roomId).emit('game', room.gameState);
             }
-
-            console.log("Game:", room.gameState, room.users);
         } catch (error) {
-            console.log('Error -> Start: ', error.message);            
+            console.log('Error -> Game: ', error.message);            
         }
     });
 
-    socket.on('changeGame', async (item) => {
-        item = JSON.parse(item);
+    socket.on('score', async (score) => {
+        const item = data.find(e => e.socketId === socket.id);
 
         try {
-            const room = await Room.findById(item.id);
+            const room = await Room.findById(item.roomId);
 
             if(room) {
-                room.gameState = item.state;
+                const player = room.users.find(e => e.id === item.playerId);
+
+                player.score = score;
 
                 await room.save();
 
-                io.to(item.id).emit('changeGame', room.gameState);
-            }
+                const player2 = room.users.find(e => e.id !== item.playerId);
 
-            console.log("Game:", room.gameState, room.players);
+                io.to(item.socketId).emit('player', [userJson(player2)]);
+            }
         } catch (error) {
             console.log('Error -> Start: ', error.message);            
         }

@@ -50,27 +50,27 @@ const User = model("User", new Schema({
     },
 }, { timestamps : true }))
 
-if(process.env.ADD_ADMIN_MODE != 0) {
-    // Create new admin user
-    const adminUser = new User({
-        username: 'admin',
-        password: passwordHash.generate('admin1234'),
-        email: 'admin@admin.com',
-        role: 'admin',
-        verified: true,
-        isFree: false
-    });
+// if(process.env.ADD_ADMIN_MODE != 0) {
+//     // Create new admin user
+//     const adminUser = new User({
+//         username: 'admin',
+//         password: passwordHash.generate('admin1234'),
+//         email: 'admin@admin.com',
+//         role: 'admin',
+//         verified: true,
+//         isFree: false
+//     });
 
-    // db.users.insertOne()
+//     // db.users.insertOne()
     
-    // Save admin user to MongoDB
-    adminUser.save()
-        .then(() => {
-            console.log('Admin user created successfully');
-        })
-        .catch(err => {
-            console.error(err);
-        });
-}
+//     // Save admin user to MongoDB
+//     adminUser.save()
+//         .then(() => {
+//             console.log('Admin user created successfully');
+//         })
+//         .catch(err => {
+//             console.error(err);
+//         });
+// }
 
 module.exports = mongoose.model("User") || User;
