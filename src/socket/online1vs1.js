@@ -18,8 +18,12 @@ const game1 = async (io, socket, data) => {
     socket.on('player', async () => {
         const item = data.find(e => e.socketId === socket.id);
 
+        console.log('player:', item);
+
         try {
             const room = await Room.findById(item.roomId);
+
+            console.log('player room:', room);
 
             if(room) {
                 const player = room.users.find(e => e.id !== item.playerId);
@@ -29,7 +33,6 @@ const game1 = async (io, socket, data) => {
                 if(player) {
                     player2 = userJson(player);
                 }
-
 
                 io.to(item.socketId).emit('player', JSON.stringify(player2));
             }
