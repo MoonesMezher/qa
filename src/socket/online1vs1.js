@@ -32,7 +32,7 @@ const game1 = async (io, socket, data) => {
                     player2 = userJson([player]);
                 }
 
-                io.to(item.roomId).emit('player', JSON.stringify(player2));
+                io.to(item.socketId).emit('player', JSON.stringify(player2));
             }
         } catch (error) {
             console.log('Error -> Player: ', error.message);            
