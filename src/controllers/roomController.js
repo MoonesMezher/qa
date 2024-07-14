@@ -48,14 +48,20 @@ const joinToRoom = async (req, res) => {
         return res.status(400).json({ state:'failed', message: 'This user doesnot exist' });
     }
 
-    const profile = await Profile.findOne({ user_id: userId._id });
+    const profile = await Profile.findOne({ user_id: user._id });
 
     if(!profile) {
         return res.status(400).json({ state:'failed', message: 'This user doesnot have a profile' });
     }
 
+    const findRoom = await Room.findOne({ users: { $elemMatch: { id: user._id } } });
+
+    if(findRoom) {
+        return res.status(400).json({ state:'failed', message: 'You cannot join to room before you leave your room now' });
+    }
+
     try {
-        const room = await Room.findOne({ type: 'Online', subject: subject, users: { $size: 1 }, gameState: 'waiting' });
+        const room = await Room.findOne({ type: 'Online', subject: subject, users: { $size: 1 }, gameState: 'waiting', _id: { $ne: user._id } });
 
         if(room) {
             room.users.push( { id: user._id, name: user.username, image: profile.picture, status: 'ready' } );
