@@ -104,8 +104,7 @@ const game1 = async (io, socket, data) => {
         }
     });
 
-    // Handle user disconnection
-    socket.on('disconnect', async () => {
+    socket.on('leave', async () => {
         console.log('A user disconnected');
 
         console.log(socket.id);
@@ -125,7 +124,7 @@ const game1 = async (io, socket, data) => {
                 data = data.filter(e => e.socketId !== socket.id);
 
                 if(room.users[0].status === 'start' || room.users[0].status === 'ready') {
-                    io.to(item.roomId).emit('userDisconnected', 'bot info');
+                    io.to(item.roomId).emit('leave', 'bot info');
                 } else {
 
                 }
@@ -134,9 +133,14 @@ const game1 = async (io, socket, data) => {
 
                 data = data.filter(e => e.roomId !== item.roomId);
 
-                io.to(item.roomId).emit('userDisconnected', 'deleted room');
+                io.to(item.roomId).emit('leave', 'deleted room');
             }
         }
+    });
+
+    // Handle user disconnection
+    socket.on('disconnect', async () => {
+        console.log('A user disconnected');
     });
 }
 
