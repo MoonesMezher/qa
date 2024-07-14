@@ -4,11 +4,11 @@ const userJson = require("../helpers/handleUserJson");
 const game1 = async (io, socket, data) => {
 
     socket.on('join', (item) => {
-        console.log(item);
+        console.log('join 1:',item);
 
         item = JSON.parse(item);
 
-        console.log(item);
+        console.log('join 2:',item);
         try {
             socket.join(item.roomId);
 
@@ -21,17 +21,17 @@ const game1 = async (io, socket, data) => {
     })
 
     socket.on('player', async () => {
-        const { roomId, playerId, socketId } = data.find(e => e.socketId === socket.id);
+        const item = data.find(e => e.socketId === socket.id);
 
         try {
-            const room = await Room.findById(roomId);
+            const room = await Room.findById(item.roomId);
 
             if(room) {
-                const player = [room.users.find(e => e.id !== playerId)];
+                const player = [room.users.find(e => e.id !== item.playerId)];
 
                 const player2 = userJson(player);
 
-                io.to(socketId).emit('player', JSON.stringify(player2));
+                io.to(item.socketId).emit('player', JSON.stringify(player2));
             }
         } catch (error) {
             console.log('Error -> Player: ', error.message);            
@@ -39,13 +39,13 @@ const game1 = async (io, socket, data) => {
     })
 
     socket.on('startPlayer', async () => {
-        const { roomId, playerId, socketId } = data.find(e => e.socketId === socket.id);
+        const item = data.find(e => e.socketId === socket.id);
 
         try {
-            const room = await Room.findById(roomId);
+            const room = await Room.findById(item.roomId);
 
             if(room) {
-                const player = room.users.find(e => e.id === playerId);
+                const player = room.users.find(e => e.id === item.playerId);
 
                 player.status = 'start';
                 
@@ -57,7 +57,7 @@ const game1 = async (io, socket, data) => {
 
                 const player1 = userJson([player]);
                 
-                io.to(socketId).emit('player1', JSON.stringify(player1));
+                io.to(item.socketId).emit('player1', JSON.stringify(player1));
             }
         } catch (error) {
             console.log('Error -> Start: ', error.message);            
@@ -67,15 +67,15 @@ const game1 = async (io, socket, data) => {
     socket.on('game', async () => {
         console.log('game');
 
-        const { roomId } = data.find(e => e.socketId === socket.id);
+        const item = data.find(e => e.socketId === socket.id);
 
-        console.log(data, socket.id);
+        console.log(item, socket.id);
 
         try {
-            const room = await Room.findById(roomId);
+            const room = await Room.findById(item.roomId);
 
             if(room) {
-                io.to(roomId).emit('game', room.gameState);
+                io.to(item.roomId).emit('game', room.gameState);
             }
 
             console.log("Game:", room.gameState, room.users);
@@ -108,41 +108,35 @@ const game1 = async (io, socket, data) => {
     socket.on('disconnect', async () => {
         console.log('A user disconnected');
 
-        const { roomId, playerId } = data.find(e => e.socketId === socket.id);
+        console.log(socket.id);
 
-        let room = await Room.findById(roomId);
+        const item = data.find(e => e.socketId === socket.id);
+
+        console.log(item);
+
+        let room = await Room.findById(item.roomId);
 
         if(room) {
             if(room.users === 2) {
-                room.users = room.users.filter(e => e.id !== playerId);
+                room.users = room.users.filter(e => e.id !== item.playerId);
 
                 await room.save();
 
                 data = data.filter(e => e.socketId !== socket.id);
 
                 if(room.users[0].status === 'start' || room.users[0].status === 'ready') {
-                    io.to(roomId).emit('userDisconnected', 'bot info');
+                    io.to(item.roomId).emit('userDisconnected', 'bot info');
                 } else {
 
                 }
             } else {
-                await Room.findByIdAndDelete(roomId);
+                await Room.findByIdAndDelete(item.roomId);
 
-                data = data.filter(e => e.roomId !== roomId);
+                data = data.filter(e => e.roomId !== item.roomId);
 
-                io.to(roomId).emit('userDisconnected', 'deleted room');
+                io.to(item.roomId).emit('userDisconnected', 'deleted room');
             }
         }
-
-        // let room = rooms?.find(e => e.users[0].id === socket.id || e.users[1].id === socket.id)
-
-        // room.users = room?.users.filter(e => e.id !== socket.id);
-
-        // if(room?.users.length === 2) {
-        //     rooms = rooms.filter(e => e !== room);
-        // } 
-
-        // io.to(room.guid).emit('userDisconnected', room);
     });
 }
 
