@@ -24,7 +24,7 @@ const game1 = async (io, socket, data) => {
             const room = await Room.findById(item.roomId);
 
             if(room) {
-                const player = room.users.find(e => e.id !== item.playerId);
+                const player = room.users.find(e => e.id === item.playerId);
 
                 let player2 = {};
 
@@ -32,7 +32,7 @@ const game1 = async (io, socket, data) => {
                     player2 = userJson([player]);
                 }
 
-                io.to(item.socketId).emit('player', JSON.stringify(player2));
+                io.to(item.roomId).emit('player', player2);
             }
         } catch (error) {
             console.log('Error -> Player: ', error.message);            
