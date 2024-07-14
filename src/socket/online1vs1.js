@@ -24,7 +24,7 @@ const game1 = async (io, socket, data) => {
             const room = await Room.findById(item.roomId);
 
             if(room) {
-                const player = room.users.find(e => e.id === item.playerId);
+                const player = room.users.find(e => e.id !== item.playerId);
 
                 let player2 = {};
 
