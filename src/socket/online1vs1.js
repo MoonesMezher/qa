@@ -3,14 +3,18 @@ const userJson = require("../helpers/handleUserJson");
 
 const game1 = async (io, socket, data) => {
 
-    socket.on('join', ({roomId, playerId}) => {
-        console.log(roomId);
+    socket.on('join', (item) => {
+        console.log(item);
+
+        item = JSON.parse(item);
+
+        console.log(item);
         try {
-            socket.join(roomId);
+            socket.join(item.roomId);
 
-            data.push({ socketId: socket.id, roomId: roomId, playerId: playerId });
+            data.push({ socketId: socket.id, roomId: item.roomId, playerId: item.playerId });
 
-            io.to(roomId).emit('joined', roomId);
+            io.to(item.roomId).emit('joined', item.roomId);
         } catch (error) {
             console.log('Error -> Join: ', error.message);            
         }
@@ -61,7 +65,11 @@ const game1 = async (io, socket, data) => {
     })
 
     socket.on('game', async () => {
+        console.log('game');
+
         const { roomId } = data.find(e => e.socketId === socket.id);
+
+        console.log(data, socket.id);
 
         try {
             const room = await Room.findById(roomId);
