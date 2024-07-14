@@ -6,9 +6,6 @@ const game1 = async (io, socket, data) => {
     socket.on('join', (item) => {
         console.log('join 1:',item);
 
-        item = JSON.parse(item);
-
-        console.log('join 2:',item);
         try {
             socket.join(item.roomId);
 
