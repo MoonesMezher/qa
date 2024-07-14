@@ -31,7 +31,7 @@ const game1 = async (io, socket, data) => {
                 let player2 = {};
 
                 if(player) {
-                    player2 = userJson(player);
+                    player2 = userJson([player]);
                 }
 
                 io.to(item.socketId).emit('player', JSON.stringify(player2));
