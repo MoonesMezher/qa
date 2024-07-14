@@ -13,7 +13,7 @@ const game1 = async (io, socket, data) => {
         } catch (error) {
             console.log('Error -> Join: ', error.message);            
         }
-    })
+    });
 
     socket.on('player', async () => {
         const item = data.find(e => e.socketId === socket.id);
@@ -22,8 +22,6 @@ const game1 = async (io, socket, data) => {
 
         try {
             const room = await Room.findById(item.roomId);
-
-            console.log('player room:', room);
 
             if(room) {
                 const player = room.users.find(e => e.id !== item.playerId);
@@ -34,7 +32,7 @@ const game1 = async (io, socket, data) => {
                     player2 = userJson([player]);
                 }
 
-                io.to(item.socketId).emit('player', JSON.stringify(player2));
+                io.to(item.roomId).emit('player', JSON.stringify(player2));
             }
         } catch (error) {
             console.log('Error -> Player: ', error.message);            
@@ -60,7 +58,7 @@ const game1 = async (io, socket, data) => {
 
                 const player1 = userJson([player]);
                 
-                io.to(item.socketId).emit('player1', JSON.stringify(player1));
+                io.to(item.roomId).emit('player1', player1);
             }
         } catch (error) {
             console.log('Error -> Start: ', error.message);            
@@ -82,21 +80,23 @@ const game1 = async (io, socket, data) => {
     });
 
     socket.on('score', async (score) => {
-        const item = data.find(e => e.socketId === socket.id);
+        const item = data?.find(e => e.socketId === socket.id);
 
         try {
-            const room = await Room.findById(item.roomId);
-
-            if(room) {
-                const player = room.users.find(e => e.id === item.playerId);
-
-                player.score = score;
-
-                await room.save();
-
-                const player2 = room.users.find(e => e.id !== item.playerId);
-
-                io.to(item.socketId).emit('player', [userJson(player2)]);
+            if(item) {
+                const room = await Room.findById(item.roomId);
+                
+                if(room) {
+                    const player = room.users.find(e => e.id === item.playerId);
+                    
+                    player.score = score;
+                    
+                    await room.save();
+                    
+                    const player2 = room.users.find(e => e.id !== item.playerId);
+                    
+                    io.to(item.roomId).emit('player', [userJson(player2)]);
+                }
             }
         } catch (error) {
             console.log('Error -> Start: ', error.message);            

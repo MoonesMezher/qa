@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { joinToRoom } = require('../controllers/roomController');
+const { joinToRoom, deleteAllRooms } = require('../controllers/roomController');
 
 // Middlewares
 const validatePageParameter = require('../middlewares/checkFromPageKeyMiddleware');
@@ -12,5 +12,8 @@ const authorize = require('../middlewares/roleMiddleware');
 
 // PUT
 router.put('/search-game', [requireAuth, authorize(['admin', "user", "guest"])], joinToRoom)
+
+// DELETE
+router.delete('/delete-all', requireAuth, deleteAllRooms)
 
 module.exports = router

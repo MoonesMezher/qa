@@ -109,6 +109,17 @@ const joinToRoom = async (req, res) => {
     }
 }
 
+const deleteAllRooms = async (req, res) => {
+    try {
+        await Room.deleteMany({});
+
+        return res.status(200).json({ state:'success', message: 'تم حذف جميع الغرف بنجاح' });        
+    } catch (error) {
+        return res.status(400).json({ state:'failed', message: error.message });        
+    }
+}
+
 module.exports = {
-    joinToRoom
+    joinToRoom,
+    deleteAllRooms,
 }
