@@ -1,3 +1,4 @@
+const { generateRandomBot } = require("../bot/onllineGameBot");
 const Room = require("../database/models/Room");
 const userJson = require("../helpers/handleUserJson");
 
@@ -9,7 +10,7 @@ const game1 = async (io, socket, data) => {
 
             data.push({ socketId: socket.id, roomId: item.roomId, playerId: item.playerId });
 
-            io.to(item.roomId).emit('joined', item.roomId);
+            io.to(item.roomId).emit('join', item.roomId);
         } catch (error) {
             console.log('Error -> Join: ', error.message);            
         }
@@ -18,21 +19,13 @@ const game1 = async (io, socket, data) => {
     socket.on('player', async () => {
         const item = data.find(e => e.socketId === socket.id);
 
-        console.log('player:', item);
-
         try {
             const room = await Room.findById(item.roomId);
 
             if(room) {
-                const player = room.users.find(e => e.id !== item.playerId);
+                const players = room.users.sort((a, b) => b.score - a.score)
 
-                let player2 = {};
-
-                if(player) {
-                    player2 = userJson([player]);
-                }
-
-                io.to(item.roomId).emit('player', player2);
+                io.to(item.roomId).emit('player', userJson(players));
             }
         } catch (error) {
             console.log('Error -> Player: ', error.message);            
@@ -56,9 +49,10 @@ const game1 = async (io, socket, data) => {
 
                 await room.save();
 
-                const player1 = userJson([player]);
+                const players = room.users.sort((a, b) => b.score - a.score)
                 
-                io.to(item.roomId).emit('player1', player1);
+                io.to(item.roomId).emit('player', userJson(players));
+                io.to(item.roomId).emit('game', room.gameState);
             }
         } catch (error) {
             console.log('Error -> Start: ', error.message);            
@@ -92,10 +86,10 @@ const game1 = async (io, socket, data) => {
                     player.score = score;
                     
                     await room.save();
-                    
-                    const player2 = room.users.find(e => e.id !== item.playerId);
-                    
-                    io.to(item.roomId).emit('player', [userJson(player2)]);
+
+                    const players = room.users.sort((a, b) => b.score - a.score)
+                                        
+                    io.to(item.roomId).emit('player', userJson(players));
                 }
             }
         } catch (error) {
@@ -118,15 +112,16 @@ const game1 = async (io, socket, data) => {
             if(room.users === 2) {
                 room.users = room.users.filter(e => e.id !== item.playerId);
 
+                data = data.filter(e => e.socketId !== socket.id);
+                
+                room.users.push(generateRandomBot([], '000000000'));
+
                 await room.save();
 
-                data = data.filter(e => e.socketId !== socket.id);
-
-                if(room.users[0].status === 'start' || room.users[0].status === 'ready') {
-                    io.to(item.roomId).emit('leave', 'bot info');
-                } else {
-
-                }
+                const players = room.users.sort((a, b) => b.score - a.score)
+                                        
+                io.to(item.roomId).emit('player', userJson(players));                
+                io.to(item.roomId).emit('game', room.gameState);
             } else {
                 await Room.findByIdAndDelete(item.roomId);
 

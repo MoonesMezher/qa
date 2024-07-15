@@ -25,28 +25,16 @@ function solveQuestionBot(question, value) {
     }
 }
 
-const generateRandomBot = async (score, id) => {
+const generateRandomBot = async (questions, id) => {
     const bot = {
         id: id,
-        score: generateRandomScore(score),
+        score: 100,
         username: generateRandomUserName(),
         picture: 'uploads/profile/profileDefault.jpeg',
-        state: 'start'
+        status: 'start'
     }
 
     return bot
-}
-
-const generateRandomScore = (score) => {
-    let result = 0;
-
-    if(score === 0) {
-        result = Math.round(Math.random() * 100);
-    } else {
-        result = Math.round(Math.random() * score) + 1;
-    }
-
-    return result;
 }
 
 const generateRandomUserName = () => {
