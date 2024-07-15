@@ -33,7 +33,9 @@ const game1 = async (io, socket, data) => {
     })
 
     socket.on('startPlayer', async () => {
-        const item = data.find(e => e.socketId === socket.id);
+        const item = data.find(e => e?.socketId === socket.id);
+
+        console.log(item);
 
         try {
             const room = await Room.findById(item.roomId);
@@ -106,8 +108,9 @@ const game1 = async (io, socket, data) => {
     });
 
     socket.on('score', async (score) => {
-        console.log(score);
         const item = data?.find(e => e.socketId === socket.id);
+
+        console.log(item);
 
         try {
             if(item) {
@@ -116,7 +119,7 @@ const game1 = async (io, socket, data) => {
                 if(room) {
                     const player = room.users.find(e => e.id === item.playerId);
                     
-                    player.score += score;
+                    player.score += score.score;
                     
                     await room.save();
 
