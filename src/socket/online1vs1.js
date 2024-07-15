@@ -83,7 +83,7 @@ const game1 = async (io, socket, data) => {
                 if(room) {
                     const player = room.users.find(e => e.id === item.playerId);
                     
-                    player.score = score;
+                    player.score += score;
                     
                     await room.save();
 
