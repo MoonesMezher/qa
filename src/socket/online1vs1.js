@@ -106,6 +106,7 @@ const game1 = async (io, socket, data) => {
     });
 
     socket.on('score', async (score) => {
+        console.log(score);
         const item = data?.find(e => e.socketId === socket.id);
 
         try {
