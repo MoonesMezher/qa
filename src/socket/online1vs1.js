@@ -59,6 +59,38 @@ const game1 = async (io, socket, data) => {
         }
     })
 
+    socket.on('finishPlayer', async () => {
+        const item = data.find(e => e.socketId === socket.id);
+
+        try {
+            const room = await Room.findById(item.roomId);
+
+            if(room) {
+                const player = room.users.find(e => e.id === item.playerId);
+
+                player.status = 'finish';
+                
+                if(room.users.length == 2 && room.users[0].status === 'finish' && room.users[1].status === 'finish') {
+                    room.gameState = 'finish';
+                }
+
+                await room.save();
+
+                const players = room.users.sort((a, b) => b.score - a.score);
+
+                if(room.gameState == 'finish') {
+                    await Room.findByIdAndDelete(item.roomId);
+                }
+
+                
+                io.to(item.roomId).emit('player', userJson(players));
+                io.to(item.roomId).emit('game', room.gameState);
+            }
+        } catch (error) {
+            console.log('Error -> Start: ', error.message);            
+        }
+    })
+
     socket.on('game', async () => {
         const item = data.find(e => e.socketId === socket.id);
 

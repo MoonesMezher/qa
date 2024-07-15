@@ -107,19 +107,19 @@ const generateRandomQuestionsForChainGame = async (type) => {
 }
 
 const generateRandomQuestionsForOnlineGame = async (type) => {
-    const limit = 10;
+    // const limit = 10;
     
-    const q1 = await generateRandomQuestions(type, limit, 'normal');
+    const q1 = await generateRandomQuestions(type, 5, 'normal');
 
-    const q2 = await generateRandomQuestions(type, limit, 'true-false');
+    const q2 = await generateRandomQuestions(type, 4, 'true-false');
 
-    const q3 = await generateRandomQuestions(type, limit, 'multipale');
+    const q3 = await generateRandomQuestions(type, 2, 'multipale');
 
     const tmp = [...q1, ...q2, ...q3];
 
     const selectedQuestions = new Set();
 
-    let finalLimit = 3 * limit;
+    let finalLimit = 11;
     
     if(finalLimit > tmp.length) {
         finalLimit = tmp.length;
