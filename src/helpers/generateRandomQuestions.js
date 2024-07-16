@@ -66,8 +66,8 @@ const generateRandomQuestionsForSpeedGame = async (type) => {
     let result = [];
 
     for (let index = 0; index < limit; index++) {
-        result.push(q1[index]);        
         result.push(q2[index]);        
+        result.push(q1[index]);        
     }
 
     result = result.filter(e => e != null);

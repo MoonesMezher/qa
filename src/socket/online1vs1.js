@@ -40,7 +40,7 @@ const game1 = async (io, socket, data) => {
 
             if(room) {
                 console.log('status users:', room.users);
-                
+
                 const player = room.users.find(e => e.id === item.playerId);
 
                 console.log("status startt:",player);
@@ -155,7 +155,7 @@ const game1 = async (io, socket, data) => {
         let room = await Room.findById(item.roomId);
 
         if(room) {
-            if(room.users === 2) {
+            if(room.users.length === 2) {
                 room.users = room.users.filter(e => e.id !== item.playerId);
 
                 data = data.filter(e => e.socketId !== socket.id);
