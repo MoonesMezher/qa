@@ -156,9 +156,8 @@ const game1 = async (io, socket, data) => {
         if(room) {
             if(room.users.length === 2) {
                 let newUsers = room.users.filter(e => !e?.id?.equals(item?.playerId));
-                let newUserss = room.users.filter(e => !item?.playerId?.equals(e?.id));
 
-                console.log('a: ', newUsers,"b: ",newUserss);
+                console.log('a: ', newUsers);
 
                 data = data.filter(e => e.socketId !== socket.id);
 
