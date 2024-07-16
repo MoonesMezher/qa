@@ -152,15 +152,15 @@ const game1 = async (io, socket, data) => {
 
         if(room) {
             if(room.users.length === 2) {
-                room.users = room.users.filter(e => !e.id.equals(item.playerId));
+                let newUsers = room.users.filter(e => !e.id.equals(item.playerId));
 
                 data = data.filter(e => e.socketId !== socket.id);
 
                 const bot = generateRandomBot(room.questions);
 
-                room.users.push( { id: bot.id, name: bot.name, image: bot.image, status: 'start' } );
-            
-                await room.save();
+                newUsers.push( { id: bot.id, name: bot.name, image: bot.image, status: 'start' } );
+
+                await Room.updateOne({ _id: item.roomId }, { users: newUsers });
 
                 const players = room.users.sort((a, b) => b.score - a.score)
                                         
@@ -171,7 +171,7 @@ const game1 = async (io, socket, data) => {
 
                 data = data.filter(e => !e.roomId.equals(item.roomId));
 
-                io.to(item.roomId).emit('leave', 'deleted room');
+                io.to(item.roomId).emit('game', 'delete');
             }
         }
     });
