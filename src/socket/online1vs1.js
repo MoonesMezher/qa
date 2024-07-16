@@ -144,6 +144,8 @@ const game1 = async (io, socket, data) => {
     socket.on('leave', async (item) => {
         console.log('A user leaved');
 
+        console.log("leave:",item);
+
         // const item = data?.find(e => e.socketId === socket.id);
 
         if(!item) {
@@ -152,6 +154,8 @@ const game1 = async (io, socket, data) => {
         }
 
         let room = await Room.findById(item.roomId);
+
+        console.log("leave:",room);
 
         if(room) {
             if(room.users.length === 2) {
