@@ -152,7 +152,7 @@ const game1 = async (io, socket, data) => {
     });
 }
 
-const leaveMethod = debounce(async () => {
+const leaveMethod = debounce(async (item) => {
     console.log("leave:",item);
 
     if(!item) {
