@@ -1,3 +1,4 @@
+const { default: mongoose } = require("mongoose");
 const generateGuid = require("../helpers/generateRandomGuid");
 const randomInts = require("../helpers/generateRandomNumbersToUsernames");
 
@@ -25,9 +26,13 @@ function solveQuestionBot(question, value) {
     }
 }
 
+
 const generateRandomBot = async (questions, id) => {
+    const userId = new mongoose.Types.ObjectId();
+
     const bot = {
-        id: id,
+        _id: userId,
+        id: userId,
         score: 100,
         username: generateRandomUserName(),
         picture: 'uploads/profile/profileDefault.jpeg',

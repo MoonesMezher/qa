@@ -39,11 +39,11 @@ const game1 = async (io, socket, data) => {
             const room = await Room.findById(item.roomId);
 
             if(room) {
-                console.log('status users:', room.users);
+                console.log('status users:', room.users, item.playerId);
 
                 const player = room.users.find(e => e.id === item.playerId);
 
-                console.log("status startt:",player);
+                console.log("status start:",player);
 
                 player.status = 'start';
                 
