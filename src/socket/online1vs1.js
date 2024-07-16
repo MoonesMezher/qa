@@ -143,10 +143,10 @@ const game1 = async (io, socket, data) => {
         }
     });
 
-    socket.on('leave', async () => {
+    socket.on('leave', async (item) => {
         console.log('A user leaved');
 
-        const item = data?.find(e => e.socketId === socket.id);
+        // const item = data?.find(e => e.socketId === socket.id);
 
         if(!item) {
             console.log('No item found in leave event');
