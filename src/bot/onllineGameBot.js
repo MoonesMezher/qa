@@ -27,7 +27,7 @@ function solveQuestionBot(question, value) {
 }
 
 
-const generateRandomBot = async (questions) => {
+const generateRandomBot = (questions) => {
     const userId = new mongoose.Types.ObjectId();
 
     const bot = {

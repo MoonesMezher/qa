@@ -2824,5 +2824,6 @@ const questions = [
     ];
 
 // console.log(onlineGameBot(questions, 0.6));
+const x = generateRandomBot([]);
 
-console.log(generateRandomBot([]))
+console.log(x.id)

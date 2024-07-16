@@ -2,6 +2,7 @@ const { default: mongoose } = require("mongoose");
 const { generateRandomBot } = require("../bot/onllineGameBot");
 const Room = require("../database/models/Room");
 const userJson = require("../helpers/handleUserJson");
+const debounce = require('lodash.debounce');
 
 const game1 = async (io, socket, data) => {
 
@@ -142,53 +143,57 @@ const game1 = async (io, socket, data) => {
     });
 
     socket.on('leave', async (item) => {
-        console.log('A user leaved');
-
-        console.log("leave:",item);
-
-        // const item = data?.find(e => e.socketId === socket.id);
-
-        if(!item) {
-            console.log('No item found in leave event');
-            return;
-        }
-
-        let room = await Room.findById(item.roomId);
-
-        console.log("leave:",room);
-
-        if(room) {
-            if(room.users.length === 2) {
-                let newUsers = room.users.filter(e => !e?.id?.equals(item?.playerId));
-
-                console.log('a: ', newUsers);
-
-                data = data.filter(e => e.socketId !== socket.id);
-
-                const bot = generateRandomBot(room.questions);
-
-                newUsers.push( { id: bot.id, name: bot.name, image: bot.image, status: 'start' } );
-
-                await Room.updateOne({ _id: item.roomId }, { users: newUsers });
-
-                const players = room.users.sort((a, b) => b.score - a.score)
-                                        
-                io.to(item.roomId).emit('player', userJson(players));                
-                io.to(item.roomId).emit('game', room.gameState);
-            } else {
-                await Room.findByIdAndDelete(item.roomId);
-
-                data = data.filter(e => !e.roomId.equals(item.roomId));
-
-                io.to(item.roomId).emit('game', 'delete');
-            }
-        }
+        leaveMethod(item);
     });
 
     // Handle user disconnection
     socket.on('disconnect', async () => {
-        console.log('user disconnected now');
+        disconnectMethod();
     });
+}
+
+const leaveMethod = debounce(async () => {
+    console.log("leave:",item);
+
+    if(!item) {
+        console.log('No item found in leave event');
+        return;
+    }
+
+    let room = await Room.findById(item.roomId);
+
+    console.log("leave:",room.users);
+
+    if(room) {
+        if(room.users.length === 2) {
+            let newUsers = room.users.filter(e => !e?.id?.equals(item?.playerId));
+
+            console.log('a: ', newUsers);
+
+            data = data.filter(e => e.socketId !== socket.id);
+
+            const bot = generateRandomBot(room.questions);
+
+            newUsers.push( { id: bot.id, name: bot.name, image: bot.image, status: 'start' } );
+
+            await Room.updateOne({ _id: item.roomId }, { users: newUsers });
+
+            const players = room.users.sort((a, b) => b.score - a.score)
+                                    
+            io.to(item.roomId).emit('player', userJson(players));                
+            io.to(item.roomId).emit('game', room.gameState);
+        } else {
+            await Room.findByIdAndDelete(item.roomId);
+
+            data = data.filter(e => !e?.roomId?.equals(item.roomId));
+
+            io.to(item.roomId).emit('game', 'delete');
+        }
+    }
+})
+
+const disconnectMethod = () => {
+    console.log('user disconnected now');
 }
 
 module.exports = game1
