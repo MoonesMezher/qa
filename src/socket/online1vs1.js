@@ -39,6 +39,8 @@ const game1 = async (io, socket, data) => {
             const room = await Room.findById(item.roomId);
 
             if(room) {
+                console.log('status users:', room.users);
+                
                 const player = room.users.find(e => e.id === item.playerId);
 
                 console.log("status startt:",player);
@@ -112,11 +114,13 @@ const game1 = async (io, socket, data) => {
     socket.on('score', async (score) => {
         const item = data?.find(e => e.socketId === socket.id);
 
-        console.log(item);
+        console.log('item:',item);
 
         try {
             if(item) {
                 const room = await Room.findById(item.roomId);
+
+                console.log('room:',room);
                 
                 if(room) {
                     const player = room.users.find(e => e.id === item.playerId);
