@@ -144,9 +144,14 @@ const game1 = async (io, socket, data) => {
     });
 
     socket.on('leave', async () => {
-        console.log('A user disconnected');
+        console.log('A user leaved');
 
-        const item = data.find(e => e.socketId === socket.id);
+        const item = data?.find(e => e.socketId === socket.id);
+
+        if(!item) {
+            console.log('No item found in leave event');
+            return;
+        }
 
         let room = await Room.findById(item.roomId);
 
@@ -178,7 +183,7 @@ const game1 = async (io, socket, data) => {
 
     // Handle user disconnection
     socket.on('disconnect', async () => {
-        console.log('A user disconnected');
+        console.log('user disconnected now');
     });
 }
 
