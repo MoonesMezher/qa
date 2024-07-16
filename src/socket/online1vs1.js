@@ -143,7 +143,7 @@ const game1 = async (io, socket, data) => {
     });
 
     socket.on('leave', async (item) => {
-        leaveMethod(item);
+        leaveMethod(item, data, socket);
     });
 
     // Handle user disconnection
@@ -152,7 +152,7 @@ const game1 = async (io, socket, data) => {
     });
 }
 
-const leaveMethod = debounce(async (item) => {
+const leaveMethod = debounce(async (item, data, socket) => {
     console.log("leave:",item);
 
     if(!item) {
