@@ -131,8 +131,6 @@ const game1 = async (io, socket, data) => {
 
                     const players = room.users.sort((a, b) => b.score - a.score)
 
-                    console.log(players);
-
                     console.log('xxx:', userJson(players));
                                         
                     io.to(item.roomId).emit('player', userJson(players));
@@ -157,7 +155,10 @@ const game1 = async (io, socket, data) => {
 
         if(room) {
             if(room.users.length === 2) {
-                let newUsers = room.users.filter(e => !e.id.equals(item.playerId));
+                let newUsers = room.users.filter(e => !e?.id?.equals(item?.playerId));
+                let newUserss = room.users.filter(e => !item?.playerId?.equals(e?.id));
+
+                console.log('a: ', newUsers,"b: ",newUserss);
 
                 data = data.filter(e => e.socketId !== socket.id);
 
