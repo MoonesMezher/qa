@@ -41,9 +41,9 @@ const game1 = async (io, socket, data) => {
             if(room) {
                 const player = room.users.find(e => e.id === item.playerId);
 
-                console.log(player);
+                console.log("status startt:",player);
 
-                player?.status = 'start';
+                player.status = 'start';
                 
                 if(room.users.length == 2 && room.users[0].status === 'start' && room.users[1].status === 'start') {
                     room.gameState = 'start';
