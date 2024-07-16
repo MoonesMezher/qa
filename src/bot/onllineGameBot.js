@@ -27,16 +27,15 @@ function solveQuestionBot(question, value) {
 }
 
 
-const generateRandomBot = async (questions, id) => {
+const generateRandomBot = async (questions) => {
     const userId = new mongoose.Types.ObjectId();
 
     const bot = {
-        _id: userId,
         id: userId,
         score: 100,
-        username: generateRandomUserName(),
-        picture: 'uploads/profile/profileDefault.jpeg',
-        status: 'start'
+        name: generateRandomUserName(),
+        image: 'uploads/profile/profileDefault.jpeg',
+        status: 'start',
     }
 
     return bot
@@ -149,7 +148,7 @@ const generateRandomUserName = () => {
         "shady"
     ]
 
-    let result = usernames[Math.floor(Math.random() * usernames.length)] +"."+ generateGuid().slice(0, 3);
+    let result = usernames[Math.floor(Math.random() * usernames.length - 1)] +"."+ generateGuid().slice(0, Math.ceil(Math.random() * 5));
 
     return result;
 }

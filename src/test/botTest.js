@@ -2825,4 +2825,4 @@ const questions = [
 
 // console.log(onlineGameBot(questions, 0.6));
 
-// console.log(generateRandomBot(1000))
+console.log(generateRandomBot([]))

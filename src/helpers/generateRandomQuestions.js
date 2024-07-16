@@ -59,15 +59,15 @@ const generateRandomQuestions = async (type, limit, typeQuestion) => {
 const generateRandomQuestionsForSpeedGame = async (type) => {
     const limit = 50;
     
-    const q1 = await generateRandomQuestions(type, limit, 'normal');
+    const q1 = await generateRandomQuestions(type, limit, 'true-false');
 
-    const q2 = await generateRandomQuestions(type, limit, 'true-false');
+    const q2 = await generateRandomQuestions(type, limit, 'normal');
 
     let result = [];
 
     for (let index = 0; index < limit; index++) {
-        result.push(q2[index]);        
         result.push(q1[index]);        
+        result.push(q2[index]);        
     }
 
     result = result.filter(e => e != null);
@@ -78,64 +78,36 @@ const generateRandomQuestionsForSpeedGame = async (type) => {
 const generateRandomQuestionsForChainGame = async (type) => {
     const limit = 50;
     
-    const q1 = await generateRandomQuestions(type, limit, 'normal');
+    const q1 = await generateRandomQuestions(type, limit, 'true-false');
 
-    const q2 = await generateRandomQuestions(type, limit, 'true-false');
+    const q2 = await generateRandomQuestions(type, limit, 'normal');
 
-    const tmp = [...q1, ...q2];
+    let result = [];
 
-    const selectedQuestions = new Set();
-
-    let finalLimit = 2 * limit;
-
-    
-    if(finalLimit > tmp.length) {
-        finalLimit = tmp.length;
+    for (let index = 0; index < limit; index++) {
+        result.push(q1[index]);        
+        result.push(q2[index]);        
     }
-    
-    while (selectedQuestions.size < finalLimit) {
-        const randomIndex = Math.floor(Math.random() * tmp.length);
 
-        const question = tmp[randomIndex];
+    result = result.filter(e => e != null);
 
-        if (!selectedQuestions.has(question._id)) {
-            selectedQuestions.add(question._id);
-        }
-    };
-
-    return Array.from(selectedQuestions).map((id) => tmp.find((q) => q._id === id)).filter(e => e != null);
+    return result;
 }
 
 const generateRandomQuestionsForOnlineGame = async (type) => {
     // const limit = 10;
     
-    const q1 = await generateRandomQuestions(type, 5, 'normal');
+    const q1 = await generateRandomQuestions(type, 4, 'true-false');
 
-    const q2 = await generateRandomQuestions(type, 4, 'true-false');
+    const q2 = await generateRandomQuestions(type, 5, 'normal');
 
     const q3 = await generateRandomQuestions(type, 2, 'multipale');
 
-    const tmp = [...q1, ...q2, ...q3];
+    let result = [...q1, ...q2, ...q3];
 
-    const selectedQuestions = new Set();
+    result = result.filter(e => e != null);
 
-    let finalLimit = 11;
-    
-    if(finalLimit > tmp.length) {
-        finalLimit = tmp.length;
-    }
-    
-    while (selectedQuestions.size < finalLimit) {
-        const randomIndex = Math.floor(Math.random() * tmp.length);
-
-        const question = tmp[randomIndex];
-
-        if (!selectedQuestions.has(question._id)) {
-            selectedQuestions.add(question._id);
-        }
-    };
-
-    return Array.from(selectedQuestions).map((id) => tmp.find((q) => q._id === id)).filter(e => e != null);
+    return result;
 }
 
 module.exports = {

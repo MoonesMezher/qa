@@ -1,3 +1,4 @@
+const { default: mongoose } = require("mongoose");
 const { generateRandomBot } = require("../bot/onllineGameBot");
 const Room = require("../database/models/Room");
 const userJson = require("../helpers/handleUserJson");
@@ -41,7 +42,7 @@ const game1 = async (io, socket, data) => {
             if(room) {
                 console.log('status users:', room.users, item.playerId);
 
-                const player = room.users.find(e => e.id === item.playerId);
+                const player = room.users.find(e => e.id.equals(item.playerId));
 
                 console.log("status start:",player);
 
@@ -70,7 +71,7 @@ const game1 = async (io, socket, data) => {
             const room = await Room.findById(item.roomId);
 
             if(room) {
-                const player = room.users.find(e => e.id === item.playerId);
+                const player = room.users.find(e => e.id.equals(item.playerId));
 
                 console.log("status:",player);
 
@@ -87,7 +88,6 @@ const game1 = async (io, socket, data) => {
                 if(room.gameState == 'finish') {
                     await Room.findByIdAndDelete(item.roomId);
                 }
-
                 
                 io.to(item.roomId).emit('player', userJson(players));
                 io.to(item.roomId).emit('game', room.gameState);
@@ -123,7 +123,7 @@ const game1 = async (io, socket, data) => {
                 console.log('room:',room);
                 
                 if(room) {
-                    const player = room.users.find(e => e.id === item.playerId);
+                    const player = room.users.find(e => e.id.equals(item.playerId));
                     
                     player.score += score.score;
                     
@@ -146,22 +146,20 @@ const game1 = async (io, socket, data) => {
     socket.on('leave', async () => {
         console.log('A user disconnected');
 
-        console.log(socket.id);
-
         const item = data.find(e => e.socketId === socket.id);
-
-        console.log(item);
 
         let room = await Room.findById(item.roomId);
 
         if(room) {
             if(room.users.length === 2) {
-                room.users = room.users.filter(e => e.id !== item.playerId);
+                room.users = room.users.filter(e => !e.id.equals(item.playerId));
 
                 data = data.filter(e => e.socketId !== socket.id);
-                
-                room.users.push(generateRandomBot([], '000000000'));
 
+                const bot = generateRandomBot(room.questions);
+
+                room.users.push( { id: bot.id, name: bot.name, image: bot.image, status: 'start' } );
+            
                 await room.save();
 
                 const players = room.users.sort((a, b) => b.score - a.score)
@@ -171,7 +169,7 @@ const game1 = async (io, socket, data) => {
             } else {
                 await Room.findByIdAndDelete(item.roomId);
 
-                data = data.filter(e => e.roomId !== item.roomId);
+                data = data.filter(e => !e.roomId.equals(item.roomId));
 
                 io.to(item.roomId).emit('leave', 'deleted room');
             }
