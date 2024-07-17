@@ -185,7 +185,7 @@ const leaveMethod = async (item, data, socket, io) => {
 
     let room = await Room.findById(item.roomId);
 
-    const theSameUser = room.users.find(e => e?.id?.equals(item?.playerId))
+    const theSameUser = room.users.find(e => e?.id?.toString() !== item.playerId.toString())
 
     if(!theSameUser) {
         return;
