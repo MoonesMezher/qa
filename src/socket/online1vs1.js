@@ -185,7 +185,7 @@ const leaveMethod = debounce(async (item, data, socket, io) => {
         } else {
             await Room.findByIdAndDelete(item.roomId);
 
-            data = data.filter(e => !e?.roomId?.equals(item.roomId));
+            data = data.filter(e => e.roomId.toString() !== item.roomId.toString());
 
             io.to(item.roomId).emit('game', 'delete');
         }
