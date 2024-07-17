@@ -130,6 +130,8 @@ const deleteCategory = async (req, res) => {
     }
 
     try {
+        deleteImages('category', category.picture)
+
         await Category.findByIdAndDelete(id);
 
         const countOfQuestions = await Question.countDocuments({ category_ids: { $size: 1, $in: id }});
@@ -138,15 +140,21 @@ const deleteCategory = async (req, res) => {
             let otherCategory = await Category.findOne({ name: 'Other', section_id: category.section_id });
 
             if(!otherCategory) {
-                otherCategory = await Category.create({ name: 'Other', section_id: category.section_id, picture: 'uploads/category/1717689559650-Turkish coffee.jpeg'});
+                otherCategory = await Category.create({ name: 'Other', section_id: category.section_id, picture: 'uploads/questions/1719757257722.Default-Question-Image-Quiz-App.jpg'});
             }
 
-            await Question.updateMany({ category_ids: { $size: 1, $in: id }}, { category_ids: [otherCategory._id]});
+            await Question.updateMany({ category_ids: { $size: 1, $in: id }}, { category_ids: [otherCategory._id]}, { new: true });
         }
 
-        deleteImages('category', category.picture)
+        const questionsHaveTheSameId = await Question.find({ category_ids: { $in: id } });
 
-        return res.status(200).send({ state: 'success', message: 'Deleted category successfully' });
+        await Promise.all(questionsHaveTheSameId.map(async q => {
+            const categories = q.category_ids.filter(e => e !== id);
+            
+            await Question.findByIdAndUpdate(q._id, { category_ids: categories });
+        }));
+
+        return res.status(200).send({ state: 'success', message: 'Deleted category successfully'});
     } catch(err) {
         return res.status(400).send({ state: 'failed', message: err.message });
     }

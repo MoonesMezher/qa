@@ -2,11 +2,14 @@ const { default: mongoose } = require("mongoose");
 const { generateRandomBot } = require("../bot/onllineGameBot");
 const Room = require("../database/models/Room");
 const userJson = require("../helpers/handleUserJson");
-const debounce = require('lodash.debounce');
+// const debounce = require('lodash.debounce');
 
 const game1 = async (io, socket, data) => {
 
     socket.on('join', (item) => {
+        if(!item) {
+            return;
+        }
         try {
             socket.join(item.roomId);
 
@@ -20,6 +23,10 @@ const game1 = async (io, socket, data) => {
 
     socket.on('player', async () => {
         const item = data.find(e => e.socketId === socket.id);
+
+        if(!item) {
+            return;
+        }
 
         try {
             const room = await Room.findById(item.roomId);
@@ -36,6 +43,10 @@ const game1 = async (io, socket, data) => {
 
     socket.on('startPlayer', async () => {
         const item = data.find(e => e?.socketId === socket.id);
+
+        if(!item) {
+            return;
+        }
 
         try {
             const room = await Room.findById(item.roomId);
@@ -67,6 +78,10 @@ const game1 = async (io, socket, data) => {
 
     socket.on('finishPlayer', async () => {
         const item = data.find(e => e.socketId === socket.id);
+
+        if(!item) {
+            return;
+        }
 
         try {
             const room = await Room.findById(item.roomId);
@@ -101,6 +116,10 @@ const game1 = async (io, socket, data) => {
     socket.on('game', async () => {
         const item = data.find(e => e.socketId === socket.id);
 
+        if(!item) {
+            return;
+        }
+
         try {
             const room = await Room.findById(item.roomId);
 
@@ -116,6 +135,10 @@ const game1 = async (io, socket, data) => {
         const item = data?.find(e => e.socketId === socket.id);
 
         console.log('item:',item);
+
+        if(!item) {
+            return;
+        }
 
         try {
             if(item) {
@@ -152,7 +175,7 @@ const game1 = async (io, socket, data) => {
     });
 }
 
-const leaveMethod = debounce(async (item, data, socket, io) => {
+const leaveMethod = async (item, data, socket, io) => {
     console.log("leave:",item);
 
     if(!item) {
@@ -162,13 +185,17 @@ const leaveMethod = debounce(async (item, data, socket, io) => {
 
     let room = await Room.findById(item.roomId);
 
-    console.log("leave:",room.users);
+    const theSameUser = room.users.find(e => e?.id?.equals(item?.playerId))
+
+    if(!theSameUser) {
+        return;
+    }
+
+    console.log("leave:",room?.users);
 
     if(room) {
-        if(room.users.length === 2) {
+        if(room.users.length === 2) {            
             let newUsers = room.users.filter(e => !e?.id?.equals(item?.playerId));
-
-            console.log('a: ', newUsers);
 
             data = data.filter(e => e.socketId !== socket.id);
 
@@ -185,12 +212,12 @@ const leaveMethod = debounce(async (item, data, socket, io) => {
         } else {
             await Room.findByIdAndDelete(item.roomId);
 
-            data = data.filter(e => e.roomId.toString() !== item.roomId.toString());
+            data = data.filter(e => e?.roomId.toString() !== item?.roomId.toString());
 
-            io.to(item.roomId).emit('game', 'delete');
+            io.to(item?.roomId).emit('game', 'delete');
         }
     }
-})
+}
 
 const disconnectMethod = () => {
     console.log('user disconnected now');
