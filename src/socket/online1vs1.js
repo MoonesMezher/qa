@@ -185,15 +185,14 @@ const leaveMethod = async (item, data, socket, io) => {
 
     let room = await Room.findById(item.roomId);
 
-    const theSameUser = room.users.find(e => e?.id?.toString() === item.playerId.toString())
-
-    if(!theSameUser) {
-        return;
-    }
-
     console.log("leave:",room?.users);
-
+    
     if(room) {
+        const theSameUser = room?.users?.find(e => e?.id?.toString() === item.playerId.toString())
+    
+        if(!theSameUser) {
+            return;
+        }
         if(room.users.length === 2) {            
             let newUsers = room.users.filter(e => !e?.id?.equals(item?.playerId));
 
