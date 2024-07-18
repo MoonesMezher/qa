@@ -6,24 +6,31 @@ const onlineGameBot = async (questions, value = 0.7) => {
     const answers = [];
 
     questions.forEach((question) => {
-        const answer = solveQuestionBot(question, value);
+        let answer = 0;
+        if(question.type === "multipale") {
+            answer = solveMultipaleQuestionBot(question);
+        } else {
+            answer = solveQuestionBot(value);
+        }
         answers.push(answer);
     });
 
     return answers;
 }
 
-function solveQuestionBot(question, value) {
-    const correctAnswer = question.answers.find((answer) => answer.state === true);
-    const incorrectAnswers = question.answers.filter((answer) => answer.state === false);
+const solveMultipaleQuestionBot = async (question) => {
+    const numberOfAnswers = Math.floor(Math.random() * 13);
 
+    
+}
+
+function solveQuestionBot(value) {
     const randomNum = Math.random();
 
     if (randomNum < value) {
-        return correctAnswer;
-    } else {
-      return incorrectAnswers[Math.floor(Math.random() * incorrectAnswers.length)];
+        return Math.floor(Math.random() * 10) + 1;
     }
+    return 0;
 }
 
 

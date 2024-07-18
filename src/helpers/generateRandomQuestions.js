@@ -108,6 +108,7 @@ const generateRandomQuestionsForOnlineGame = async (type) => {
     result = result.filter(e => e != null);
 
     return result;
+    
 }
 
 module.exports = {

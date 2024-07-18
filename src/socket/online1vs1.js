@@ -156,6 +156,8 @@ const gameMethod = async (data, socket, io) => {
 const scoreMethod = async (score, data, socket, io) => {
     const item = data?.find(e => e.socketId === socket.id);
 
+    console.log("score: ",score);
+
     if(!item) {
         return;
     }
@@ -206,7 +208,7 @@ const leaveMethod = async (item, data, socket, io) => {
 
             const players = newUsers.sort((a, b) => b.score - a.score)
                                     
-            io.to(item.roomId).emit('player', userJson(newUsers));                
+            io.to(item.roomId).emit('player', userJson(players));                
             io.to(item.roomId).emit('game', room.gameState);
         } else {
             await Room.findByIdAndDelete(item.roomId);
