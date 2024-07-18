@@ -202,7 +202,7 @@ const leaveMethod = async (item, data, socket, io) => {
 
             newUsers.push( { id: bot.id, name: bot.name, image: bot.image, status: 'finish', score: bot.score } );
 
-            await Room.updateOne({ _id: item.roomId }, { users: newUsers });
+            await Room.updateOne({ _id: item.roomId }, { users: newUsers }, { new: true });
 
             const players = room.users.sort((a, b) => b.score - a.score)
                                     
