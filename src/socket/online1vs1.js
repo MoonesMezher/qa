@@ -204,9 +204,9 @@ const leaveMethod = async (item, data, socket, io) => {
 
             await Room.updateOne({ _id: item.roomId }, { users: newUsers }, { new: true });
 
-            const players = room.users.sort((a, b) => b.score - a.score)
+            const players = newUsers.sort((a, b) => b.score - a.score)
                                     
-            io.to(item.roomId).emit('player', userJson(players));                
+            io.to(item.roomId).emit('player', userJson(newUsers));                
             io.to(item.roomId).emit('game', room.gameState);
         } else {
             await Room.findByIdAndDelete(item.roomId);
