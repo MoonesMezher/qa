@@ -8,6 +8,8 @@ const jwt = require('jsonwebtoken');
 
 const randomInts = require('../helpers/generateRandomNumbersToUsernames');
 const validateUsername = require('../helpers/usenameValidation');
+const BlackListedTokens = require('../database/models/BlackListedTokens');
+const Token = require('../database/models/Token');
 
 const env = process.env;
 
@@ -192,6 +194,11 @@ const loginUser = async (req, res) => {
     try {
         const token = createToken(user._id, user.role, user.email, user.username);
 
+        if(user.role === 'data-entry') {
+            await Token.create({ user_id: user._id, token });
+        }
+
+
         res.status(200).json({state: "success", message: "Logged in successfully", token, role: user.role, user});
     } catch (error) {
         res.status(400).json({state: "failed", message: error.message})
@@ -365,6 +372,8 @@ const signupUserAsDataEntry = async (req, res) => {
 
         const token = createToken(user._id, user.role, user.email, user.username);
 
+        await Token.create({ token, user_id: user._id });
+
         return res.status(200).json({state: "success", message: "Signed up successfully", token});
     } catch (error) {
         return res.status(400).json({state: "failed", message: error.message})
@@ -503,14 +512,25 @@ const activateUser = async (req, res) => {
     if(!user) {
         return res.status(400).json({state: "failed", message: "This user is already doesnot exist"});
     }
+
+    const tokens = await Token.find({ user_id: id });
+
+    if(tokens?.length === 0) {
+        return res.status(400).json({state: "failed", message: "This user does not have token"});
+    }
     
     try {
         const user = await User.findByIdAndUpdate(id, { active: true });
 
         try {
-            const token = createToken(user._id, user.role, user.email, user.username);
+            // const token = createToken(user._id, user.role, user.email, user.username);
+            const blacklistedToken = await BlackListedTokens.findOne({ token: tokens[tokens.length - 1].token });
+
+            if(blacklistedToken) {
+                await BlackListedTokens.deleteOne({ token: tokens[tokens.length - 1].token })
+            }
     
-            return res.status(200).json({state: 'success', message: 'Activated & Logged in successfully', token});
+            return res.status(200).json({state: 'success', message: 'Activated & Logged in successfully'});
         } catch (error) {
             return res.status(400).json({state: 'failed', message: error.message})
         }
@@ -524,21 +544,27 @@ const disActivateUser = async (req, res) => {
 
     const user = await User.findById(id);
 
+    const tokens = await Token.find({ user_id: id });
+
     if(!user) {
         return res.status(400).json({state: "failed", message: "This user is already doesnot exist"});
     }
+
+    if(tokens?.length === 0) {
+        return res.status(400).json({state: "failed", message: "This user does not have token"});
+    }
     
     try {
-        const user = await User.findByIdAndUpdate(id, { active: false });
+        await User.findByIdAndUpdate(id, { active: false });
 
-        if(req.session) {
-            req.session = null;
+        // Add token to blacklist
+        await Promise.all(tokens.map(async token => {
+            const blacklistedToken = new BlackListedTokens({ token: token.token });
 
-            return res.status(200).json({state: 'success', message: 'Disacivated & Logged out successfully'});
-        }
+            await blacklistedToken.save();
+        }));
 
-        return res.status(400).json({state: 'failed', message: 'User already logged out'});
-
+        return res.status(200).json({state: 'success', message: 'Disacivated & Logged out successfully'});
     } catch (err) {
         return res.status(400).json({state: "failed", message: err.message})
     }

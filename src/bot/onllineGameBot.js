@@ -2,34 +2,59 @@ const { default: mongoose } = require("mongoose");
 const generateGuid = require("../helpers/generateRandomGuid");
 const randomInts = require("../helpers/generateRandomNumbersToUsernames");
 
-const onlineGameBot = async (questions, value = 0.7) => {
+const onlineGameBot = (questions, value = .7) => {
     const answers = [];
 
     questions.forEach((question) => {
-        let answer = 0;
+        let score = 0;
         if(question.type === "multipale") {
-            answer = solveMultipaleQuestionBot(question);
+            score = solveMultipaleQuestionBot(question);
         } else {
-            answer = solveQuestionBot(value);
+            score = solveQuestionBot(value);
         }
-        answers.push(answer);
+        answers.push(score);
     });
 
-    return answers;
+    console.log(answers);
+
+    return answers.reduce((acc, cur) => +acc + +cur);
 }
 
-const solveMultipaleQuestionBot = async (question) => {
-    const numberOfAnswers = Math.floor(Math.random() * 13);
+const solveMultipaleQuestionBot = (question) => {
+    const numberOfAnswers = Math.floor(Math.random() * 12);
 
-    
+    const answersOfBot = [];
+
+    let index = 0;
+
+    while(index < numberOfAnswers) {
+        const randomIndex = Math.floor(Math.random() * 11) + 1;
+        if(!answersOfBot.find(e => e === randomIndex)) {
+            answersOfBot.push(randomIndex);
+            index++;
+        } 
+    }
+
+    let score = 0;
+
+    for (let index = 0; index < answersOfBot.length; index++) {
+        if(question.answers[answersOfBot[index]].state === true) {
+            score = score + 6;
+        } else {
+            score = score - 1;
+        }       
+    }
+
+    return score;
 }
 
 function solveQuestionBot(value) {
     const randomNum = Math.random();
 
     if (randomNum < value) {
-        return Math.floor(Math.random() * 10) + 1;
+        return Math.floor(Math.random() * 9) + 1;
     }
+
     return 0;
 }
 

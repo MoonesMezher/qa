@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const { instrument } = require('@socket.io/admin-ui')
 
 const game1 = require('./socket/online1vs1');
+const game2 = require('./socket/group');
 
 const server = require('http').createServer(app);
 const io = require('socket.io')(server, {
@@ -15,35 +16,26 @@ const io = require('socket.io')(server, {
     }
 });
 
-
-/*
-room: {
-    guid: id,
-    type: section or category id,
-    users: [
-        {
-            id: socket.id,
-            score: score,
-            username: username,
-            picture: picture,
-            state: enum("waiting", "ready", "start", "finished")
-        }
-    ],
-    questions: []
-}
-*/
-
 const online1vs1 = io.of('game1');
 
 const onlineGroup = io.of('game2');
 
 let data1 = []
 
+let data2 = []
+
 online1vs1.on('connection', (socket) => {
-    console.log('A user connected');
+    console.log('A user connected: (online)');
 
     game1(online1vs1, socket, data1);
 });
+
+onlineGroup.on('connection', (socket) => {
+    console.log('A user connected: (group)');
+
+    game2(onlineGroup, socket, data2);
+});
+
 
 instrument(io, {
     auth: false,

@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const User = require('../database/models/User');
+const BlackListedTokens = require('../database/models/BlackListedTokens');
 
 const requireAuth = async (req, res, next) => {
     const { authorization } = req.headers;
@@ -9,6 +10,12 @@ const requireAuth = async (req, res, next) => {
     }
 
     const token = authorization.split(' ')[1];
+
+    const isInBlackList = await BlackListedTokens.findOne({ token });
+
+    if(isInBlackList) {
+        return res.status(401).json({state: 'unauthorized', message: 'Invalid token, this token in the black list'})
+    }
 
     try {
         const { id } = jwt.verify(token, process.env.JWT_SECRET_KEY);
