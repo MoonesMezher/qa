@@ -1,7 +1,6 @@
 const { generateRandomBot, onlineGameBot } = require("../bot/onllineGameBot");
 const Room = require("../database/models/Room");
 const userJson = require("../helpers/handleUserJson");
-// const debounce = require('lodash.debounce');
 
 const game2 = async (io, socket, data) => {
     socket.on('join', (item) => {
@@ -44,7 +43,9 @@ const joinMethod = (item, data, socket, io) => {
     try {
         socket.join(item.roomId);
 
-        data.push({ socketId: socket.id, roomId: item.roomId, playerId: item.playerId });
+        const isNotAdmin = data?.find(e => e.roomId.toString() === item.roomId.toString());
+
+        data.push({ socketId: socket.id, roomId: item.roomId, playerId: item.playerId, admin: isNotAdmin? false: true });
 
         io.to(item.roomId).emit('join', item.roomId);
     } catch (error) {
@@ -73,24 +74,19 @@ const playerMethod = async (data, socket, io) => {
 const startMethod = async (data, socket, io) => {       
     const item = data.find(e => e?.socketId === socket.id);
     
-    if(!item) {
+    if(!item || !item.admin) {
         return;
     }
 
     try {
         const room = await Room.findById(item.roomId);
-        if(room) {
-            console.log('status users:', room.users, item.playerId);
-            
+
+        if(room) {            
             const player = room.users.find(e => e.id.equals(item.playerId));
-            
-            console.log("status start:",player);
-            
+                        
             player.status = 'start';
             
-            if(room.users.length == 2 && room.users[0].status === 'start' && room.users[1].status === 'start') {
-                room.gameState = 'start';
-            }
+            room.gameState = 'start';
             
             await room.save();
             
@@ -117,8 +113,10 @@ const finishMethod = async (data, socket, io) => {
             const player = room?.users.find(e => e?.id?.toString() === item?.playerId.toString());
 
             player.status = 'finish';
+
+            const allFinished = room.users.find(e => e.status !== 'finish')
             
-            if(room.users.length == 2 && room.users[0].status === 'finish' && room.users[1].status === 'finish') {
+            if(!allFinished) {
                 room.gameState = 'finish';
             }
 
@@ -157,8 +155,6 @@ const gameMethod = async (data, socket, io) => {
 const scoreMethod = async (score, data, socket, io) => {
     const item = data?.find(e => e.socketId === socket.id);
 
-    console.log("score: ",score);
-
     if(!item) {
         return;
     }
@@ -196,7 +192,8 @@ const leaveMethod = async (item, data, socket, io) => {
         if(!theSameUser) {
             return;
         }
-        if(room.users.length === 2) {            
+
+        if(room.users.length >= 2 && !item.admin) {            
             let newUsers = room.users.filter(e => !e?.id?.equals(item?.playerId));
 
             data = data.filter(e => e.socketId !== socket.id);

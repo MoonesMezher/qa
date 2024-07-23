@@ -198,7 +198,6 @@ const loginUser = async (req, res) => {
             await Token.create({ user_id: user._id, token });
         }
 
-
         res.status(200).json({state: "success", message: "Logged in successfully", token, role: user.role, user});
     } catch (error) {
         res.status(400).json({state: "failed", message: error.message})

@@ -174,10 +174,10 @@ const updateScoreOfUser = async (req, res) => {
 
         let scoreMessage;
 
-        if(profile.score.speed === score && score !== 0) {
+        if(profile.score[type] === score && score !== 0) {
             scoreMessage = "أنت لا تزال على القمة! درجاتك في اللعبة مازالت كما هي"
-        } else if(profile.score.speed < score) {
-            profile.score.speed = score
+        } else if(profile.score[type] < score) {
+            profile.score[type] = score
             await profile.save();
             scoreMessage = "تهانينا! لقد كسرت أعلى درجاتك في اللعبة. استمر في التقدم!"
         }

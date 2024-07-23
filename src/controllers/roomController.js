@@ -163,7 +163,7 @@ const createNewRoomInGroupGame = async (req, res) => {
     const findRoom = await Room.findOne({ users: { $elemMatch: { id: user._id } } });
 
     if(findRoom) {
-        return res.status(400).json({ state:'failed', message: 'You cannot join to room before you leave your room now' });
+        return res.status(400).json({ state:'failed', message: 'You cannot create this room before you leave your room now' });
     }
 
     try {
@@ -177,7 +177,7 @@ const createNewRoomInGroupGame = async (req, res) => {
             return res.status(400).json({ state:'failed', message: 'لا يوجد اسئلة تناسب خيارك لذلك لا يمكنك اللعب الآن' });
         }
 
-        const newRoom = await Room.create({ type: 'Group',users: [{ id: user._id, name: user.username, image: profile.picture, status: 'waiting' }], gameState: 'waiting', subject });
+        const newRoom = await Room.create({ type: 'Group',users: [{ id: user._id, name: user.username, image: profile.picture, status: 'ready' }], gameState: 'waiting', subject });
 
         newRoom.questions = questions;
 
@@ -192,36 +192,140 @@ const createNewRoomInGroupGame = async (req, res) => {
         }
 
         return res.status(200).json({ state:'success', message: 'تم انشاء غرفة جديدة بنجاح', data });
-        // }
     } catch (error) {
         return res.status(400).json({ state:'failed', message: error.message });
     }
 }
 
 const joinToRoomInGroupGame = async (req, res) => {
-    const room = await Room.findOne({ type: 'Group', subject: subject, gameState: 'waiting', _id: { $ne: user._id } });
+    const { roomId } = req.params;
 
-    // if(room) {
-    //     room.users.push( { id: user._id, name: user.username, image: profile.picture, status: 'ready' } );
+    const userId = req.user._id;
 
-    //     room.users[0].status = 'ready';
+    if(!roomId) {
+        return res.status(400).json({ state:'failed', message: 'يجب ادخال كود اللعبة المراد الانضمام اليها في الحقل' });
+    }
 
-    //     room.gameState = 'ready';
+    if(!mongoose.Types.ObjectId.isValid(roomId)) {
+        return res.status(400).json({ state:'failed', message: 'هذا الكود غير صحيح' });
+    }
 
-    //     await room.save();
+    const roomExist = await Room.findOne({_id: roomId, type: "Group"});
 
-    //     const data = {
-    //         id: room._id,
-    //         gameState: room.gameState,
-    //         players: userJson(room.users),
-    //         questions: room.questions,
-    //         subject: room.subject,
-    //     }
+    if(!roomExist) {
+        return res.status(400).json({ state:'failed', message: 'عذرا لا يوجد لعبة تملك هذا الكود' });
+    }
 
-    //     return res.status(200).json({ state:'success', message: 'تم انضمام المستخدم الى غرفة بنجاح', data });
-    // } else {}
+    const user = await User.findById(userId);
+
+    if(!user) {
+        return res.status(400).json({ state:'failed', message: 'This user does not found' });
+    }
+
+    const profile = await Profile.findOne({ user_id: userId });
+
+    if(!profile) {
+        return res.status(400).json({ state:'failed', message: 'This user does not have a profile' });
+    }
+
+    const findRoom = await Room.findOne({ users: { $elemMatch: { id: user._id } } });
+
+    if(findRoom) {
+        return res.status(400).json({ state:'failed', message: 'You cannot join to room before you leave your room now' });
+    }
+
+    try {
+        const room = await Room.findOne({ _id: roomId, type: 'Group'});
+
+        if(room.users.length >= 13) {
+            return res.status(400).json({ state:'failed', message: 'لا يمكنك الانضمام فاللعبة تحوي العدد الأعظمي من اللاعبين المتاح' });        
+        }
+
+        room.users.push({ id: user._id, name: user.username, image: profile.picture, status: 'ready' });
+
+        if(room.users.length >= 3) {
+            room.gameState = 'ready';
+        }
+
+        await room.save();
+
+        const data = {
+            id: room._id,
+            gameState: room.gameState,
+            players: userJson(room.users),
+            questions: room.questions,
+            subject: room.subject,
+        }
+
+        return res.status(200).json({ state:'success', message: 'تم الانضمام الى غرفة جديدة بنجاح', data });
+    } catch (error) {
+        return res.status(400).json({ state:'failed', message: error.message });        
+    }
 }
 
+const joinToRoomInOnlineGame = async (req, res) => {
+    const { roomId } = req.body;
+
+    const userId = req.user._id;
+
+    if(!roomId) {
+        return res.status(400).json({ state:'failed', message: 'يجب ادخال كود اللعبة المراد الانضمام اليها في الحقل' });
+    }
+
+    if(!mongoose.Types.ObjectId.isValid(roomId)) {
+        return res.status(400).json({ state:'failed', message: 'هذا الكود غير صحيح' });
+    }
+
+    const roomExist = await Room.findOne({_id: roomId, type: "Online"});
+
+    if(!roomExist) {
+        return res.status(400).json({ state:'failed', message: 'عذرا لا يوجد لعبة تملك هذا الكود' });
+    }
+
+    const user = await User.findById(userId);
+
+    if(!user) {
+        return res.status(400).json({ state:'failed', message: 'This user does not found' });
+    }
+
+    const profile = await Profile.findOne({ user_id: userId });
+
+    if(!profile) {
+        return res.status(400).json({ state:'failed', message: 'This user does not have a profile' });
+    }
+
+    const findRoom = await Room.findOne({ users: { $elemMatch: { id: user._id } } });
+
+    if(findRoom) {
+        return res.status(400).json({ state:'failed', message: 'You cannot join to room before you leave your room now' });
+    }
+
+    try {
+        const room = await Room.findOne({ _id: roomId, type: 'Online'});
+
+        if(room.users.length >= 2) {
+            return res.status(400).json({ state:'failed', message: 'لا يمكنك الانضمام فاللعبة تحوي العدد الأعظمي من اللاعبين المتاح' });        
+        }
+
+        room.users.push({ id: user._id, name: user.username, image: profile.picture, status: 'ready' });
+
+        room.gameState = 'ready';
+
+        await room.save();
+
+        const data = {
+            id: room._id,
+            gameState: room.gameState,
+            players: userJson(room.users),
+            questions: room.questions,
+            subject: room.subject,
+        }
+
+        return res.status(200).json({ state:'success', message: 'تم الانضمام الى غرفة جديدة بنجاح', data });
+    } catch (error) {
+        return res.status(400).json({ state:'failed', message: error.message });        
+    }
+}
 const deleteAllRooms = async (req, res) => {
     try {
         await Room.deleteMany({});
@@ -234,5 +338,8 @@ const deleteAllRooms = async (req, res) => {
 
 module.exports = {
     joinToRoom,
+    createNewRoomInGroupGame,
+    joinToRoomInGroupGame,
+    joinToRoomInOnlineGame,
     deleteAllRooms,
 }
