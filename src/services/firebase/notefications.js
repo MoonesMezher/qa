@@ -1,11 +1,8 @@
 const admin = require('firebase-admin');
 
-const env = process.env;
-
 const serviceAccount = require('../../../firebaseconfige.json');
 
 admin.initializeApp({
-    databaseURL: 'https://footballd2.firebaseio.com',
     credential: admin.credential.cert(serviceAccount)
 });
 
@@ -26,7 +23,7 @@ async function sendNotification(notification) {
 
         console.log('Successfully sent message:', response);
     } catch (error) {
-        console.log('Error sending message:', error);
+        // console.log('Error sending message:', error);
     }
 }
 

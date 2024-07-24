@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { joinToRoom, deleteAllRooms, createNewRoomInGroupGame, joinToRoomInGroupGame, joinToRoomInOnlineGame } = require('../controllers/roomController');
+const { joinToRoom, deleteAllRooms, createNewRoomInGroupGame, joinToRoomInGroupGame, joinToRoomInOnlineGame, makeAnInviteToGame } = require('../controllers/roomController');
 
 // Middlewares
 const validatePageParameter = require('../middlewares/checkFromPageKeyMiddleware');
@@ -12,6 +12,8 @@ const authorize = require('../middlewares/roleMiddleware');
 
 // POST
 router.post('/create-group-game', [requireAuth, authorize(['admin', "user", "guest"])], createNewRoomInGroupGame)
+
+router.post('/invite-to-game', [requireAuth, authorize(['admin', "user", "guest"])], makeAnInviteToGame)
 
 // PUT
 router.put('/search-game', [requireAuth, authorize(['admin', "user", "guest"])], joinToRoom)

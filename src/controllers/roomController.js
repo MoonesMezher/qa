@@ -6,6 +6,9 @@ const User = require("../database/models/User");
 const { generateRandomQuestionsForOnlineGame } = require("../helpers/generateRandomQuestions");
 const Profile = require("../database/models/Profile");
 const userJson = require("../helpers/handleUserJson");
+const Notefication = require("../database/models/Notefication");
+const FcmToken = require("../database/models/FcmToken");
+const { sendNotification } = require("../services/firebase/notefications");
 
 const joinToRoom = async (req, res) => {
     const { type, subject } = req.body;
@@ -264,7 +267,7 @@ const joinToRoomInGroupGame = async (req, res) => {
 }
 
 const joinToRoomInOnlineGame = async (req, res) => {
-    const { roomId } = req.body;
+    const { roomId } = req.params;
 
     const userId = req.user._id;
 
@@ -326,6 +329,7 @@ const joinToRoomInOnlineGame = async (req, res) => {
         return res.status(400).json({ state:'failed', message: error.message });        
     }
 }
+
 const deleteAllRooms = async (req, res) => {
     try {
         await Room.deleteMany({});
@@ -336,10 +340,77 @@ const deleteAllRooms = async (req, res) => {
     }
 }
 
+const makeAnInviteToGame = async (req, res) => {
+    const { roomId, users } = req.body;
+
+    const userId = req.user._id;
+
+    if(!roomId) {
+        return res.status(400).json({ state:'failed', message: 'يجب ادخال كود اللعبة المراد الانضمام اليها في الحقل' });
+    }
+
+    if(!mongoose.Types.ObjectId.isValid(roomId)) {
+        return res.status(400).json({ state:'failed', message: 'هذا الكود غير صحيح' });
+    }
+
+    const roomExist = await Room.findOne({ _id: roomId });
+
+    if(!roomExist) {
+        return res.status(400).json({ state:'failed', message: 'عذرا لا يوجد لعبة تملك هذا الكود' });
+    }
+
+    if(!users) {
+        return res.status(400).json({ state:'failed', message: 'You must insert a users array' });
+    }
+
+    if(users && users.length === 0) {
+        return res.status(400).json({ state:'failed', message: 'عليك ادخال مستخدم واحد على الأقل لإنشاء دعوة' });
+    }
+
+    try {
+        const user = await User.findById(userId);
+
+        const text = user?.username+' send you an invite to play with him';
+
+        const notefication = await Notefication.create({ title: 'Invite to game', body: text });
+
+        const fcmTokensArray = [];
+
+        await Promise.all(users.map(async user => {
+            const { fcmTokens } = await FcmToken.findOne( { user_id: user } );
+
+            fcmTokensArray.push(...fcmTokens);
+        }))
+
+        fcmTokensArray?.map(async (fcmToken) => {
+            await sendNotification({ fcmToken: fcmToken,
+                title: 'Invite to game',
+                body: text,
+                data: {
+                    state: 'success', 
+                    message: 'Created invite successfully',
+                    roomId: roomId,
+                    notification: JSON.stringify({
+                        '_id': `${notefication._id}`,
+                        'createdAt': `${notefication.createdAt}`,
+                        'updatedAt': `${notefication.updatedAt}`,
+                        '__v': `${notefication.__v}` 
+                    }),
+                }
+            });
+        })
+
+        return res.status(200).json({ state: 'success', message: 'تم ارسال الدعوة بنجاح' });
+    } catch (error) {
+        return res.status(400).json({ state: 'failed', message: error.message });        
+    }
+}
+
 module.exports = {
     joinToRoom,
     createNewRoomInGroupGame,
     joinToRoomInGroupGame,
     joinToRoomInOnlineGame,
     deleteAllRooms,
+    makeAnInviteToGame
 }

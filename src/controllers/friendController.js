@@ -1,6 +1,7 @@
 const { default: mongoose } = require("mongoose");
 const User = require("../database/models/User");
 const Friend = require("../database/models/Friend");
+const friendJson = require("../helpers/handleUserJsonToFriendRequests");
 
 const limit = 50;
 
@@ -23,14 +24,24 @@ const addFriend = async (req, res) => {
         return res.status(400).json({ state:'failed', message: 'Your data does not found' });
     }
 
+    if(userId.toString() === user_id.toString()) {
+        return res.status(400).json({ state:'failed', message: 'You can not make a friend request to yourself' });
+    }
+
     try {
         let friend = await Friend.findOne({ user_id: userId });
 
         if(!friend) {
             friend = await Friend.create({ user_id: userId });
-
-            friend.friends.push({ id: user._id })
         }
+
+        const isExist = friend.friends.find(e => e.id.toString() === user._id.toString());
+
+        if(isExist) {
+            return res.status(400).json({ state:'failed', message: 'You already have this user as friend' });
+        }
+
+        friend.friends.push({ id: user._id })
 
         await friend.save();
 
@@ -62,18 +73,35 @@ const acceptFriendRequest = async (req, res) => {
     try {
         let friend = await Friend.findOne({ user_id: user._id });
 
-        friend.friends = friend?.friends?.map(e => {
-            if(e.id === userId) {
-                e.type = 'friend';
-            }
+        const isExist = friend.friends.find(e => (e.id.toString() === userId.toString()) && e.type === 'friend');
+
+        if(isExist) {
+            return res.status(400).json({ state:'failed', message: 'You already have this user as friend' });
+        }
+
+        const newFriendsArray = friend?.friends?.map(e => {
+            if(e?.id.toString() === userId.toString()) {
+                return {
+                    id: e.id,
+                    type: "friend",
+                    _id: e._id
+                }
+            } 
+            return e;
         })
 
-        await friend.save();
+        await Friend.findByIdAndUpdate(friend._id,{ friends: newFriendsArray });
 
         let otherUser = await Friend.findOne({ user_id: userId });
 
         if(!otherUser) {
             otherUser = await Friend.create({ user_id: userId });
+        }
+
+        const isExist2 = otherUser.friends.find(e => e.id.toString() === user_id.toString());
+
+        if(isExist2) {
+            return res.status(400).json({ state:'failed', message: 'You already have this user as friend' });
         }
 
         otherUser?.friends.push({ id: user._id, type: 'friend' });
@@ -109,7 +137,7 @@ const cancelFriendRequest = async (req, res) => {
         let friend = await Friend.findOne({ user_id: user._id });
 
         friend.friends = friend.friends.filter(e => {
-            (e.id !== userId)
+            return ((e.id.toString() !== userId.toString()) && e.type === 'pending')
         })
 
         await friend.save();
@@ -135,14 +163,18 @@ const getAllFriends = async (req, res) => {
         const friend = await Friend.findOne({ user_id: user._id });
 
         const friends = friend?.friends?.filter(e => {
-            (e.type === "friend")
+            return (e.type === "friend")
         })
+
+        const finalFriends = await Promise.all(friends.map(async friend => {
+            return await friendJson(friend.id);
+        }));
 
         const startIndex = (page - 1) * limit; // calculate the starting index for the current page
 
         const endIndex = startIndex + limit; // calculate the ending index for the current page
 
-        const paginatedFriends = friends.slice(startIndex, endIndex); // slice the friends array to get the desired page
+        const paginatedFriends = finalFriends.slice(startIndex, endIndex); // slice the friends array to get the desired page
 
         return res.status(200).json({ state:'success', message: 'تم عرض كل الأصدقاء بنجاح', friends: paginatedFriends, total: friends.length });
     } catch (error) {
@@ -165,14 +197,18 @@ const getAllFriendRequests = async (req, res) => {
         const friend = await Friend.findOne({ user_id: user._id });
 
         const friends = friend?.friends?.filter(e => {
-            (e.type === "pending")
+            return (e.type === "pending")
         })
+
+        const finalFriends = await Promise.all(friends.map(async friend => {
+            return await friendJson(friend.id);
+        }));
 
         const startIndex = (page - 1) * limit; // calculate the starting index for the current page
 
         const endIndex = startIndex + limit; // calculate the ending index for the current page
 
-        const paginatedFriends = friends.slice(startIndex, endIndex); // slice the friends array to get the desired page
+        const paginatedFriends = finalFriends.slice(startIndex, endIndex); // slice the friends array to get the desired page
 
         return res.status(200).json({ state:'success', message: 'تم عرض كل طلبات الصداقة بنجاح', friendRequests: paginatedFriends, total: friends.length });
     } catch (error) {
@@ -192,13 +228,28 @@ const acceptAllFriendRequests = async (req, res) => {
     try {
         let friend = await Friend.findOne({ user_id: user._id });
 
-        friend.friends = friend.friends.map(e => {
+        const newFriendsArray = await Promise.all(friend.friends.map(async e => {
             if(e.type === 'pending') {
-                e.type = 'friend';
-            }
-        })
+                    let otherUser = await Friend.findOne({ user_id: e.id });
+        
+                    if(!otherUser) {
+                        otherUser = await Friend.create({ user_id: e.id });
+                    }
+        
+                    otherUser?.friends.push({ id: user._id, type: 'friend' });
+        
+                    await otherUser.save();
 
-        await friend.save();
+                    return {
+                        id: e.id,
+                        type: "friend",
+                        _id: e._id
+                    }
+                } 
+            return e;
+        }))
+
+        await Friend.findByIdAndUpdate(friend._id,{ friends: newFriendsArray });
 
         return res.status(200).json({ state:'success', message: 'تم الموافقة على جميع طلبات الصداقة المرسلة بنجاح' });
     } catch (error) {
@@ -219,7 +270,7 @@ const cancelAllFriendRequests = async (req, res) => {
         let friend = await Friend.findOne({ user_id: user._id });
 
         friend.friends = friend.friends.filter(e => {
-            (e.type !== 'pending')
+            return (e.type !== 'pending')
         })
 
         await friend.save();
@@ -252,19 +303,19 @@ const deleteFriend = async (req, res) => {
     try {
         let friend = await Friend.findOne({ user_id: user._id });
 
-        friend.friends = friend.friends.filter(e => {
-            (e.id !== userId)
+        const newFriends = friend.friends.filter(e => {
+            return (e.id.toString() !== userId.toString())
         })
 
-        await friend.save();
+        await Friend.findByIdAndUpdate(friend._id ,{ friends: newFriends });
 
         let otherUser = await Friend.findOne({ user_id: userId });
 
-        otherUser.friends = otherUser?.friends?.filter(e => {
-            (e.id !== user._id)
+        const newFriends2 = otherUser?.friends?.filter(e => {
+            return (e.id.toString() !== user._id.toString())
         })
 
-        await otherUser.save();
+        await Friend.findByIdAndUpdate(otherUser._id ,{ friends: newFriends2 });
 
         return res.status(200).json({ state:'success', message: 'تم حذف علاقة الصداقة بنجاح' });
     } catch (error) {

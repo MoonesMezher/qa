@@ -71,7 +71,6 @@ const createReport = async (req, res) => {
             });
         })
 
-
         return res.status(200).json({ state: 'success', message: 'Created report successfully' });
     } catch (error) {
         return res.status(400).json({ state: 'failed', message: error.message});      

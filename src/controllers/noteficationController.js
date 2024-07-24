@@ -22,11 +22,10 @@ const saveToken = async (req, res) => {
     }
 
     try {
-        
         const theSameUserDevice = await FcmToken.findOne({ user_id, fcmTokens: { $in : fcm_token } });
         
         if(theSameUserDevice) {
-            return res.status(400).json({ state: 'failed', message: 'FCM Token is already exist'});;            
+            return res.status(400).json({ state: 'failed', message: 'FCM Token is already exist'});
         }
 
         let userDevice = await FcmToken.findOne({ user_id });
