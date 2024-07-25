@@ -377,8 +377,10 @@ const makeAnInviteToGame = async (req, res) => {
 
         const fcmTokensArray = [];
 
+        const username = user.username;
+
         await Promise.all(users.map(async user => {
-            await Invite.create({ roomId, user_id: user, user: user.username, title: text })
+            await Invite.create({ roomId: roomId, user_id: user, user: username, title: text })
 
             const { fcmTokens } = await FcmToken.findOne( { user_id: user } );
 
@@ -395,7 +397,8 @@ const makeAnInviteToGame = async (req, res) => {
                     inivte: JSON.stringify({
                         'roomId': roomId,
                         'user': user.username,
-                        'title': text
+                        'title': text,
+                        'read': false
                     }),
                     notification: JSON.stringify({
                         '_id': `${notefication._id}`,

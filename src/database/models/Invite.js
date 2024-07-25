@@ -2,10 +2,10 @@ const { Schema, model, default: mongoose } = require("mongoose");
 
 const Invite = model("Invite", new Schema({
     user_id: {
-        type: [Schema.Types.ObjectId],
+        type: Schema.Types.ObjectId,
     },
     roomId: {
-        typee: [Schema.Types.ObjectId]
+        type: Schema.Types.ObjectId
     },
     user: {
         type: String
@@ -13,6 +13,10 @@ const Invite = model("Invite", new Schema({
     title: {
         type: String
     },
+    read:{
+        type: Boolean,
+        default: false
+    }
 }, { timestamps : true }));
 
 module.exports = mongoose.model("Invite") || Invite;
