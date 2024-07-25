@@ -23,7 +23,7 @@ async function sendNotification(notification) {
 
         console.log('Successfully sent message:', response);
     } catch (error) {
-        // console.log('Error sending message:', error);
+        console.log('Error sending message:', error);
     }
 }
 

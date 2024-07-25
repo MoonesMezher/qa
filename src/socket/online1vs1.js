@@ -119,9 +119,11 @@ const finishMethod = async (data, socket, io) => {
             
             if(room.users.length == 2 && room.users[0].status === 'finish' && room.users[1].status === 'finish') {
                 room.gameState = 'finish';
+
+                await room.save();
             }
 
-            await room.save();
+            await room.save();            
 
             const players = room.users.sort((a, b) => b.score - a.score);
 
@@ -196,6 +198,20 @@ const leaveMethod = async (item, data, socket, io) => {
             return;
         }
         if(room.users.length === 2) {            
+            if(room.gameState === 'start') {
+                let newUsers = room.users.map(e => {
+                    if(e?.id?.toString() === (item?.playerId?.toString())) {
+                        e.status = 'finish';
+                    }
+                    return e;
+                });
+
+                await Room.updateOne({ _id: item.roomId }, { users: newUsers }, { new: true });
+
+                io.to(item.roomId).emit('player', userJson(newUsers));                
+
+                return;
+            }
             let newUsers = room.users.filter(e => !e?.id?.equals(item?.playerId));
 
             data = data.filter(e => e.socketId !== socket.id);

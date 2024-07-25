@@ -9,6 +9,7 @@ const userJson = require("../helpers/handleUserJson");
 const Notefication = require("../database/models/Notefication");
 const FcmToken = require("../database/models/FcmToken");
 const { sendNotification } = require("../services/firebase/notefications");
+const Invite = require("../database/models/Invite");
 
 const joinToRoom = async (req, res) => {
     const { type, subject } = req.body;
@@ -370,13 +371,15 @@ const makeAnInviteToGame = async (req, res) => {
     try {
         const user = await User.findById(userId);
 
-        const text = user?.username+' send you an invite to play with him';
+        const text = user?.username+' ارسل لك دعوة لكي تلعب معه';
 
         const notefication = await Notefication.create({ title: 'Invite to game', body: text });
 
         const fcmTokensArray = [];
 
         await Promise.all(users.map(async user => {
+            await Invite.create({ roomId, user_id: user, user: user.username, title: text })
+
             const { fcmTokens } = await FcmToken.findOne( { user_id: user } );
 
             fcmTokensArray.push(...fcmTokens);
@@ -389,7 +392,11 @@ const makeAnInviteToGame = async (req, res) => {
                 data: {
                     state: 'success', 
                     message: 'Created invite successfully',
-                    roomId: roomId,
+                    inivte: JSON.stringify({
+                        'roomId': roomId,
+                        'user': user.username,
+                        'title': text
+                    }),
                     notification: JSON.stringify({
                         '_id': `${notefication._id}`,
                         'createdAt': `${notefication.createdAt}`,

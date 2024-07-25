@@ -4,7 +4,8 @@ const User = require('../database/models/User');
 const Question = require('../database/models/Question');
 const Category = require('../database/models/Category');
 const { default: mongoose } = require('mongoose');
-const passwordHash = require('password-hash')
+const passwordHash = require('password-hash');
+const Profile = require('../database/models/Profile');
 
 const deleteAllNotificationsAndReports = async (req, res) => {
     try {
@@ -88,9 +89,41 @@ const editAdminPassword = async (req, res) => {
     }
 }
 
+const createProfileToUser = async (req, res) => {
+    const { user_id } = req.body
+
+    if(!user_id) {
+        return res.status(400).json({ state: 'failed', message: 'You must insert user id'})
+    }
+
+    if(!mongoose.Types.ObjectId.isValid(user_id)) {
+        return res.status(400).json({ state: 'failed', message: 'User id does not valid'})
+    }
+
+    const user = await User.findById(user_id);
+
+    if(!user) {
+        return res.status(400).json({ state: 'failed', message: 'This user not found to make profile'})
+    }
+
+    try {
+        const profile = await Profile.findOne({user_id});
+
+        if(profile) {
+            return res.status(400).json({ state: 'failed', message: 'This user already has profile'})
+        }
+
+        await Profile.create({user_id});
+
+        return res.status(200).json({ state: 'success', message: 'Created profile successfully' })
+    } catch (error) {
+        return res.status(400).json({ state: 'failed', message: error.message})        
+    }
+}
 
 module.exports = {
     addOtherCategoryToQuestionNoHaveCategory,
     editAdminPassword,
-    deleteAllNotificationsAndReports
+    deleteAllNotificationsAndReports,
+    createProfileToUser
 }

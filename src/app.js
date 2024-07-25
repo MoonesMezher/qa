@@ -19,6 +19,7 @@ const competitionRouter = require('./routes/competitionRoute');
 const gameRouter = require('./routes/gameRoute');
 const roomRouter = require('./routes/roomRoute');
 const friendRouter = require('./routes/friendRoute');
+const inviteRouter = require('./routes/inviteRoute');
 
 const app = express();
 
@@ -45,5 +46,6 @@ app.use('/api/competitions', competitionRouter);
 app.use('/api/games', gameRouter);
 app.use('/api/rooms', roomRouter);
 app.use('/api/friends', friendRouter);
+app.use('/api/invites', inviteRouter);
 
 module.exports = app;
