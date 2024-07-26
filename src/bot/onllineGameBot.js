@@ -66,7 +66,7 @@ const generateRandomBot = (questions) => {
         id: userId,
         score: 100,
         name: generateRandomUserName(),
-        image: 'uploads/profile/profileDefault.jpeg',
+        image: `uploads/profile/profileDefault${Math.floor(Math.random() * 9) + 1}.webp`,
         status: 'start',
     }
 
