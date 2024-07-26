@@ -27,7 +27,7 @@ const Profile = model("Profile", new Schema({
     },
     picture: {
         type: String,
-        default: "uploads/profile/profileDefault.jpeg",
+        default: () => `uploads/profile/profileDefault${Math.floor(Math.random() * 9) + 1}.webp`,
     },
     tokens: {
         type: Number,

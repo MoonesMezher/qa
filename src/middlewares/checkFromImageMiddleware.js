@@ -68,7 +68,7 @@ const deleteImages = (folder, img) => {
         // console.log(202, imageName);
 
         // Check if the image is associated with the item
-        if (imageName.includes(subImg) && imageName != '1719757257722.Default-Question-Image-Quiz-App.jpg') {
+        if (imageName.includes(subImg) && imageName != '1719757257722.Default-Question-Image-Quiz-App.jpg' && !imageName.includes("profileDefault")) {
             fs.unlinkSync('src/'+imagePath);
         }
     });
