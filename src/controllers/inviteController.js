@@ -19,6 +19,7 @@ const showOwnInvites = async (req, res) => {
 
         const data = await Promise.all(invites.map(invite => {
             return {
+                id: invite._id,
                 roomId: invite.roomId,
                 user: invite.user,
                 title: invite.title,

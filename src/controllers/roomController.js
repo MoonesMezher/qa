@@ -375,40 +375,38 @@ const makeAnInviteToGame = async (req, res) => {
 
         const notefication = await Notefication.create({ title: 'Invite to game', body: text });
 
-        const fcmTokensArray = [];
-
         const username = user.username;
 
         await Promise.all(users.map(async user => {
-            await Invite.create({ roomId: roomId, user_id: user, user: username, title: text })
+            const invite = await Invite.create({ roomId: roomId, user_id: user, user: username, title: text })
 
             const { fcmTokens } = await FcmToken.findOne( { user_id: user } );
 
-            fcmTokensArray.push(...fcmTokens);
+            fcmTokens?.map(async (fcmToken) => {
+                await sendNotification({ fcmToken: fcmToken,
+                    title: 'Invite to game',
+                    body: text,
+                    data: {
+                        state: 'success', 
+                        message: 'Created invite successfully',
+                        inivte: JSON.stringify({
+                            'id': invite._id,
+                            'roomId': roomId,
+                            'user': username,
+                            'title': text,
+                            'read': false
+                        }),
+                        notification: JSON.stringify({
+                            '_id': `${notefication._id}`,
+                            'createdAt': `${notefication.createdAt}`,
+                            'updatedAt': `${notefication.updatedAt}`,
+                            '__v': `${notefication.__v}` 
+                        }),
+                    }
+                });
+            })
         }))
 
-        fcmTokensArray?.map(async (fcmToken) => {
-            await sendNotification({ fcmToken: fcmToken,
-                title: 'Invite to game',
-                body: text,
-                data: {
-                    state: 'success', 
-                    message: 'Created invite successfully',
-                    inivte: JSON.stringify({
-                        'roomId': roomId,
-                        'user': user.username,
-                        'title': text,
-                        'read': false
-                    }),
-                    notification: JSON.stringify({
-                        '_id': `${notefication._id}`,
-                        'createdAt': `${notefication.createdAt}`,
-                        'updatedAt': `${notefication.updatedAt}`,
-                        '__v': `${notefication.__v}` 
-                    }),
-                }
-            });
-        })
 
         return res.status(200).json({ state: 'success', message: 'تم ارسال الدعوة بنجاح' });
     } catch (error) {
