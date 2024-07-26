@@ -69,7 +69,7 @@ const joinToRoom = async (req, res) => {
 
         await Room.deleteMany({ createdAt: { $lt: tenMinutesAgo } });
 
-        const room = await Room.findOne({ type: 'Online', subject: subject, users: { $size: 1 }, gameState: 'waiting', _id: { $ne: user._id } });
+        const room = await Room.findOne({ invite: false, type: 'Online', subject: subject, users: { $size: 1 }, gameState: 'waiting', _id: { $ne: user._id } });
 
         if(room) {
             room.users.push( { id: user._id, name: user.username, image: profile.picture, status: 'ready' } );
@@ -181,7 +181,7 @@ const createNewRoomInGroupGame = async (req, res) => {
             return res.status(400).json({ state:'failed', message: 'لا يوجد اسئلة تناسب خيارك لذلك لا يمكنك اللعب الآن' });
         }
 
-        const newRoom = await Room.create({ type: 'Group',users: [{ id: user._id, name: user.username, image: profile.picture, status: 'ready' }], gameState: 'waiting', subject });
+        const newRoom = await Room.create({ invite: true, type: 'Group',users: [{ id: user._id, name: user.username, image: profile.picture, status: 'ready' }], gameState: 'waiting', subject });
 
         newRoom.questions = questions;
 
@@ -265,7 +265,7 @@ const createNewRoomInOnlineGame = async (req, res) => {
             return res.status(400).json({ state:'failed', message: 'لا يوجد اسئلة تناسب خيارك لذلك لا يمكنك اللعب الآن' });
         }
 
-        const newRoom = await Room.create({ type: 'Online',users: [{ id: user._id, name: user.username, image: profile.picture, status: 'ready' }], gameState: 'waiting', subject });
+        const newRoom = await Room.create({ invite: true, type: 'Online',users: [{ id: user._id, name: user.username, image: profile.picture, status: 'ready' }], gameState: 'waiting', subject });
 
         newRoom.questions = questions;
 
@@ -490,7 +490,6 @@ const makeAnInviteToGame = async (req, res) => {
                 });
             })
         }))
-
 
         return res.status(200).json({ state: 'success', message: 'تم ارسال الدعوة بنجاح' });
     } catch (error) {

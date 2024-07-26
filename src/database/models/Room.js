@@ -85,6 +85,10 @@ const Room = model("Room", new Schema({
     subject: {
         type: Schema.Types.ObjectId,
         required: true
+    },
+    invite: {
+        type: Boolean,
+        default: false
     }
 }, { timestamps : true }));
 
