@@ -20,14 +20,12 @@ const online1vs1 = io.of('game1');
 
 const onlineGroup = io.of('game2');
 
-let data1 = []
-
 let data2 = []
 
 online1vs1.on('connection', (socket) => {
     console.log('A user connected: (online)');
 
-    game1(online1vs1, socket, data1);
+    game1(online1vs1, socket);
 });
 
 onlineGroup.on('connection', (socket) => {

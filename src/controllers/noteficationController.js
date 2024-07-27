@@ -31,7 +31,7 @@ const saveToken = async (req, res) => {
         let userDevice = await FcmToken.findOne({ user_id });
 
         if(userDevice) {
-            await userDevice.fcmTokens.push(fcm_token);
+            userDevice.fcmTokens = [fcm_token];
 
             await userDevice.save();
 
