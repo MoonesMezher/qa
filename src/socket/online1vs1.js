@@ -50,7 +50,7 @@ const joinMethod = async (item, socket, io) => {
         const room = await Room.findById(item.roomId);
 
         if(room) {
-            io.to(item.roomId).emit('player', userJson(room?.players));
+            io.to(item.roomId).emit('player', userJson(room?.users));
             io.to(item.roomId).emit('game', room.gameState);
         }
     } catch (error) {
@@ -87,13 +87,13 @@ const startMethod = async (item, socket, io) => {
                         
             player.status = 'start';
             
+            await room.save();
+
             if(room.users.length == 2 && room.users[0].status === 'start' && room.users[1].status === 'start') {
                 room.gameState = 'start';
 
                 await room.save();
             }
-            
-            await room.save();
             
             const players = room.users.sort((a, b) => b.score - a.score)
             
@@ -203,7 +203,7 @@ const leaveMethod = async (item, socket, io) => {
                         return e;
                     });
     
-                    await Room.updateOne({ _id: item.roomId }, { users: newUsers }, { new: true });
+                    room = await Room.updateOne({ _id: item.roomId }, { users: newUsers }, { new: true });
 
                     if(room.users.length == 2 && room.users[0].status === 'finish' && room.users[1].status === 'finish') {
                         room.gameState = 'finish';
@@ -224,7 +224,7 @@ const leaveMethod = async (item, socket, io) => {
     
                 newUsers.push( { id: bot.id, name: bot.name, image: bot.image, status: 'finish', score: onlineGameBot(room.questions) } );
     
-                await Room.updateOne({ _id: item.roomId }, { users: newUsers }, { new: true });
+                room = await Room.updateOne({ _id: item.roomId }, { users: newUsers }, { new: true });
     
                 const players = newUsers.sort((a, b) => b.score - a.score)
     
