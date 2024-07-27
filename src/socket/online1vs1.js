@@ -4,6 +4,8 @@ const userJson = require("../helpers/handleUserJson");
 // const debounce = require('lodash.debounce');
 
 const game1 = async (io, socket, data) => {
+    console.log("data: ",data);
+
     socket.on('join', (item) => {
         joinMethod(item, data, socket, io);
     });
@@ -13,10 +15,12 @@ const game1 = async (io, socket, data) => {
     })
 
     socket.on('startPlayer', async () => {
+        console.log('start');
         startMethod(data, socket, io);
     })
 
     socket.on('finishPlayer', async () => {
+        console.log('finish');
         finishMethod(data, socket, io);
     })
 
@@ -29,6 +33,7 @@ const game1 = async (io, socket, data) => {
     });
 
     socket.on('leave', async (item) => {
+        console.log('leave');
         leaveMethod(item, data, socket, io);
     });
 
