@@ -196,10 +196,8 @@ const leaveMethod = async (item, socket, io) => {
                 if(room.gameState === 'start') {
                     let newUsers = room.users.map(e => {
                         if(e?.id?.toString() === (item?.playerId?.toString())) {
-                            e.status = 'finish';
-                            return e
-                        }
-    
+                            return {name: e.name, id: e.id, admin: e.admin, image: e.image,score: e.score, status: 'finish'};
+                        }    
                         return e;
                     });
     

@@ -10,6 +10,7 @@ const Notefication = require("../database/models/Notefication");
 const FcmToken = require("../database/models/FcmToken");
 const { sendNotification } = require("../services/firebase/notefications");
 const Invite = require("../database/models/Invite");
+const userJsonToGroupGame = require("../helpers/handleUserJsonToGroupGame");
 
 const joinToRoom = async (req, res) => {
     const { type, subject } = req.body;
@@ -181,7 +182,7 @@ const createNewRoomInGroupGame = async (req, res) => {
             return res.status(400).json({ state:'failed', message: 'لا يوجد اسئلة تناسب خيارك لذلك لا يمكنك اللعب الآن' });
         }
 
-        const newRoom = await Room.create({ invite: true, type: 'Group',users: [{ id: user._id, name: user.username, image: profile.picture, status: 'ready' }], gameState: 'waiting', subject });
+        const newRoom = await Room.create({ invite: true, type: 'Group',users: [{ id: user._id, name: user.username, image: profile.picture, status: 'waiting', admin: true }], gameState: 'ready', subject });
 
         newRoom.questions = questions;
 
@@ -190,7 +191,7 @@ const createNewRoomInGroupGame = async (req, res) => {
         const data = {
             id: newRoom._id,
             gameState: newRoom.gameState,
-            players: userJson(newRoom.users),
+            players: userJsonToGroupGame(newRoom.users),
             questions: newRoom.questions,
             subject: newRoom.subject,
         }
@@ -329,18 +330,24 @@ const joinToRoomInGroupGame = async (req, res) => {
             return res.status(400).json({ state:'failed', message: 'لا يمكنك الانضمام فاللعبة تحوي العدد الأعظمي من اللاعبين المتاح' });        
         }
 
-        room.users.push({ id: user._id, name: user.username, image: profile.picture, status: 'ready' });
-
-        if(room.users.length >= 3) {
-            room.gameState = 'ready';
+        if(room.gameState === 'start') {
+            return res.status(400).json({ state:'failed', message: 'عذرا هذه اللعبة بدأت للتو ولا يمكنك الانضمام اليها' });        
         }
 
+        room.users.push({ id: user._id, name: user.username, image: profile.picture, status: 'ready' });
+
         await room.save();
+        
+        if(room.users.length >= 3) {
+            room.gameState = 'ready';
+
+            await room.save();
+        }
 
         const data = {
             id: room._id,
             gameState: room.gameState,
-            players: userJson(room.users),
+            players: userJsonToGroupGame(room.users),
             questions: room.questions,
             subject: room.subject,
         }

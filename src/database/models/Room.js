@@ -17,6 +17,10 @@ const usersSchema = new mongoose.Schema({
     status: {
         type: String,
         default: 'waiting'
+    },
+    admin: {
+        type: Boolean,
+        default: false
     }
 });
 

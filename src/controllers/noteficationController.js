@@ -7,6 +7,8 @@ const User = require("../database/models/User");
 const saveToken = async (req, res) => {
     const { fcm_token, user_id } = req.body;
 
+    // console.log(fcm_token);
+
     if(!mongoose.Types.ObjectId.isValid(user_id)) {
         return res.status(400).json({ state: 'failed', message: 'User Id must be valid'});      
     }
