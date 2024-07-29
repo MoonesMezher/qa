@@ -18,19 +18,20 @@ const io = require('socket.io')(server, {
 
 const online1vs1 = io.of('game1');
 
-const onlineGroup = io.of('game2');
+// const onlineGroup = io.of('game2');
 
 online1vs1.on('connection', (socket) => {
-    console.log('A user connected: (online)');
+    console.log('A user connected');
 
     game1(online1vs1, socket);
-});
-
-onlineGroup.on('connection', (socket) => {
-    console.log('A user connected: (group)');
 
     game2(onlineGroup, socket);
 });
+
+// onlineGroup.on('connection', (socket) => {
+//     console.log('A user connected: (group)');
+    
+// });
 
 
 instrument(io, {

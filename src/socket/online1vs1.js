@@ -35,9 +35,9 @@ const game1 = async (io, socket) => {
         leaveMethod(item, socket, io);
     });
 
-    socket.on('disconnect', async () => {
-        disconnectMethod();
-    });
+    // socket.on('disconnect', async () => {
+    //     disconnectMethod();
+    // });
 }
 const joinMethod = async (item, socket, io) => {
     if(!item) {
