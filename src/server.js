@@ -16,16 +16,16 @@ const io = require('socket.io')(server, {
     }
 });
 
-const online1vs1 = io.of('game1');
+const game = io.of('game1');
 
 // const onlineGroup = io.of('game2');
 
-online1vs1.on('connection', (socket) => {
+game.on('connection', (socket) => {
     console.log('A user connected');
 
-    game1(online1vs1, socket);
+    game1(game, socket);
 
-    game2(onlineGroup, socket);
+    game2(game, socket);
 });
 
 // onlineGroup.on('connection', (socket) => {
