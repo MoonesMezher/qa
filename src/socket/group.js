@@ -57,7 +57,8 @@ const joinMethod = async (item, socket, io) => {
         console.log('Error -> Join: ', error.message);            
     }
 } 
-const playerMethod = async (item, socket, io) => {       
+const playerMethod = async (item, socket, io) => {     
+    console.log("##me", item);
     if(!item) {
         return;
     }
@@ -66,7 +67,11 @@ const playerMethod = async (item, socket, io) => {
         const room = await Room.findById(item.roomId);
         
         if(room) {
+            console.log('##me',room);
+
             const players = room.users.sort((a, b) => b.score - a.score);
+
+            console.log("##me",players);
             
             io.to(item.roomId).emit('player', userJsonToGroupGame(players));
         }
