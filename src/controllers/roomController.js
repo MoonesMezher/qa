@@ -477,7 +477,9 @@ const makeAnInviteToGame = async (req, res) => {
         const username = user.username;
 
         await Promise.all(users.map(async user => {
-            const invite = await Invite.create({ roomId: roomId, user_id: user, user: username, title: text })
+            const invite = await Invite.create({ roomId: roomId, user_id: user, user: username, title: text, type, img: type === 'online' 
+                ? 'uploads/invite/onlineInvite.jpeg'
+                : 'uploads/invite/groupInvite.jpeg' })
 
             const { fcmTokens } = await FcmToken.findOne( { user_id: user } );
 
@@ -494,11 +496,8 @@ const makeAnInviteToGame = async (req, res) => {
                             'user': username,
                             'title': text,
                             'read': false,
-                            'type': type,
-                            'img': 
-                                type === 'online' 
-                                    ? 'uploads/invite/onlineInvite.jpeg'
-                                    : 'uploads/invite/groupInvite.jpeg'
+                            'type': invite.type,
+                            'img': invite.img
                         }),
                         notification: JSON.stringify({
                             '_id': `${notefication._id}`,

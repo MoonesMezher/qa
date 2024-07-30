@@ -23,7 +23,9 @@ const showOwnInvites = async (req, res) => {
                 roomId: invite.roomId,
                 user: invite.user,
                 title: invite.title,
-                read: invite.read
+                read: invite.read,
+                type: invite.type,
+                img: invite.img
             }
         }));
 

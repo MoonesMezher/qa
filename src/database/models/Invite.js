@@ -16,6 +16,12 @@ const Invite = model("Invite", new Schema({
     read:{
         type: Boolean,
         default: false
+    },
+    type: {
+        type: String
+    },
+    img: {
+        type: String
     }
 }, { timestamps : true }));
 
