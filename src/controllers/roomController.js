@@ -433,12 +433,16 @@ const deleteAllRooms = async (req, res) => {
 }
 
 const makeAnInviteToGame = async (req, res) => {
-    const { roomId, users } = req.body;
+    const { roomId, users, type } = req.body;
 
     const userId = req.user._id;
 
     if(!roomId) {
         return res.status(400).json({ state:'failed', message: 'يجب ادخال كود اللعبة المراد الانضمام اليها في الحقل' });
+    }
+
+    if(!type) {
+        return res.status(400).json({ state:'failed', message: 'Type must be inserted' });
     }
 
     if(!mongoose.Types.ObjectId.isValid(roomId)) {
@@ -475,7 +479,7 @@ const makeAnInviteToGame = async (req, res) => {
 
             fcmTokens?.map(async (fcmToken) => {
                 await sendNotification({ fcmToken: fcmToken,
-                    title: 'Invite to game',
+                    title: 'دعوة للعب لعبة',
                     body: text,
                     data: {
                         state: 'success', 
@@ -485,7 +489,8 @@ const makeAnInviteToGame = async (req, res) => {
                             'roomId': roomId,
                             'user': username,
                             'title': text,
-                            'read': false
+                            'read': false,
+                            'type': type
                         }),
                         notification: JSON.stringify({
                             '_id': `${notefication._id}`,
