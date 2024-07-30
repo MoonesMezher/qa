@@ -60,7 +60,38 @@ const readInvite = async (req, res) => {
     }
 }
 
+const cancelInvite = async (req, res) => {
+    const { id } = req.params;
+
+    const userId = req.user._id;
+
+    const user = await User.findById(userId);
+
+    if(!user) {
+        return res.status(400).json({ state: 'failed', message: "User not found" })
+    }
+
+    const isExist = await Invite.findOne({ _id: id  });
+
+    if(!isExist) {
+        return res.status(400).json({ state: 'failed', message: 'This invite not exist' })        
+    }
+
+    if(isExist.user_id.toString() !== userId.toString()) {
+        return res.status(400).json({ state: 'failed', message: 'You can not cancel invite not for you' })        
+    }
+
+    try {
+        await Invite.findByIdAndDelete(id);
+
+        return res.status(200).json({ state: 'success', message: 'تم حذف الدعوة بنجاح' });                
+    } catch (error) {
+        return res.status(400).json({ state: 'failed', message: error.message })        
+    }
+}
+
 module.exports = {
     showOwnInvites,
-    readInvite
+    readInvite,
+    cancelInvite
 }

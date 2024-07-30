@@ -445,6 +445,10 @@ const makeAnInviteToGame = async (req, res) => {
         return res.status(400).json({ state:'failed', message: 'Type must be inserted' });
     }
 
+    if(type !== 'online' && type !== 'group') {
+        return res.status(400).json({ state:'failed', message: 'Type must be (online, or group)' });
+    }
+
     if(!mongoose.Types.ObjectId.isValid(roomId)) {
         return res.status(400).json({ state:'failed', message: 'هذا الكود غير صحيح' });
     }
@@ -490,7 +494,11 @@ const makeAnInviteToGame = async (req, res) => {
                             'user': username,
                             'title': text,
                             'read': false,
-                            'type': type
+                            'type': type,
+                            'img': 
+                                type === 'online' 
+                                    ? 'uploads/invite/onlineInvite.jpeg'
+                                    : 'uploads/invite/groupInvite.jpeg'
                         }),
                         notification: JSON.stringify({
                             '_id': `${notefication._id}`,

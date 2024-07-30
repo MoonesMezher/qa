@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 // methods
-const { showOwnInvites, readInvite } = require('../controllers/inviteController');
+const { showOwnInvites, readInvite, cancelInvite } = require('../controllers/inviteController');
 
 // middlewares
 const requireAuth = require('../middlewares/requireAuth');
@@ -16,5 +16,8 @@ router.get('/', [requireAuth, authorize(["admin","user","guest"])], showOwnInvit
 
 // PUT
 router.put('/read/:id', [validateObjectId,requireAuth, authorize(["admin","user","guest"])], readInvite);
+
+// DELETE
+router.delete('/cancel/:id', [validateObjectId,requireAuth, authorize(["admin","user","guest"])], cancelInvite);
 
 module.exports = router;

@@ -6,6 +6,7 @@ const Category = require('../database/models/Category');
 const { default: mongoose } = require('mongoose');
 const passwordHash = require('password-hash');
 const Profile = require('../database/models/Profile');
+const Section = require('../database/models/Section');
 
 const deleteAllNotificationsAndReports = async (req, res) => {
     try {
@@ -121,9 +122,53 @@ const createProfileToUser = async (req, res) => {
     }
 }
 
+const moveCategoryToAnotherSection = async (req, res) => {
+    const { id } = req.params;
+
+    const { section_id } = req.body;
+
+    const category = await Category.findById(id);
+
+    if(!category) {
+        return res.status(400).json({ state: 'failed', message: 'This category does not exist'})        
+    }
+
+    if(!section_id) {
+        return res.status(400).json({ state: 'failed', message: 'Section Id must be exist'})        
+    }
+
+    const section = await Section.findById(section_id);
+
+    if(!section) {
+        return res.status(400).json({ state: 'failed', message: 'This section does not exist'})        
+    }
+
+    if(!mongoose.Types.ObjectId.isValid(section_id)) {
+        return res.status(400).json({ state: 'failed', message: 'Section Id does not valid'})        
+    }
+
+    try {
+        const questions = await Question.find({ category_ids: { $in: id }});
+
+        console.log(questions);
+
+        await Category.findByIdAndUpdate(id, { section_id })
+        
+        Promise.all(questions.map(async q => {
+            console.log(q);
+            await Question.findByIdAndUpdate(q._id, { section_id });
+        }))
+
+        return res.status(200).json({ state: 'success', message: 'Updated questions successfully'})        
+    } catch (error) {
+        return res.status(400).json({ state: 'failed', message: error.message })        
+    }
+}
+
 module.exports = {
     addOtherCategoryToQuestionNoHaveCategory,
     editAdminPassword,
     deleteAllNotificationsAndReports,
-    createProfileToUser
+    createProfileToUser,
+    moveCategoryToAnotherSection
 }

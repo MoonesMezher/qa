@@ -107,14 +107,6 @@ const updateCategory = async (req, res) => {
     }
 
     try {
-        if(category.section_id.toString() !== section_id.toString()) {
-            const questions = await Question.find({ section_id, category_ids: { $in: category._id }});
-
-            Promise.all(questions.map(async q => {
-                await Question.findByIdAndUpdate(q._id, { section_id });
-            }))
-        }
-
         let category;
         if(picture) {
             category = await Category.findByIdAndUpdate(id ,{ name, picture, section_id }, { new: true });

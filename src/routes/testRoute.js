@@ -2,22 +2,25 @@ const express = require('express');
 const router = express.Router();
 
 // methods
-const { addOtherCategoryToQuestionNoHaveCategory, editAdminPassword, deleteAllNotificationsAndReports, createProfileToUser } = require('../controllers/testController');
+const { addOtherCategoryToQuestionNoHaveCategory, editAdminPassword, deleteAllNotificationsAndReports, createProfileToUser, moveCategoryToAnotherSection } = require('../controllers/testController');
 
 // middlewares
 const testAuth = require('../middlewares/testAuthMiddleware');
+const validateObjectId = require('../middlewares/checkFromIdMiddleware');
 
 // routes
 
 // POST
 
-router.post('/create-profile',testAuth, createProfileToUser)
+// router.post('/create-profile',testAuth, createProfileToUser)
 
 // PUT
 
-router.put('/questions/section/:id',testAuth, addOtherCategoryToQuestionNoHaveCategory)
+router.put('/move-category/:id', [testAuth, validateObjectId], moveCategoryToAnotherSection)
 
-router.put('/edit-admin-password', testAuth,editAdminPassword)
+// router.put('/questions/section/:id',testAuth, addOtherCategoryToQuestionNoHaveCategory)
+
+// router.put('/edit-admin-password', testAuth,editAdminPassword)
 
 // DELETE
 
