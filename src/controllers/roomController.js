@@ -182,7 +182,7 @@ const createNewRoomInGroupGame = async (req, res) => {
             return res.status(400).json({ state:'failed', message: 'لا يوجد اسئلة تناسب خيارك لذلك لا يمكنك اللعب الآن' });
         }
 
-        const newRoom = await Room.create({ invite: true, type: 'Group',users: [{ id: user._id, name: user.username, image: profile.picture, status: 'waiting', admin: true }], gameState: 'ready', subject });
+        const newRoom = await Room.create({ invite: true, type: 'Group',users: [{ id: user._id, name: user.username, image: profile.picture, status: 'ready', admin: true }], gameState: 'ready', subject });
 
         newRoom.questions = questions;
 
