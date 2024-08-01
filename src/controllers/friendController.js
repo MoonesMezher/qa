@@ -2,6 +2,8 @@ const { default: mongoose } = require("mongoose");
 const User = require("../database/models/User");
 const Friend = require("../database/models/Friend");
 const friendJson = require("../helpers/handleUserJsonToFriendRequests");
+const FcmToken = require("../database/models/FcmToken");
+const { sendNotification } = require("../services/firebase/notefications");
 
 const limit = 50;
 
@@ -44,6 +46,37 @@ const addFriend = async (req, res) => {
         friend.friends.push({ id: user._id })
 
         await friend.save();
+
+        const { fcmTokens } = await FcmToken.findOne( { user_id: userId } );
+
+        const text = user.username + 'ارسل لك طلب صداقة'
+
+        const notefication = await Notification.create({ title: 'طلب صداقة', body: text })
+
+        fcmTokens?.map(async (fcmToken) => {
+            await sendNotification({ fcmToken: fcmToken,
+                title: 'طلب صداقة',
+                body: text,
+                data: {
+                    state: 'success', 
+                    message: 'Created friend request successfully',
+                    inivte: JSON.stringify({
+                        'id': '',
+                        'roomId': '',
+                        'user': user.username,
+                        'title': text,
+                        'read': false,
+                        'type': 'friend',
+                        'img': ''
+                    }),
+                    notification: JSON.stringify({
+                        '_id': `${notefication._id}`,
+                        'createdAt': `${notefication.createdAt}`,
+                        'updatedAt': `${notefication.updatedAt}`,
+                        '__v': `${notefication.__v}` 
+                    }),
+                }
+        });})
 
         return res.status(200).json({ state:'success', message: 'تم ارسال طلب الصداقة بنجاح' });
     } catch (error) {
@@ -107,6 +140,37 @@ const acceptFriendRequest = async (req, res) => {
         otherUser?.friends.push({ id: user._id, type: 'friend' });
 
         await otherUser.save();
+
+        const { fcmTokens } = await FcmToken.findOne( { user_id: userId } );
+
+        const text = user.username + 'وافق على طلب الداقة الخاص بك'
+
+        const notefication = await Notification.create({ title: 'موافقة على طلب الصداقة', body: text })
+
+        fcmTokens?.map(async (fcmToken) => {
+            await sendNotification({ fcmToken: fcmToken,
+                title: 'موافقة على طلب الصداقة',
+                body: text,
+                data: {
+                    state: 'success', 
+                    message: 'ِAccepted friend request successfully',
+                    inivte: JSON.stringify({
+                        'id': '',
+                        'roomId': '',
+                        'user': user.username,
+                        'title': text,
+                        'read': false,
+                        'type': 'accept',
+                        'img': ''
+                    }),
+                    notification: JSON.stringify({
+                        '_id': `${notefication._id}`,
+                        'createdAt': `${notefication.createdAt}`,
+                        'updatedAt': `${notefication.updatedAt}`,
+                        '__v': `${notefication.__v}` 
+                    }),
+                }
+        });})
 
         return res.status(200).json({ state:'success', message: 'تم الموافقة على طلب الصداقة بنجاح' });
     } catch (error) {

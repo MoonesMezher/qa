@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 // methods
-const { getProfile, updateProfile, showTopUsersByExp, showTopUsersByExpDepandLastMonth, showTopUsersByExpDepandLastWeek, showTopUsersByExpDepandLastDay, updateScoreOfUser, updateExpAndTokensToUser, paysCoastOfGame } = require('../controllers/profileController');
+const { getProfile, updateProfile, showTopUsersByExp, showTopUsersByExpDepandLastMonth, showTopUsersByExpDepandLastWeek, showTopUsersByExpDepandLastDay, updateScoreOfUser, updateExpAndTokensToUser, paysCoastOfGame, levelOfPlayerOnTheWorld, getAllUsersByNameWithFreindShipDetails } = require('../controllers/profileController');
 
 // middlewares
 const requireAuth = require('../middlewares/requireAuth');
@@ -23,8 +23,12 @@ router.get('/top-users/last-day', [requireAuth, authorize(["admin", "user"])], s
 
 router.get('/:id', [validateObjectId, requireAuth, authorize(["user", "guest"])], getProfile);
 
+router.get('/index/:id', [validateObjectId, requireAuth, authorize(["user", "guest", 'admin'])], levelOfPlayerOnTheWorld);
+
+router.get('/search-users-by-name/name/:name', [requireAuth, authorize(["user", "guest", 'admin'])], getAllUsersByNameWithFreindShipDetails);
+
 // PUT
-router.put('/update/:id/', [validateObjectId, requireAuth, authorize(["user"]), isImage], updateProfile);
+router.put('/update', [requireAuth, authorize(["user"]), isImage], updateProfile);
 
 router.put('/update-score', [requireAuth, authorize(["user", "guest", "admin"])], updateScoreOfUser);
 

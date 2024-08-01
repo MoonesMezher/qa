@@ -1,3 +1,4 @@
+const Friend = require("../database/models/Friend");
 const Profile = require("../database/models/Profile");
 const User = require("../database/models/User");
 const normalizePath = require("../helpers/normalizePathName");
@@ -15,34 +16,58 @@ const getProfile = async (req, res) => {
 }
 
 const updateProfile = async (req, res) => {
-    const { id } = req.params;
+    const { picture } = req.body;
 
-    const { description, country, picture } = req.body;
+    const userId = req.user._id;
 
-    let data = { description, country };
+    // const { description, country, picture } = req.body;
 
-    if(picture) {
-        data = { description, country, picture };
+    // let data = { description, country };
+
+    if(!picture) {
+        return res.status(400).json({state: "failed", message: "عليك إدخال الصورة"});        
     }
 
-    const lastProfile = await Profile.findOne({user_id: id});
+    // const lastProfile = await Profile.findOne({user_id: id});
 
-    if(lastProfile.country != "None" && lastProfile.country !== country) {
-        return res.status(400).json({state: "failed", message: "You cannot change your country"});        
-    }
+    // if(lastProfile.country != "None" && lastProfile.country !== country) {
+    //     return res.status(400).json({state: "failed", message: "You cannot change your country"});        
+    // }
 
-    if(typeof country !== "string") {
-        return res.status(400).json({state: "failed", message: "Country must be a string"});        
-    }
+    // if(typeof country !== "string") {
+    //     return res.status(400).json({state: "failed", message: "Country must be a string"});        
+    // }
 
-    if(typeof description !== "string") {
-        return res.status(400).json({state: "failed", message: "Description must be a string"});        
-    }
+    // if(typeof description !== "string") {
+    //     return res.status(400).json({state: "failed", message: "Description must be a string"});        
+    // }
 
     try {
-        const profile = await Profile.findByIdAndUpdate(id, data, { new: true });
+        const profile = await Profile.findOne({ user_id: userId });
 
-        return res.status(200).json({state: "success", message: "Updated profile successfully", profile});
+        profile.picture = picture? picture:profile.picture;
+
+        await profile.save();
+
+        const user = await User.findById(userId);
+
+        const userData = {
+            _id: user._id,
+            username: user.username,
+            email: user.email,
+            password: user.password,
+            verified: user.verified,
+            active: user.active,
+            isFree: user.isFree,
+            description: profile.description, 
+            country: profile.country, 
+            picture: profile.picture,
+            tokens: profile.tokens,
+            exp: profile.exp,
+            score: profile.score,            
+        }
+
+        return res.status(200).json({state: "success", message: "Updated profile successfully", userData });
     } catch (error) {
         return res.status(400).json({state: "failed", message: error.message});        
     }
@@ -321,6 +346,93 @@ const paysCoastOfGame = async (req, res) => {
     }
 }
 
+const levelOfPlayerOnTheWorld = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const profiles = await Profile.find({}).sort( { exp: -1 } );
+
+        let indexOfUser = 1;
+
+        Promise.all(profiles.map(async (e, index) => {
+            if(e.user_id.toString() === id.toString()) {
+                indexOfUser = index + 1;
+            }
+        }));
+
+        return res.status(200).json({ state: "success", message: 'Get index of user on the world successfully', indexOfUser });                    
+    } catch (error) {
+        return res.status(400).json({ state: "failed", message: error.message });                    
+    }
+}
+
+const getAllUsersByNameWithFreindShipDetails = async (req, res) => {
+    const { name } = req.params;
+
+    const userId = req.user._id;
+
+    if(!name || name === "" || name === " ") {
+        return res.status(400).json({ state: "failed", message: 'عليك إدخال اسم للبحث' });                    
+    }
+
+    try {
+        const newRegex = new RegExp(`.*${name}.*`, "i");
+
+        const users = await User.find({ username: { $regex: newRegex } });
+
+        const allUsers = await Promise.all(users.map(async (e) => {
+            const id = e._id;
+
+            const state1 = await Friend.findOne({ user_id: userId, friends: { $elemMatch: { id } } });
+
+            const state2 = await Friend.findOne({ user_id: id, friends: { $elemMatch: { id: userId } } });
+
+            let state = "noraml";
+            
+            if(state1) {
+                if(state1?.friends?.find(e => e.type === 'friend')) {
+                    state = 'friend';
+                } else {
+                    state = 'he sent request'
+                }
+            } else if(state2) {
+                if(state2?.friends?.find(e => e.type === 'friend')) {
+                    state = 'friend';
+                } else {
+                    state = 'I sent request'
+                }
+            }
+
+            const otherUser = await User.findById(id);
+
+            const otherProfile = await Profile.findOne({ user_id: id })
+
+            const data = {
+                _id: otherUser._id,
+                username: otherUser.username,
+                email: otherUser.email,
+                password: otherUser.password,
+                verified: otherUser.verified,
+                active: otherUser.active,
+                isFree: otherUser.isFree,
+                // description: otherProfile.description, 
+                // country: otherProfile.country, 
+                // picture: otherProfile.picture,
+                // tokens: otherProfile.tokens,
+                // exp: otherProfile.exp,
+                // score: otherProfile.score,                
+                state,
+            }
+
+            return data;
+        }))
+
+        return res.status(200).json({ state: "success", message: 'تم عرض كافة المستخدمين المتاحين حسب الاسم المدخل بنجاح', allUsers });                    
+    } catch (error) {
+        return res.status(400).json({ state: "failed", message: error.message });                            
+    }
+}
+
 module.exports = {
     getProfile,
     updateProfile,
@@ -330,5 +442,7 @@ module.exports = {
     showTopUsersByExpDepandLastMonth,
     updateScoreOfUser,
     updateExpAndTokensToUser,
-    paysCoastOfGame
+    paysCoastOfGame,
+    levelOfPlayerOnTheWorld,
+    getAllUsersByNameWithFreindShipDetails
 }
