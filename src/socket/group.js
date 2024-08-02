@@ -33,7 +33,7 @@ const game2 = async (io, socket, data) => {
         leaveMethod(item, socket, io, data);
     });
 
-    socket.on('exit', async () => {        
+    socket.on('exit', async (data) => {        
         exit(data, socket);
     });
 

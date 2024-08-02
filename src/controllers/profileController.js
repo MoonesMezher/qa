@@ -393,19 +393,19 @@ const getAllUsersByNameWithFreindShipDetails = async (req, res) => {
                 if(state1?.friends?.find(e => e.type === 'friend')) {
                     state = 'friend';
                 } else {
-                    state = 'he sent request'
+                    state = 'request'
                 }
             } else if(state2) {
                 if(state2?.friends?.find(e => e.type === 'friend')) {
                     state = 'friend';
                 } else {
-                    state = 'I sent request'
+                    state = 'request'
                 }
             }
 
             const otherUser = await User.findById(id);
 
-            const otherProfile = await Profile.findOne({ user_id: id })
+            // const otherProfile = await Profile.findOne({ user_id: id })
 
             const data = {
                 _id: otherUser._id,

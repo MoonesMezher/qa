@@ -7,13 +7,13 @@ const friendJson = async (id) => {
     const user = await User.findById(id);
 
     const data = {
-        id,
+        _id: id,
         username: user.username,
         email: user.email,
-        picture: profile.picture,
-        exp: profile.exp,
-        tokens: profile.tokens,
-        score: profile.score
+        password: user.password,
+        verified: user.verified,
+        active: user.active,
+        isFree: user.isFree,
     }
 
     return data;
