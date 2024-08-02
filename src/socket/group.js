@@ -286,7 +286,10 @@ const disconnectMethod = async (socket, data) => {
 const exit = (data, socket) => {
     const player = data.find(e => e.socketId === socket.id);
 
-    player.terminated = false;
+    if(player) {
+        player.terminated = false;
+    }
+
 }
 
 module.exports = game2
