@@ -34,7 +34,7 @@ const game2 = async (io, socket, data) => {
     });
 
     socket.on('exit', async () => {        
-        exit(socket);
+        exit(data, socket);
     });
 
     socket.on('disconnect', async () => {        
@@ -276,9 +276,6 @@ const disconnectMethod = async (socket, data) => {
                 player.status = 'finish'
 
                 await room.save();
-
-                io.to(user.roomId).emit('player2', userJsonToGroupGame(room.users))
-                io.to(user.roomId).emit('player', userJson(room.users))
             }
         } catch (error) {
             console.log('Error disconnected', error.message);
@@ -286,7 +283,7 @@ const disconnectMethod = async (socket, data) => {
     }
 }
 
-const exit = (socket) => {
+const exit = (data, socket) => {
     const player = data.find(e.socketId === socket.id);
 
     player.terminated = false;
