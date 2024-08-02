@@ -3,9 +3,9 @@ const Room = require("../database/models/Room");
 const userJson = require("../helpers/handleUserJson");
 // const debounce = require('lodash.debounce');
 
-const game1 = async (io, socket) => {
+const game1 = async (io, socket, data) => {
     socket.on('join', (item) => {
-        joinMethod(item, socket, io);
+        joinMethod(item, socket, io, data);
     });
 
     socket.on('player', async (item) => {
@@ -34,15 +34,13 @@ const game1 = async (io, socket) => {
         console.log('leave');
         leaveMethod(item, socket, io);
     });
-
-    // socket.on('disconnect', async () => {
-    //     disconnectMethod();
-    // });
 }
-const joinMethod = async (item, socket, io) => {
+const joinMethod = async (item, socket, io, data) => {
     if(!item) {
         return;
     }
+
+    data.push({ playerId: item.playerId, roomId: item.roomId, socketId: socket.id, terminated: true })
 
     try {
         socket.join(item.roomId);

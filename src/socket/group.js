@@ -1,11 +1,12 @@
 const { generateRandomBot, onlineGameBot } = require("../bot/onllineGameBot");
 const Room = require("../database/models/Room");
+const userJson = require("../helpers/handleUserJson");
 const userJsonToGroupGame = require("../helpers/handleUserJsonToGroupGame");
 // const debounce = require('lodash.debounce');
 
-const game2 = async (io, socket) => {
+const game2 = async (io, socket, data) => {
     socket.on('join2', (item) => {
-        joinMethod(item, socket, io);
+        joinMethod(item, socket, io, data);
     });
 
     socket.on('player2', async (item) => {
@@ -13,12 +14,10 @@ const game2 = async (io, socket) => {
     })
 
     socket.on('startPlayer2', async (item) => {
-        console.log('start');
         startMethod(item, socket, io);
     })
 
     socket.on('finishPlayer2', async (item) => {
-        console.log('finish');
         finishMethod(item, socket, io);
     })
 
@@ -31,21 +30,23 @@ const game2 = async (io, socket) => {
     });
 
     socket.on('leave2', async (item) => {
-        console.log('leave');
         leaveMethod(item, socket, io);
     });
 
-    socket.on('disconnect', async () => {
-        console.log('disconnect: -> socket',socket);
-        console.log('disconnect -> socket.id: ',socket.id);
-        
-        disconnectMethod();
+    socket.on('exit', async (item) => {        
+        exit(socket);
+    });
+
+    socket.on('disconnect', async () => {        
+        disconnectMethod(data);
     });
 }
-const joinMethod = async (item, socket, io) => {
+const joinMethod = async (item, socket, io, data) => {
     if(!item) {
         return;
     }
+
+    data.push({ playerId: item.playerId, roomId: item.roomId, socketId: socket.id, terminated: true })
 
     try {
         socket.join(item.roomId);
@@ -254,8 +255,41 @@ const leaveMethod = async (item, socket, io) => {
     }
     
 }
-const disconnectMethod = () => {
+const disconnectMethod = async (data) => {
     console.log('user disconnected now');
+
+    const user = data.find(e => e.socketId === socket.id);
+
+    console.log(user);
+
+    if(user) {
+        const room = await Room.findById(user.roomId)
+
+        if(!room || !user.terminated) {
+            return;
+        }
+
+        try {
+            const player = room.users.find(e => e.id.toString() === user.playerId.toString());
+
+            if(player) {
+                player.status = 'finish'
+
+                await room.save();
+
+                io.to(user.roomId).emit('player2', userJsonToGroupGame(room.users))
+                io.to(user.roomId).emit('player', userJson(room.users))
+            }
+        } catch (error) {
+            console.log('Error disconnected', error.message);
+        }
+    }
+}
+
+const exit = (socket) => {
+    const player = data.find(e.socketId === socket.id);
+
+    player.terminated = false;
 }
 
 module.exports = game2

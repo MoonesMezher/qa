@@ -18,21 +18,15 @@ const io = require('socket.io')(server, {
 
 const game = io.of('game1');
 
-// const onlineGroup = io.of('game2');
+const data = []
 
 game.on('connection', (socket) => {
     console.log('A user connected');
 
-    game1(game, socket);
+    game1(game, socket, data);
 
-    game2(game, socket);
+    game2(game, socket, data);
 });
-
-// onlineGroup.on('connection', (socket) => {
-//     console.log('A user connected: (group)');
-    
-// });
-
 
 instrument(io, {
     auth: false,
