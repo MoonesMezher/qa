@@ -284,7 +284,7 @@ const disconnectMethod = async (socket, data) => {
 }
 
 const exit = (data, socket) => {
-    const player = data.find(e.socketId === socket.id);
+    const player = data.find(e => e.socketId === socket.id);
 
     player.terminated = false;
 }
