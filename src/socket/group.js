@@ -5,8 +5,6 @@ const userJsonToGroupGame = require("../helpers/handleUserJsonToGroupGame");
 // const debounce = require('lodash.debounce');
 
 const game2 = async (io, socket, data) => {
-    let data = data;
-
     socket.on('join2', (item) => {
         joinMethod(item, socket, io, data);
     });
