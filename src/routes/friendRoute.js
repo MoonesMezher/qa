@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 // methods
-const { getAllFriends, getAllFriendRequests, addFriend, cancelFriendRequest, acceptFriendRequest, cancelAllFriendRequests, acceptAllFriendRequests, deleteFriend } = require('../controllers/friendController');
+const { getAllFriends, getAllFriendRequests, addFriend, cancelFriendRequest, acceptFriendRequest, cancelAllFriendRequests, acceptAllFriendRequests, deleteFriend, unSendFriendRequest } = require('../controllers/friendController');
 
 // middlewares
 const requireAuth = require('../middlewares/requireAuth');
@@ -22,6 +22,8 @@ router.put('/add-friend/:userId', [requireAuth, authorize(["admin","user","guest
 router.put('/accept-request/:userId', [requireAuth, authorize(["admin","user","guest"])], acceptFriendRequest);
 
 router.put('/cancel-request/:userId', [requireAuth, authorize(["admin","user","guest"])], cancelFriendRequest);
+
+router.put('/unsend-request/:userId', [requireAuth, authorize(["admin","user","guest"])], unSendFriendRequest);
 
 router.put('/accept-all-requests', [requireAuth, authorize(["admin","user","guest"])], acceptAllFriendRequests);
 

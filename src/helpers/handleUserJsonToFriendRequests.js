@@ -14,7 +14,7 @@ const friendJson = async (id) => {
         verified: user.verified,
         active: user.active,
         isFree: user.isFree,
-        picture: profile.picture,
+        picture: profile?.picture,
     }
 
     return data;

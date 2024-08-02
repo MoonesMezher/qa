@@ -212,6 +212,44 @@ const cancelFriendRequest = async (req, res) => {
     }
 }
 
+const unSendFriendRequest = async (req, res) => {
+    const { userId } = req.params;
+
+    if(!userId) {
+        return res.status(400).json({ state:'failed', message: 'You should select user to make a friend request' });
+    }
+
+    if(!mongoose.Types.ObjectId.isValid(userId)) {
+        return res.status(400).json({ state:'failed', message: 'User Id must be valid' });
+    }
+
+    const user_id = req.user._id;
+
+    const user = await User.findById(user_id);
+
+    if(!user) {
+        return res.status(400).json({ state:'failed', message: 'Your data does not found' });
+    }
+
+    try {
+        let friend = await Friend.findOne({ user_id: userId });
+
+        if(!friend) {
+            return res.status(400).json({ state:'failed', message: 'This user does not have friend request from you' });
+        }
+
+        friend.friends = friend.friends.filter(e => {
+            return ((e.id.toString() !== user_id.toString()) && e.type === 'pending')
+        })
+
+        await friend.save();
+
+        return res.status(200).json({ state:'success', message: 'تم الغاء طلب الصداقة بنجاح' });
+    } catch (error) {
+        return res.status(400).json({ state:'failed', message: error.message });
+    }
+}
+
 const getAllFriends = async (req, res) => {
     const { page } = req.params;
 
@@ -226,11 +264,15 @@ const getAllFriends = async (req, res) => {
     try {
         const friend = await Friend.findOne({ user_id: user._id });
 
+        if(!friend) {
+            return res.status(400).json({ state:'failed', message: 'لا يوجد لديك أصدقاء' });
+        }
+
         const friends = friend?.friends?.filter(e => {
             return (e.type === "friend")
         })
-
-        const finalFriends = await Promise.all(friends.map(async friend => {
+        
+        const finalFriends = await Promise.all(friends?.map(async friend => {
             return await friendJson(friend.id);
         }));
 
@@ -259,6 +301,10 @@ const getAllFriendRequests = async (req, res) => {
 
     try {
         const friend = await Friend.findOne({ user_id: user._id });
+
+        if(!friend) {
+            return res.status(400).json({ state:'failed', message: 'لا يوجد طلبات صداقة مرسلة' });
+        }
 
         const friends = friend?.friends?.filter(e => {
             return (e.type === "pending")
@@ -395,5 +441,6 @@ module.exports = {
     cancelFriendRequest,
     getAllFriendRequests,
     getAllFriends,
-    deleteFriend
+    deleteFriend,
+    unSendFriendRequest
 }
