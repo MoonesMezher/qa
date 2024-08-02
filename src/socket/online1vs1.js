@@ -13,13 +13,11 @@ const game1 = async (io, socket, data) => {
     })
 
     socket.on('startPlayer', async (item) => {
-        console.log('start');
         startMethod(item, socket, io);
     })
 
-    socket.on('finishPlayer', async (item) => {
-        console.log('finish');
-        finishMethod(item, socket, io);
+    socket.on('finishPlayer', async (item, data) => {
+        finishMethod(item, socket, io, data);
     })
 
     socket.on('game', async (item) => {
@@ -31,8 +29,7 @@ const game1 = async (io, socket, data) => {
     });
 
     socket.on('leave', async (item) => {
-        console.log('leave');
-        leaveMethod(item, socket, io);
+        leaveMethod(item, socket, io, data);
     });
 }
 const joinMethod = async (item, socket, io, data) => {
@@ -127,6 +124,8 @@ const finishMethod = async (item, socket, io) => {
 
             if(room.gameState == 'finish') { 
                 await Room.findByIdAndDelete(item.roomId);
+
+                data = data.filter(e => e.roomId !== item.roomId)
             }
             
             io.to(item.roomId).emit('player', userJson(players));
@@ -207,6 +206,8 @@ const leaveMethod = async (item, socket, io) => {
                         await room.save();
         
                         await Room.findByIdAndDelete(item.roomId);
+
+                        data = data.filter(e => e.roomId !== item.roomId)
                     }
                                             
                     io.to(item.roomId).emit('player', userJson(players));                
@@ -230,12 +231,16 @@ const leaveMethod = async (item, socket, io) => {
                     await room.save();
     
                     await Room.findByIdAndDelete(item.roomId);
+
+                    data = data.filter(e => e.roomId !== item.roomId)
                 }
                                         
                 io.to(item.roomId).emit('player', userJson(players));                
                 io.to(item.roomId).emit('game', room.gameState);
             } else {
                 await Room.findByIdAndDelete(item.roomId);
+
+                data = data.filter(e => e.roomId !== item.roomId)
     
                 io.to(item?.roomId).emit('game', 'finish');
             }

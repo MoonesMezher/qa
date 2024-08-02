@@ -17,8 +17,8 @@ const game2 = async (io, socket, data) => {
         startMethod(item, socket, io);
     })
 
-    socket.on('finishPlayer2', async (item) => {
-        finishMethod(item, socket, io);
+    socket.on('finishPlayer2', async (item, data) => {
+        finishMethod(item, socket, io, data);
     })
 
     socket.on('game2', async (item) => {
@@ -29,8 +29,8 @@ const game2 = async (io, socket, data) => {
         scoreMethod(item, socket, io);
     });
 
-    socket.on('leave2', async (item) => {
-        leaveMethod(item, socket, io);
+    socket.on('leave2', async (item, data) => {
+        leaveMethod(item, socket, io, data);
     });
 
     socket.on('exit', async () => {        
@@ -111,7 +111,7 @@ const startMethod = async (item, socket, io) => {
         console.log('Error -> Start: ', error.message);            
     }
 }
-const finishMethod = async (item, socket, io) => {
+const finishMethod = async (item, socket, io, data) => {
     if(!item) {
         return;
     }
@@ -142,6 +142,8 @@ const finishMethod = async (item, socket, io) => {
                 await room.save();            
 
                 await Room.findByIdAndDelete(item.roomId);
+
+                data = data.filter(e => e.roomId !== room._id)
             }
 
             const players = room.users.sort((a, b) => b.score - a.score);
@@ -191,7 +193,7 @@ const scoreMethod = async (item, socket, io) => {
         console.log('Error -> Start: ', error.message);            
     }
 }
-const leaveMethod = async (item, socket, io) => {
+const leaveMethod = async (item, socket, io, data) => {
     if(!item) {
         return;
     }
@@ -233,6 +235,8 @@ const leaveMethod = async (item, socket, io) => {
                     await room.save();
 
                     await Room.findByIdAndDelete(room._id);
+
+                    data = data.filter(e => e.roomId !== room._id)
                 }
                                         
                 io.to(item.roomId).emit('player2', userJsonToGroupGame(players));                
@@ -276,6 +280,10 @@ const disconnectMethod = async (socket, data) => {
                 player.status = 'finish'
 
                 await room.save();
+
+                if(!room.users.find(e => e.status !== 'finish')) {
+                    await Room.findByIdAndDelete(user.roomId)
+                }
             }
         } catch (error) {
             console.log('Error disconnected', error.message);
@@ -290,6 +298,7 @@ const exit = (data, socket) => {
         player.terminated = false;
     }
 
+    console.log('Exit: ', player);
 }
 
 module.exports = game2

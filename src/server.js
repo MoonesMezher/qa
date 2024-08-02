@@ -18,7 +18,7 @@ const io = require('socket.io')(server, {
 
 const game = io.of('game1');
 
-const data = []
+let data = []
 
 game.on('connection', (socket) => {
     console.log('A user connected');
