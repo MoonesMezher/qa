@@ -36,6 +36,9 @@ const game2 = async (io, socket) => {
     });
 
     socket.on('disconnect', async () => {
+        console.log('disconnect: -> socket',socket);
+        console.log('disconnect -> socket.id: ',socket.id);
+        
         disconnectMethod();
     });
 }
