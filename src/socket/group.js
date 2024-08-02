@@ -5,6 +5,8 @@ const userJsonToGroupGame = require("../helpers/handleUserJsonToGroupGame");
 // const debounce = require('lodash.debounce');
 
 const game2 = async (io, socket, data) => {
+    let data = data;
+
     socket.on('join2', (item) => {
         joinMethod(item, socket, io, data);
     });
@@ -282,7 +284,12 @@ const disconnectMethod = async (socket, data) => {
                 await room.save();
 
                 if(!room.users.find(e => e.status !== 'finish')) {
+                    room.gameState = 'finish';
+                    
                     await Room.findByIdAndDelete(user.roomId)
+                    
+                    io.to(user.roomId).emit("game", "finish")
+                    io.to(user.roomId).emit("game2", "finish")
                 }
             }
         } catch (error) {
