@@ -405,7 +405,7 @@ const getAllUsersByNameWithFreindShipDetails = async (req, res) => {
 
             const otherUser = await User.findById(id);
 
-            // const otherProfile = await Profile.findOne({ user_id: id })
+            const otherProfile = await Profile.findOne({ user_id: id })
 
             const data = {
                 _id: otherUser._id,
@@ -417,7 +417,7 @@ const getAllUsersByNameWithFreindShipDetails = async (req, res) => {
                 isFree: otherUser.isFree,
                 // description: otherProfile.description, 
                 // country: otherProfile.country, 
-                // picture: otherProfile.picture,
+                picture: otherProfile?.picture,
                 // tokens: otherProfile.tokens,
                 // exp: otherProfile.exp,
                 // score: otherProfile.score,                

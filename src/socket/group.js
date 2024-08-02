@@ -17,7 +17,7 @@ const game2 = async (io, socket, data) => {
         startMethod(item, socket, io);
     })
 
-    socket.on('finishPlayer2', async (item, data) => {
+    socket.on('finishPlayer2', async (item) => {
         finishMethod(item, socket, io, data);
     })
 
@@ -29,11 +29,11 @@ const game2 = async (io, socket, data) => {
         scoreMethod(item, socket, io);
     });
 
-    socket.on('leave2', async (item, data) => {
+    socket.on('leave2', async (item) => {
         leaveMethod(item, socket, io, data);
     });
 
-    socket.on('exit', async (data) => {        
+    socket.on('exit', async () => {        
         exit(data, socket);
     });
 

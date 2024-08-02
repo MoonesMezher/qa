@@ -16,7 +16,7 @@ const game1 = async (io, socket, data) => {
         startMethod(item, socket, io);
     })
 
-    socket.on('finishPlayer', async (item, data) => {
+    socket.on('finishPlayer', async (item) => {
         finishMethod(item, socket, io, data);
     })
 
