@@ -34,7 +34,7 @@ const game2 = async (io, socket, data) => {
     });
 
     socket.on('exit', async () => {        
-        exit(data, socket);
+        exit(socket, data);
     });
 
     socket.on('disconnect', async () => {        
@@ -296,7 +296,7 @@ const disconnectMethod = async (socket, data) => {
     }
 }
 
-const exit = (data, socket) => {
+const exit = (socket, data) => {
     const player = data.find(e => e.socketId === socket.id);
 
     if(player) {

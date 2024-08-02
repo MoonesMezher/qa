@@ -99,7 +99,7 @@ const startMethod = async (item, socket, io) => {
         console.log('Error -> Start: ', error.message);            
     }
 }
-const finishMethod = async (item, socket, io) => {
+const finishMethod = async (item, socket, io, data) => {
     if(!item) {
         return;
     }
@@ -174,7 +174,7 @@ const scoreMethod = async (item, socket, io) => {
         console.log('Error -> Start: ', error.message);            
     }
 }
-const leaveMethod = async (item, socket, io) => {
+const leaveMethod = async (item, socket, io, data) => {
     if(!item) {
         return;
     }
