@@ -241,7 +241,7 @@ const leaveMethod = async (item, socket, io, data) => {
                     await room.save();
 
                     setTimeout(async () => {
-                        await Room.findByIdAndDelete(room._id);
+                        await Room.findByIdAndDelete(item.roomId);
                     }, 5000);
 
                     data = data.filter(e => e.roomId !== room._id)
@@ -260,7 +260,6 @@ const leaveMethod = async (item, socket, io, data) => {
                 io.to(item.roomId).emit('player2', userJsonToGroupGame(players));                
                 io.to(item.roomId).emit('game2', room.gameState);
             }    
-    
         }
     } catch (error) {
         console.log('Error -> Leave: ', error.message);
@@ -300,8 +299,8 @@ const disconnectMethod = async (socket, data, io) => {
 
                     console.log("DIS: ",room.gameState);
                     
-                    io.to(room._id).emit("game", "finish");
-                    io.to(room._id).emit("game2", "finish");
+                    socket.emit("game", "finish");
+                    socket.emit("game2", "finish");
                 }
             }
         } catch (error) {
