@@ -6,6 +6,8 @@ const userJsonToGroupGame = require("../helpers/handleUserJsonToGroupGame");
 
 const game2 = async (io, socket, data) => {
     socket.on('join2', (item) => {
+        console.log("data: ",data);
+        
         joinMethod(item, socket, io, data);
     });
 
@@ -293,6 +295,9 @@ const disconnectMethod = async (socket, data, io) => {
                     setTimeout(async () => {
                         await Room.findByIdAndDelete(room._id);
                     }, 5000);
+
+                    console.log("dis room: ",room);
+                    
 
                     io.to(room._id).emit("game", "finish");
                     io.to(room._id).emit("game2", "finish");
