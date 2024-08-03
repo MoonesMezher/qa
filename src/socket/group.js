@@ -297,8 +297,8 @@ const disconnectMethod = async (socket, data, io) => {
                     
                     await Room.findByIdAndDelete(room._id);
                     
-                    io.in(room._id).emit("game", "finish");
-                    io.in(room._id).emit("game2", "finish");
+                    io.to(room._id).emit("game", "finish");
+                    io.to(room._id).emit("game2", "finish");
                 }
             }
         } catch (error) {
@@ -308,6 +308,8 @@ const disconnectMethod = async (socket, data, io) => {
 }
 
 const exit = (socket, data) => {
+    console.log('Exit: ',data);
+    
     const player = data.find(e => e.socketId === socket.id);
 
     if(player) {
