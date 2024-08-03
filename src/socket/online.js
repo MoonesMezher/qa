@@ -183,7 +183,9 @@ const gameMethod = async (item, socket, io) => {
         const room = await Room.findById(item.roomId);
 
         if(room) {
-            io.to(item.roomId).emit('game', room.gameState);
+            setInterval(() => {
+                io.to(item.roomId).emit('game', room.gameState);
+            }, 5000);
         }
     } catch (error) {
         console.log('Error -> Game: ', error.message);            

@@ -15,16 +15,16 @@ const io = require('socket.io')(server, {
     }
 });
 
-const game = io.of('game1');
+const ioGame = io.of('game1');
 
 let data = []
 
-game.on('connection', (socket) => {
+ioGame.on('connection', (socket) => {
     console.log('A user connected');
 
     console.log(data);
 
-    game(game, socket, data);
+    game(ioGame, socket, data);
 });
 
 instrument(io, {
