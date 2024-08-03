@@ -169,10 +169,20 @@ const finishMethod = async (item, socket, io, data) => {
             
             io.to(item.roomId).emit('player', userJson(players));
 
-            setInterval(() => {
-                console.log(1);
-                io.to(item.roomId).emit('game', room.gameState);
-            }, 5000)
+            let intervalId;
+
+            intervalId = setInterval(async () => {
+                const thisRoom = await Room.findById(room._id);
+
+                console.log(thisRoom.gameState);
+
+                if (thisRoom.gameState === 'finish') {
+                    await Room.findByIdAndDelete(room._id);
+                    clearInterval(intervalId); // stop the interval
+                }
+
+                io.to(item.roomId).emit('game', thisRoom.gameState);
+            }, 5000);
         }
     } catch (error) {
         console.log('Error -> Start: ', error.message);            
@@ -544,9 +554,7 @@ const disconnectMethod = async (socket, data, io) => {
                     room.gameState = 'finish';
 
                     await room.save();
-                    
-                    await Room.findByIdAndDelete(room._id);
-                    
+                                    
                     io.to(room._id).emit("game", "finish");
                     io.to(room._id).emit("game2", "finish");
                 }
