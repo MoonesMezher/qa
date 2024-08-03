@@ -284,7 +284,9 @@ const disconnectMethod = async (socket, data, io) => {
                 if(!room.users.find(e => e.status !== 'finish')) {
                     room.gameState = 'finish';
                     
-                    await Room.findByIdAndDelete(user.roomId)
+                    setTimeout(async () => {
+                        await Room.findByIdAndDelete(user.roomId)
+                    }, 5000);
                     
                     io.to(user.roomId).emit("game", "finish")
                     io.to(user.roomId).emit("game2", "finish")
