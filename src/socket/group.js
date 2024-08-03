@@ -5,9 +5,7 @@ const userJsonToGroupGame = require("../helpers/handleUserJsonToGroupGame");
 // const debounce = require('lodash.debounce');
 
 const game2 = async (io, socket, data) => {
-    socket.on('join2', (item) => {
-        console.log("data: ",data);
-        
+    socket.on('join2', (item) => {        
         joinMethod(item, socket, io, data);
     });
 
@@ -22,6 +20,10 @@ const game2 = async (io, socket, data) => {
     socket.on('finishPlayer2', async (item) => {
         finishMethod(item, socket, io, data);
     })
+
+    socket.on('game', async (item) => {
+        gameMethod1(item, socket, io);
+    });
 
     socket.on('game2', async (item) => {
         gameMethod(item, socket, io);
@@ -313,6 +315,22 @@ const exit = (socket, data) => {
     }
 
     console.log('Exit: ', player);
+}
+
+const gameMethod1 = async (item, socket, io) => {
+    if(!item) {
+        return;
+    }
+
+    try {
+        const room = await Room.findById(item.roomId);
+
+        if(room) {
+            io.to(item.roomId).emit('game', room.gameState);
+        }
+    } catch (error) {
+        console.log('Error -> Game: ', error.message);            
+    }
 }
 
 module.exports = game2
