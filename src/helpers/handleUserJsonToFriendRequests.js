@@ -1,7 +1,7 @@
 const Profile = require("../database/models/Profile");
 const User = require("../database/models/User");
 
-const friendJson = async (id) => {
+const friendJson = async (id, state) => {
     const profile = await Profile.findOne({ user_id: id });
 
     const user = await User.findById(id);
@@ -15,6 +15,7 @@ const friendJson = async (id) => {
         active: user.active,
         isFree: user.isFree,
         picture: profile?.picture,
+        state
     }
 
     return data;

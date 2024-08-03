@@ -273,7 +273,7 @@ const getAllFriends = async (req, res) => {
         })
         
         const finalFriends = await Promise.all(friends?.map(async friend => {
-            return await friendJson(friend.id);
+            return await friendJson(friend.id, 'friend');
         }));
 
         const startIndex = (page - 1) * limit; // calculate the starting index for the current page
@@ -311,7 +311,7 @@ const getAllFriendRequests = async (req, res) => {
         })
 
         const finalFriends = await Promise.all(friends.map(async friend => {
-            return await friendJson(friend.id);
+            return await friendJson(friend.id, 'request');
         }));
 
         const startIndex = (page - 1) * limit; // calculate the starting index for the current page
