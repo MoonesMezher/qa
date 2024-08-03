@@ -148,6 +148,8 @@ const finishMethod = async (item, socket, io, data) => {
                 data = data.filter(e => e.roomId !== room._id)
             }
 
+            await room.save();            
+
             const players = room.users.sort((a, b) => b.score - a.score);
 
             io.to(item.roomId).emit('player2', userJsonToGroupGame(players));
@@ -288,14 +290,12 @@ const disconnectMethod = async (socket, data, io) => {
 
                     await room.save();
                     
-                    // setTimeout(async () => {
-                    //     await Room.findByIdAndDelete(room._id)
-                    // }, 5000);
+                    setTimeout(async () => {
+                        await Room.findByIdAndDelete(room._id);
+                    }, 5000);
 
-                    console.log("finish and dis: ",room);
-
-                    io.to(room._id).emit("game", "finish")
-                    io.to(room._id).emit("game2", "finish")
+                    io.to(room._id).emit("game", "finish");
+                    io.to(room._id).emit("game2", "finish");
                 }
             }
         } catch (error) {
