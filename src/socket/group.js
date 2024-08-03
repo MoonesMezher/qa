@@ -296,9 +296,11 @@ const disconnectMethod = async (socket, data, io) => {
                     await room.save();
                     
                     await Room.findByIdAndDelete(room._id);
-                    
-                    io.to(room._id).emit("game", "finish");
-                    io.to(room._id).emit("game2", "finish");
+
+                    socket.on("check", async () => {
+                        io.to(room._id).emit("game", "finish");
+                        io.to(room._id).emit("game2", "finish");
+                    })
                 }
             }
         } catch (error) {
@@ -323,8 +325,6 @@ const gameMethod1 = async (item, socket, io) => {
     if(!item) {
         return;
     }
-
-    console.log('game');
 
     try {
         const room = await Room.findById(item.roomId);
