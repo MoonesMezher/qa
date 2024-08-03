@@ -276,7 +276,7 @@ const disconnectMethod = async (socket, data, io) => {
     if(user) {
         const room = await Room.findById(user.roomId)
 
-        console.log("DIS: ",room.gameState);
+        console.log("DIS: ",room?.gameState);
 
         if(!room || !user.terminated) {
             return;
@@ -323,6 +323,8 @@ const gameMethod1 = async (item, socket, io) => {
     if(!item) {
         return;
     }
+
+    console.log('game');
 
     try {
         const room = await Room.findById(item.roomId);
