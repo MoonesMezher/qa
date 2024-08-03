@@ -417,7 +417,21 @@ const finishMethod2 = async (item, socket, io, data) => {
             const players = room.users.sort((a, b) => b.score - a.score);
 
             io.to(item.roomId).emit('player2', userJsonToGroupGame(players));
-            io.to(item.roomId).emit('game2', room.gameState);
+
+            let intervalId;
+
+            intervalId = setInterval(async () => {
+                const thisRoom = await Room.findById(room._id);
+
+                console.log(thisRoom.gameState);
+
+                if (thisRoom.gameState === 'finish') {
+                    await Room.findByIdAndDelete(room._id);
+                    clearInterval(intervalId); // stop the interval
+                }
+
+                io.to(item.roomId).emit('game2', thisRoom.gameState);
+            }, 5000);
         }
     } catch (error) {
         console.log('Error -> Start: ', error.message);            
