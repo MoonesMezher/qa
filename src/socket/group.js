@@ -293,14 +293,10 @@ const disconnectMethod = async (socket, data, io) => {
 
                     await room.save();
                     
-                    setTimeout(async () => {
-                        await Room.findByIdAndDelete(room._id);
-                    }, 5000);
-
-                    console.log("DIS: ",room.gameState);
+                    await Room.findByIdAndDelete(room._id);
                     
-                    socket.emit("game", "finish");
-                    socket.emit("game2", "finish");
+                    io.in(room._id).emit("game", "finish");
+                    io.in(room._id).emit("game2", "finish");
                 }
             }
         } catch (error) {
