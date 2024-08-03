@@ -123,7 +123,9 @@ const finishMethod = async (item, socket, io, data) => {
             const players = room.users.sort((a, b) => b.score - a.score);
 
             if(room.gameState == 'finish') { 
-                await Room.findByIdAndDelete(item.roomId);
+                setTimeout(async () => {
+                    await Room.findByIdAndDelete(item.roomId);
+                }, 5000)
 
                 data = data.filter(e => e.roomId !== item.roomId)
             }
@@ -204,8 +206,10 @@ const leaveMethod = async (item, socket, io, data) => {
                         room.gameState = 'finish';
         
                         await room.save();
-        
-                        await Room.findByIdAndDelete(item.roomId);
+
+                        setTimeout(async () => {
+                            await Room.findByIdAndDelete(item.roomId);
+                        }, 5000);
 
                         data = data.filter(e => e.roomId !== item.roomId)
                     }
@@ -229,8 +233,10 @@ const leaveMethod = async (item, socket, io, data) => {
                     room.gameState = 'finish';
     
                     await room.save();
-    
-                    await Room.findByIdAndDelete(item.roomId);
+
+                    setTimeout(async () => {
+                        await Room.findByIdAndDelete(item.roomId);
+                    }, 5000);
 
                     data = data.filter(e => e.roomId !== item.roomId)
                 }
@@ -238,7 +244,9 @@ const leaveMethod = async (item, socket, io, data) => {
                 io.to(item.roomId).emit('player', userJson(players));                
                 io.to(item.roomId).emit('game', room.gameState);
             } else {
-                await Room.findByIdAndDelete(item.roomId);
+                setTimeout(async () => {
+                    await Room.findByIdAndDelete(item.roomId);
+                }, 5000)
 
                 data = data.filter(e => e.roomId !== item.roomId)
     
