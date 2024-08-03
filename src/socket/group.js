@@ -268,8 +268,6 @@ const disconnectMethod = async (socket, data, io) => {
 
     const user = [...data].reverse().find(e => e.socketId === socket.id);
 
-    console.log(user);
-
     if(user) {
         const room = await Room.findById(user.roomId)
 
@@ -290,11 +288,12 @@ const disconnectMethod = async (socket, data, io) => {
 
                     await room.save();
                     
-                    
-                    setTimeout(async () => {
-                        await Room.findByIdAndDelete(room._id)
-                    }, 5000);
-                    
+                    // setTimeout(async () => {
+                    //     await Room.findByIdAndDelete(room._id)
+                    // }, 5000);
+
+                    console.log("finish and dis: ",room);
+
                     io.to(room._id).emit("game", "finish")
                     io.to(room._id).emit("game2", "finish")
                 }
