@@ -168,8 +168,9 @@ const finishMethod = async (item, socket, io, data) => {
             }
             
             io.to(item.roomId).emit('player', userJson(players));
-            
+
             setInterval(() => {
+                console.log(1);
                 io.to(item.roomId).emit('game', room.gameState);
             }, 5000)
         }
