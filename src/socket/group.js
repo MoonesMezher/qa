@@ -297,8 +297,8 @@ const disconnectMethod = async (socket, data, io) => {
                     
                     // await Room.findByIdAndDelete(room._id);
                     
-                    io.to(id).emit("game", "finish");
-                    io.to(id).emit("game2", "finish");
+                    io.to(room._id).emit("game", "finish");
+                    io.to(room._id).emit("game2", "finish");
                 }
             }
         } catch (error) {
