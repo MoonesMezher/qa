@@ -5,8 +5,7 @@ const mongoose = require('mongoose');
 
 const { instrument } = require('@socket.io/admin-ui')
 
-const game1 = require('./socket/online1vs1');
-const game2 = require('./socket/group');
+const game = require('./socket/online');
 
 const server = require('http').createServer(app);
 const io = require('socket.io')(server, {
@@ -23,9 +22,9 @@ let data = []
 game.on('connection', (socket) => {
     console.log('A user connected');
 
-    game1(game, socket, data);
+    console.log(data);
 
-    game2(game, socket, data);
+    game(game, socket, data);
 });
 
 instrument(io, {
