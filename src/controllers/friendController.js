@@ -282,7 +282,7 @@ const getAllFriends = async (req, res) => {
 
         const paginatedFriends = finalFriends.slice(startIndex, endIndex); // slice the friends array to get the desired page
 
-        return res.status(200).json({ state:'success', message: 'تم عرض كل الأصدقاء بنجاح', friends: paginatedFriends, total: friends.length });
+        return res.status(200).json({ state:'success', message: 'تم عرض كل الأصدقاء بنجاح', allUsers: paginatedFriends, total: friends.length });
     } catch (error) {
         return res.status(400).json({ state:'failed', message: error.message });
     }
@@ -320,7 +320,7 @@ const getAllFriendRequests = async (req, res) => {
 
         const paginatedFriends = finalFriends.slice(startIndex, endIndex); // slice the friends array to get the desired page
 
-        return res.status(200).json({ state:'success', message: 'تم عرض كل طلبات الصداقة بنجاح', friendRequests: paginatedFriends, total: friends.length });
+        return res.status(200).json({ state:'success', message: 'تم عرض كل طلبات الصداقة بنجاح', allUsers: paginatedFriends, total: friends.length });
     } catch (error) {
         return res.status(400).json({ state:'failed', message: error.message });
     }
