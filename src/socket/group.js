@@ -275,6 +275,8 @@ const disconnectMethod = async (socket, data, io) => {
     if(user) {
         const room = await Room.findById(user.roomId)
 
+        console.log("DIS: ",room.gameState);
+
         if(!room || !user.terminated) {
             return;
         }
@@ -296,9 +298,8 @@ const disconnectMethod = async (socket, data, io) => {
                         await Room.findByIdAndDelete(room._id);
                     }, 5000);
 
-                    console.log("dis room: ",room);
+                    console.log("DIS: ",room.gameState);
                     
-
                     io.to(room._id).emit("game", "finish");
                     io.to(room._id).emit("game2", "finish");
                 }
