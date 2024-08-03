@@ -162,13 +162,16 @@ const finishMethod = async (item, socket, io, data) => {
             if(room.gameState == 'finish') { 
                 setTimeout(async () => {
                     await Room.findByIdAndDelete(item.roomId);
-                }, 5000)
+                }, 5000);
 
                 data = data.filter(e => e.roomId !== item.roomId)
             }
             
             io.to(item.roomId).emit('player', userJson(players));
-            io.to(item.roomId).emit('game', room.gameState);
+            
+            setInterval(() => {
+                io.to(item.roomId).emit('game', room.gameState);
+            }, 5000)
         }
     } catch (error) {
         console.log('Error -> Start: ', error.message);            
@@ -183,9 +186,7 @@ const gameMethod = async (item, socket, io) => {
         const room = await Room.findById(item.roomId);
 
         if(room) {
-            setInterval(() => {
-                io.to(item.roomId).emit('game', room.gameState);
-            }, 5000);
+            io.to(item.roomId).emit('game', room.gameState);
         }
     } catch (error) {
         console.log('Error -> Game: ', error.message);            
