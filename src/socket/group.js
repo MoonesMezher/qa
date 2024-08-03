@@ -38,7 +38,7 @@ const game2 = async (io, socket, data) => {
     });
 
     socket.on('disconnect', async () => {        
-        disconnectMethod(socket, data);
+        disconnectMethod(socket, data, io);
     });
 }
 const joinMethod = async (item, socket, io, data) => {
@@ -259,7 +259,7 @@ const leaveMethod = async (item, socket, io, data) => {
     }
     
 }
-const disconnectMethod = async (socket, data) => {
+const disconnectMethod = async (socket, data, io) => {
     console.log('user disconnected now');
 
     const user = data.find(e => e.socketId === socket.id);

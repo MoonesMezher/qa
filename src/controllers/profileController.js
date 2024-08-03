@@ -399,19 +399,20 @@ const getAllUsersByNameWithFreindShipDetails = async (req, res) => {
     try {
         const newRegex = new RegExp(`.*${name}.*`, "i");
 
-        const users = await User.find({ username: { $regex: newRegex } });
+        let users = await User.find({ username: { $regex: newRegex } });
+
+        users = users.filter(user => user.role === 'user' || user.role === 'guest');
 
         const allUsers = await Promise.all(users.map(async (e) => {
-            if(e.role === 'user') {
-                const id = e._id;
+            const id = e._id;
+            
+            const state1 = await Friend.findOne({ user_id: userId, friends: { $elemMatch: { id } } });
+            
+            const state2 = await Friend.findOne({ user_id: id, friends: { $elemMatch: { id: userId } } });
+            
+            let state = "noraml";
                 
-                const state1 = await Friend.findOne({ user_id: userId, friends: { $elemMatch: { id } } });
-                
-                const state2 = await Friend.findOne({ user_id: id, friends: { $elemMatch: { id: userId } } });
-                
-                let state = "noraml";
-                
-                if(state1) {
+            if(state1) {
                 if(state1?.friends?.find(e => e.type === 'friend')) {
                     state = 'friend';
                 } else {
@@ -442,7 +443,6 @@ const getAllUsersByNameWithFreindShipDetails = async (req, res) => {
             }
             
             return data;
-            }
         }))
 
         return res.status(200).json({ state: "success", message: 'تم عرض كافة المستخدمين المتاحين حسب الاسم المدخل بنجاح', allUsers });                    
