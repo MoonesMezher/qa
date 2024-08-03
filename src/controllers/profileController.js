@@ -397,7 +397,7 @@ const getAllUsersByNameWithFreindShipDetails = async (req, res) => {
     }
 
     try {
-        const newRegex = new RegExp(`.*${name}.*`, "i");
+        const newRegex = new RegExp(`^${name}`, "i");
 
         let users = await User.find({ username: { $regex: newRegex } });
 
