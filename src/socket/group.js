@@ -262,7 +262,7 @@ const leaveMethod = async (item, socket, io, data) => {
 const disconnectMethod = async (socket, data, io) => {
     console.log('user disconnected now');
 
-    const user = data.find(e => e.socketId === socket.id);
+    const user = [...data].reverse().find(e => e.socketId === socket.id);
 
     console.log(user);
 
