@@ -235,22 +235,6 @@ const finishMethod = async (item, socket, io, data) => {
             }
             
             io.to(item.roomId).emit('player', userJson(players));
-
-            // let intervalId;
-
-            // intervalId = setInterval(async () => {
-            //     const thisRoom = await Room.findById(room._id);
-
-            //     if(!thisRoom) {
-            //         clearInterval(intervalId); // stop the interval
-            //     }
-
-            //     if (thisRoom?.gameState === 'finish') {
-            //         await Room.findByIdAndDelete(room?._id);
-            //         clearInterval(intervalId); // stop the interval
-            //     }
-
-            // }, 5000);
             io.to(item.roomId).emit('game', room?.gameState);
         }
     } catch (error) {
@@ -441,7 +425,7 @@ const startMethod2 = async (item, socket, io) => {
                 if(room) {
                     await Room.findByIdAndUpdate(item.roomId, { gameState: 'finish' });
 
-                    console.log(item.roomId, room._id);
+                    console.log('ff: ',item.roomId, room._id);
 
                     io.to(item.roomId).emit('game2', 'finish')
                     // console.log('finished now');
@@ -496,7 +480,7 @@ const finishMethod2 = async (item, socket, io, data) => {
             }
 
             if(count === room.users.length) {
-                room.gameState = 'finish' ;
+                room.gameState = 'finish';
 
                 await room.save();            
 
@@ -505,6 +489,8 @@ const finishMethod2 = async (item, socket, io, data) => {
                 }, 5000);
 
                 data = data.filter(e => e.roomId !== room._id)
+
+                io.to(item.roomId).emit('game2', 'finish');
             }
 
             await room.save();            
