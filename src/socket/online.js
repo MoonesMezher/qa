@@ -130,11 +130,10 @@ const startMethod = async (item, socket, io) => {
 
                 const finishGame = async () => {
                     if(room) {
-                        room.gameState = 'finish';
-                        await room.save();
+                        await Room.findByIdAndUpdate(item.roomId, { gameState: 'finish' });
+                        
                         io.to(room._id).emit('game', 'finish')
                         io.to(room._id).emit('game2', 'finish')
-
                         console.log('finished now');
                     }
                 };
