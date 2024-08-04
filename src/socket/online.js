@@ -143,8 +143,10 @@ const startMethod = async (item, socket, io) => {
                     console.log('deleted now');
                 }
                 
-                setTimeout(finishGame, 10000); 
-                setTimeout(deleteRoom, 15000); 
+                const threeMinAndHalf = 3.5 * 60 * 1000;
+                
+                setTimeout(finishGame,threeMinAndHalf); 
+                setTimeout(deleteRoom, threeMinAndHalf + 5000); 
             }
             
             const players = room.users.sort((a, b) => b.score - a.score)
