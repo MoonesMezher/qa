@@ -447,7 +447,7 @@ const startMethod2 = async (item, socket, io) => {
                 }
             }
             
-            const threeMinAndHalf = (1 * 60 * 1000);
+            const threeMinAndHalf = (3 * 60 * 1000) + 40000;
             
             setTimeout(finishGame,threeMinAndHalf); 
             setTimeout(deleteRoom, (threeMinAndHalf) + 30000);
