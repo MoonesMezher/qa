@@ -88,7 +88,7 @@ const joinMethod = async (item, socket, io, data) => {
                 console.log('check now');
                 
                 const finishPlayer = async () => {
-                    let thisRoom = await Room.findById(item.room);
+                    let thisRoom = await Room.findById(item.roomId);
 
                     if(!thisRoom) {
                         return
