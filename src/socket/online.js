@@ -143,7 +143,7 @@ const startMethod = async (item, socket, io) => {
                     console.log('deleted now');
                 }
                 
-                const threeMinAndHalf = 60 * 1000;
+                const threeMinAndHalf = 2 * 60 * 1000;
                 
                 setTimeout(finishGame,threeMinAndHalf); 
                 setTimeout(deleteRoom, (threeMinAndHalf) + 5000); 
