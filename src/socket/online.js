@@ -191,22 +191,22 @@ const finishMethod = async (item, socket, io, data) => {
             
             io.to(item.roomId).emit('player', userJson(players));
 
-            let intervalId;
+            // let intervalId;
 
-            intervalId = setInterval(async () => {
-                const thisRoom = await Room.findById(room._id);
+            // intervalId = setInterval(async () => {
+            //     const thisRoom = await Room.findById(room._id);
 
-                if(!thisRoom) {
-                    clearInterval(intervalId); // stop the interval
-                }
+            //     if(!thisRoom) {
+            //         clearInterval(intervalId); // stop the interval
+            //     }
 
-                if (thisRoom.gameState === 'finish') {
-                    await Room.findByIdAndDelete(room._id);
-                    clearInterval(intervalId); // stop the interval
-                }
+            //     if (thisRoom?.gameState === 'finish') {
+            //         await Room.findByIdAndDelete(room?._id);
+            //         clearInterval(intervalId); // stop the interval
+            //     }
 
-                io.to(item.roomId).emit('game', thisRoom.gameState);
-            }, 5000);
+            // }, 5000);
+            io.to(item.roomId).emit('game', room?.gameState);
         }
     } catch (error) {
         console.log('Error -> Start: ', error.message);            

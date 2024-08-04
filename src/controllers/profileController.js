@@ -403,6 +403,8 @@ const getAllUsersByNameWithFreindShipDetails = async (req, res) => {
 
         users = users.filter(user => user.role === 'user' || user.role === 'guest');
 
+        users = users.filter(user => user._id !== userId);
+
         const allUsers = await Promise.all(users.map(async (e) => {
             const id = e._id;
             
