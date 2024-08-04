@@ -132,8 +132,12 @@ const startMethod = async (item, socket, io) => {
                     room.gameState = 'finish';
                     await room.save();
 
+                    console.log('finished now');
+                    
                     setTimeout(async () => {
                         await Room.findByIdAndDelete(room.id)
+
+                        console.log('delted now');
                     }, 5000);
                 };
                 
