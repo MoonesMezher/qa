@@ -94,7 +94,7 @@ const joinMethod = async (item, socket, io, data) => {
                         return;
                     }
 
-                    const thisPlayer = thisRoom.users.find(e => e.id === item.playerId);
+                    const thisPlayer = thisRoom.users.find(e => e.id.toString() === item.playerId.toString());
 
                     if(!thisPlayer) {
                         return;
