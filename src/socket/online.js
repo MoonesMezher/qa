@@ -129,18 +129,20 @@ const startMethod = async (item, socket, io) => {
                 await room.save();
 
                 const finishGame = async () => {
-                    room.gameState = 'finish';
-                    await room.save();
+                    if(room) {
+                        room.gameState = 'finish';
+                        await room.save();
+                        io.to(room._id).emit('game', 'finish')
+                        io.to(room._id).emit('game2', 'finish')
 
-                    console.log('finished now');
-                    
-                    io.to(room._id).emit('game', 'finish')
-                    io.to(room._id).emit('game2', 'finish')
+                        console.log('finished now');
+                    }
                 };
                 const deleteRoom = async () => {
-                    await Room.findByIdAndDelete(room.id)
-                    
-                    console.log('deleted now');
+                    if(room) {
+                        await Room.findByIdAndDelete(room.id)
+                        console.log('deleted now');
+                    }
                 }
                 
                 const threeMinAndHalf = 2 * 60 * 1000;
