@@ -421,6 +421,13 @@ const startMethod2 = async (item, socket, io) => {
                         
             room.gameState = 'start';
 
+            
+            await room.save();
+            
+            const players = room.users.sort((a, b) => b.score - a.score)
+            
+            io.to(item.roomId).emit('player2', userJsonToGroupGame(players));
+            io.to(item.roomId).emit('game2', room.gameState);
             const finishGame = async () => {
                 const thisRoom = await Room.findById(item.roomId);
 
@@ -428,27 +435,20 @@ const startMethod2 = async (item, socket, io) => {
                     await Room.findByIdAndUpdate(thisRoom._id, { gameState: 'finish' });
 
                     io.to(thisRoom._id).emit('game2', 'finish')
-                    // console.log('finished now');
+                    console.log('finished now');
                 }
             };
             const deleteRoom = async () => {
                 if(room) {
                     await Room.findByIdAndDelete(room.id)
-                    // console.log('deleted now');
+                    console.log('deleted now');
                 }
             }
             
-            const threeMinAndHalf = (3 * 60 * 1000) + 40000;
+            const threeMinAndHalf = (1 * 60 * 1000);
             
             setTimeout(finishGame,threeMinAndHalf); 
             setTimeout(deleteRoom, (threeMinAndHalf) + 30000);
-
-            await room.save();
-
-            const players = room.users.sort((a, b) => b.score - a.score)
-
-            io.to(item.roomId).emit('player2', userJsonToGroupGame(players));
-            io.to(item.roomId).emit('game2', room.gameState);
         }
     } catch (error) {
         console.log('Error -> Start: ', error.message);            
