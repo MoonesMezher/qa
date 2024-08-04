@@ -73,7 +73,7 @@ const joinMethod = async (item, socket, io, data) => {
     data.push({ playerId: item.playerId, roomId: item.roomId, socketId: socket.id, terminated: true })
 
     try {
-        socket.join(item.roomId);
+        await socket.join(item.roomId);
 
         const room = await Room.findById(item.roomId);
 
@@ -373,7 +373,7 @@ const joinMethod2 = async (item, socket, io, data) => {
     data.push({ playerId: item.playerId, roomId: item.roomId, socketId: socket.id, terminated: true })
 
     try {
-        socket.join(item.roomId);
+        await socket.join(item.roomId);
 
         const room = await Room.findById(item.roomId);
 
@@ -433,7 +433,9 @@ const startMethod2 = async (item, socket, io) => {
                 if(thisRoom) {
                     await Room.findByIdAndUpdate(thisRoom._id, { gameState: 'finish' });
 
-                    socket.emit('game2', 'finish')
+                    console.log(item.roomId, thisRoom._id, room._id);
+
+                    io.to(item.roomId).emit('game2', 'finish');
 
                     console.log('finished now');
                 }
