@@ -83,30 +83,34 @@ const joinMethod = async (item, socket, io, data) => {
 
             const player = room.users.find(e => e.palyerId === item.palyerId);
 
-            if(player && player.status === 'ready') {
+            if(player && room.gameState === 'ready') {
                 const finishPlayer = async () => {
-                    const thisPlayer = await Room.findById(item.room);
+                    let thisRoom = await Room.findById(item.room);
 
-                    if(!thisPlayer) {
+                    if(!thisRoom) {
                         return
                     }
 
-                    thisPlayer.users.find(e => e.playerId === item.playerId);
+                    const thisPlayer = thisRoom.users.find(e => e.playerId === item.playerId);
 
                     if(thisPlayer.status !== 'ready') {
                         return;
                     } else {   
-                        let newUsers = room.users.filter(e => !e?.id?.equals(item?.playerId));
+                        let newUsers = thisRoom.users.filter(e => !e?.id?.equals(item?.playerId));
                         
-                        const bot = generateRandomBot(room.questions);
+                        const bot = generateRandomBot(thisRoom.questions);
                         
-                        newUsers.push( { id: bot.id, name: bot.name, image: bot.image, status: 'finish', score: onlineGameBot(room.questions) } );
+                        newUsers.push( { id: bot.id, name: bot.name, image: bot.image, status: 'finish', score: onlineGameBot(thisRoom.questions) } );
                         
-                        room = await Room.updateOne({ _id: item.roomId }, { users: newUsers }, { new: true });
+                        await Room.updateOne({ _id: item.roomId }, { users: newUsers }, { new: true });
                         
                         const players = newUsers.sort((a, b) => b.score - a.score)
                         
                         io.to(item.roomId).emit('player', userJson(players));
+
+                        if(thisRoom.users.length === 2 && thisRoom.users[0].status === 'finish' && thisRoom.users[1].status === 'finish') {
+                            await Room.findByIdAndDelete(item.roomId)
+                        }
                     }
                 };
 
