@@ -134,14 +134,17 @@ const startMethod = async (item, socket, io) => {
 
                     console.log('finished now');
                     
-                    setTimeout(async () => {
-                        await Room.findByIdAndDelete(room.id)
-
-                        console.log('delted now');
-                    }, 5000);
+                    io.to(room._id).emit('game', 'finish')
+                    io.to(room._id).emit('game2', 'finish')
                 };
+                const deleteRoom = async () => {
+                    await Room.findByIdAndDelete(room.id)
+                    
+                    console.log('deleted now');
+                }
                 
                 setTimeout(finishGame, 10000); 
+                setTimeout(deleteRoom, 15000); 
             }
             
             const players = room.users.sort((a, b) => b.score - a.score)
