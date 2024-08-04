@@ -420,7 +420,6 @@ const startMethod2 = async (item, socket, io) => {
             }
                         
             room.gameState = 'start';
-
             
             await room.save();
             
@@ -434,7 +433,8 @@ const startMethod2 = async (item, socket, io) => {
                 if(thisRoom) {
                     await Room.findByIdAndUpdate(thisRoom._id, { gameState: 'finish' });
 
-                    io.to(thisRoom._id).emit('game2', 'finish')
+                    socket.emit('game2', 'finish')
+
                     console.log('finished now');
                 }
             };
