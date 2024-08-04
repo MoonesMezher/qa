@@ -146,7 +146,7 @@ const startMethod = async (item, socket, io) => {
                 const threeMinAndHalf = 30 * 1000;
                 
                 setTimeout(finishGame,threeMinAndHalf); 
-                setTimeout(deleteRoom, threeMinAndHalf + 5000); 
+                setTimeout(deleteRoom, (threeMinAndHalf) + 5000); 
             }
             
             const players = room.users.sort((a, b) => b.score - a.score)
