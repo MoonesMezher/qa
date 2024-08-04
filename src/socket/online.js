@@ -90,11 +90,13 @@ const joinMethod = async (item, socket, io, data) => {
                 const finishPlayer = async () => {
                     let thisRoom = await Room.findById(item.roomId);
 
+                    console.log('check now', item.playerId);
+
                     if(!thisRoom) {
                         return;
                     }
 
-                    const thisPlayer = thisRoom.users.find(e => e.id.toString() === item.playerId.toString());
+                    const thisPlayer = thisRoom.users.find(e => e.id.toString() === item.playerId);
 
                     if(!thisPlayer) {
                         return;
@@ -296,6 +298,8 @@ const scoreMethod = async (item, socket, io) => {
     }
 }
 const leaveMethod = async (item, socket, io, data) => {
+    console.log('leave');
+    
     if(!item) {
         return;
     }
