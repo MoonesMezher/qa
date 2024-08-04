@@ -1,18 +1,5 @@
 const { Schema, model, default: mongoose } = require("mongoose");
 
-const friendSchema = new Schema({
-    id: {
-        type: Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    },
-    type: {
-        type: String, 
-        enum: ['pending', 'block', 'friend'], 
-        default: 'pending'
-    }
-});
-
 const Friend = model("Friend", new Schema({
     user_id : {
         type: Schema.Types.ObjectId,
@@ -20,7 +7,7 @@ const Friend = model("Friend", new Schema({
         required: true
     },
     friends: {
-        type: [friendSchema],
+        type: [Schema.Types.ObjectId],
         default: []
     },
 }, { timestamps : true }));

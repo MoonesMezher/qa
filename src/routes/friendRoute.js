@@ -19,11 +19,11 @@ router.get('/requests/page/:page', [validatePageParameter, requireAuth, authoriz
 // PUT
 router.put('/add-friend/:userId', [requireAuth, authorize(["admin","user","guest"])], addFriend);
 
-router.put('/accept-request/:userId', [requireAuth, authorize(["admin","user","guest"])], acceptFriendRequest);
+router.put('/accept-request/:requestId', [requireAuth, authorize(["admin","user","guest"])], acceptFriendRequest);
 
-router.put('/cancel-request/:userId', [requireAuth, authorize(["admin","user","guest"])], cancelFriendRequest);
+router.put('/cancel-request/:requestId', [requireAuth, authorize(["admin","user","guest"])], cancelFriendRequest);
 
-router.put('/unsend-request/:userId', [requireAuth, authorize(["admin","user","guest"])], unSendFriendRequest);
+router.put('/unsend-request/:requestId', [requireAuth, authorize(["admin","user","guest"])], unSendFriendRequest);
 
 router.put('/accept-all-requests', [requireAuth, authorize(["admin","user","guest"])], acceptAllFriendRequests);
 

@@ -1,5 +1,6 @@
 const Friend = require("../database/models/Friend");
 const Profile = require("../database/models/Profile");
+const Request = require("../database/models/Request");
 const User = require("../database/models/User");
 const normalizePath = require("../helpers/normalizePathName");
 
@@ -408,24 +409,20 @@ const getAllUsersByNameWithFreindShipDetails = async (req, res) => {
         const allUsers = await Promise.all(users.map(async (e) => {
             const id = e._id;
             
-            const state1 = await Friend.findOne({ user_id: userId, friends: { $elemMatch: { id } } });
-            
-            const state2 = await Friend.findOne({ user_id: id, friends: { $elemMatch: { id: userId } } });
-            
+            const isFriend = await Friend.findOne({ user_id: userId, friends: { $in: id } });
+
+            const isRequestFromMe = await Request.findOne({ user_id: userId, friends: { $in: id } });
+
+            const isRequestFromHim = await Request.findOne({ user_id: id, friends: { $in: userId } });            
+                        
             let state = "noraml";
-                
-            if(state1) {
-                if(state1?.friends?.find(e => e.type === 'friend')) {
-                    state = 'friend';
-                } else {
-                    state = 'request'
-                }
-            } else if(state2) {
-                if(state2?.friends?.find(e => e.type === 'friend')) {
-                    state = 'friend';
-                } else {
-                    state = 'request'
-                }
+
+            if(isFriend) {
+                state = "friend"
+            } else if(isRequestFromMe) {
+                state = "request"
+            } else if(isRequestFromHim) {
+                state = "request"
             }
 
             const otherUser = await User.findById(id);
