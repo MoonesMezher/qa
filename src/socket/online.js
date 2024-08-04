@@ -143,7 +143,7 @@ const startMethod = async (item, socket, io) => {
                     console.log('deleted now');
                 }
                 
-                const threeMinAndHalf = 3.5 * 60 * 1000;
+                const threeMinAndHalf = 20 * 1000;
                 
                 setTimeout(finishGame,threeMinAndHalf); 
                 setTimeout(deleteRoom, threeMinAndHalf + 5000); 
@@ -582,6 +582,8 @@ const disconnectMethod = async (socket, data, io) => {
 
             if(player) {
                 player.status = 'finish'
+
+                data = data.filter(e => e.socketId !== socket.id)
 
                 await room.save();
 
