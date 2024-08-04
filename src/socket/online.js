@@ -566,40 +566,40 @@ const leaveMethod2 = async (item, socket, io, data) => {
 const disconnectMethod = async (socket, data, io) => {
     console.log('user disconnected now');
 
-    const user = [...data].reverse().find(e => e.socketId === socket.id);
+    // const user = [...data].reverse().find(e => e.socketId === socket.id);
 
-    if(user) {
-        const room = await Room.findById(user.roomId)
+    // if(user) {
+    //     const room = await Room.findById(user.roomId)
 
-        console.log("DIS: ",room?.gameState);
+    //     console.log("DIS: ",room?.gameState);
 
-        if(!room || !user.terminated) {
-            return;
-        }
+    //     if(!room || !user.terminated) {
+    //         return;
+    //     }
 
-        try {
-            const player = room.users.find(e => e.id.toString() === user.playerId.toString());
+    //     try {
+    //         const player = room.users.find(e => e.id.toString() === user.playerId.toString());
 
-            if(player) {
-                player.status = 'finish'
+    //         if(player) {
+    //             player.status = 'finish'
 
-                data = data.filter(e => e.socketId !== socket.id)
+    //             data = data.filter(e => e.socketId !== socket.id)
 
-                await room.save();
+    //             await room.save();
 
-                if(!room.users.find(e => e.status !== 'finish')) {
-                    room.gameState = 'finish';
+    //             if(!room.users.find(e => e.status !== 'finish')) {
+    //                 room.gameState = 'finish';
 
-                    await room.save();
+    //                 await room.save();
                                     
-                    io.to(room._id).emit("game", "finish");
-                    io.to(room._id).emit("game2", "finish");
-                }
-            }
-        } catch (error) {
-            console.log('Error disconnected', error.message);
-        }
-    }
+    //                 io.to(room._id).emit("game", "finish");
+    //                 io.to(room._id).emit("game2", "finish");
+    //             }
+    //         }
+    //     } catch (error) {
+    //         console.log('Error disconnected', error.message);
+    //     }
+    // }
 }
 
 const exit = (socket, data) => {
