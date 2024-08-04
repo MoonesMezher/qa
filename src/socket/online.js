@@ -84,6 +84,9 @@ const joinMethod = async (item, socket, io, data) => {
             const player = room.users.find(e => e.palyerId === item.palyerId);
 
             if(player && room.gameState === 'ready') {
+
+                console.log('check now');
+                
                 const finishPlayer = async () => {
                     let thisRoom = await Room.findById(item.room);
 
@@ -93,9 +96,13 @@ const joinMethod = async (item, socket, io, data) => {
 
                     const thisPlayer = thisRoom.users.find(e => e.playerId === item.playerId);
 
+                    console.log('check now:', thisPlayer);
+
                     if(thisPlayer.status !== 'ready') {
+                        console.log('check now 1');
                         return;
                     } else {   
+                        console.log('check now 2');
                         let newUsers = thisRoom.users.filter(e => !e?.id?.equals(item?.playerId));
                         
                         const bot = generateRandomBot(thisRoom.questions);
@@ -109,6 +116,7 @@ const joinMethod = async (item, socket, io, data) => {
                         io.to(item.roomId).emit('player', userJson(players));
 
                         if(thisRoom.users.length === 2 && thisRoom.users[0].status === 'finish' && thisRoom.users[1].status === 'finish') {
+                            console.log('check now 3');
                             await Room.findByIdAndDelete(item.roomId)
                         }
                     }
