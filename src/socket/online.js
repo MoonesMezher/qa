@@ -131,7 +131,7 @@ const startMethod = async (item, socket, io) => {
                 const finishGame = async () => {
                     if(room) {
                         await Room.findByIdAndUpdate(item.roomId, { gameState: 'finish' });
-                        
+
                         io.to(room._id).emit('game', 'finish')
                         io.to(room._id).emit('game2', 'finish')
                         console.log('finished now');
@@ -144,7 +144,7 @@ const startMethod = async (item, socket, io) => {
                     }
                 }
                 
-                const threeMinAndHalf = 2 * 60 * 1000;
+                const threeMinAndHalf = 30 * 1000;
                 
                 setTimeout(finishGame,threeMinAndHalf); 
                 setTimeout(deleteRoom, (threeMinAndHalf) + 5000); 
