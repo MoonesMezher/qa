@@ -320,7 +320,7 @@ const joinToRoomInGroupGame = async (req, res) => {
     const findRoom = await Room.findOne({ users: { $elemMatch: { id: user._id } } });
 
     if(findRoom) {
-        return res.status(400).json({ state:'failed', message: 'You cannot join to room before you leave your room now' });
+        return res.status(400).json({ state:'failed', message: 'انتظر بعض الوقت وحاول مرة أخرى' });
     }
 
     try {
@@ -392,7 +392,7 @@ const joinToRoomInOnlineGame = async (req, res) => {
     const findRoom = await Room.findOne({ users: { $elemMatch: { id: user._id } } });
 
     if(findRoom) {
-        return res.status(400).json({ state:'failed', message: 'You cannot join to room before you leave your room now' });
+        return res.status(400).json({ state:'failed', message: 'انتظر بعض الوقت وحاول مرة أخرى' });
     }
 
     try {
@@ -478,8 +478,8 @@ const makeAnInviteToGame = async (req, res) => {
 
         await Promise.all(users.map(async user => {
             const invite = await Invite.create({ roomId: roomId, user_id: user, user: username, title: text, type, img: type === 'online' 
-                ? 'uploads/invite/onlineInvite.jpeg'
-                : 'uploads/invite/groupInvite.jpeg' })
+                ? 'uploads/invite/onlineInvite.webp'
+                : 'uploads/invite/groupInvite.webp' })
 
             const { fcmTokens } = await FcmToken.findOne( { user_id: user } );
 

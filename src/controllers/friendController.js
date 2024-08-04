@@ -61,13 +61,13 @@ const addFriend = async (req, res) => {
                     state: 'success', 
                     message: 'Created friend request successfully',
                     inivte: JSON.stringify({
-                        'id': '',
+                        'id': user_id,
                         'roomId': '',
                         'user': user.username,
                         'title': text,
                         'read': false,
                         'type': 'friend',
-                        'img': ''
+                        'img': 'uploads/invite/friendRequest.webp'
                     }),
                     notification: JSON.stringify({
                         '_id': `${notefication._id}`,
@@ -155,13 +155,13 @@ const acceptFriendRequest = async (req, res) => {
                     state: 'success', 
                     message: 'ِAccepted friend request successfully',
                     inivte: JSON.stringify({
-                        'id': '',
+                        'id': user_id,
                         'roomId': '',
                         'user': user.username,
                         'title': text,
                         'read': false,
                         'type': 'accept',
-                        'img': ''
+                        'img': 'uploads/invite/acceptRequest.webp'
                     }),
                     notification: JSON.stringify({
                         '_id': `${notefication._id}`,
