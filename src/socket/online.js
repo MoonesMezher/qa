@@ -84,7 +84,6 @@ const joinMethod = async (item, socket, io, data) => {
             const player = room.users.find(e => e.palyerId === item.palyerId);
 
             if(player && room.gameState === 'ready') {
-
                 console.log('check now');
                 
                 const finishPlayer = async () => {
@@ -442,7 +441,9 @@ const startMethod2 = async (item, socket, io) => {
                 if(room) {
                     await Room.findByIdAndUpdate(item.roomId, { gameState: 'finish' });
 
-                    io.to(room._id).emit('game2', 'finish')
+                    console.log(item.roomId, room._id);
+
+                    io.to(item.roomId).emit('game2', 'finish')
                     // console.log('finished now');
                 }
             };
