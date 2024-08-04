@@ -87,9 +87,13 @@ const joinMethod = async (item, socket, io, data) => {
                 const finishPlayer = async () => {
                     const thisPlayer = await Room.findById(item.room);
 
+                    if(!thisPlayer) {
+                        return
+                    }
+
                     thisPlayer.users.find(e => e.playerId === item.playerId);
 
-                    if(!thisPlayer || thisPlayer.status !== 'ready') {
+                    if(thisPlayer.status !== 'ready') {
                         return;
                     } else {   
                         let newUsers = room.users.filter(e => !e?.id?.equals(item?.playerId));
