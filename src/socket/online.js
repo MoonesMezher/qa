@@ -196,7 +196,9 @@ const finishMethod = async (item, socket, io, data) => {
             intervalId = setInterval(async () => {
                 const thisRoom = await Room.findById(room._id);
 
-                console.log(thisRoom.gameState);
+                if(!thisRoom) {
+                    clearInterval(intervalId); // stop the interval
+                }
 
                 if (thisRoom.gameState === 'finish') {
                     await Room.findByIdAndDelete(room._id);
