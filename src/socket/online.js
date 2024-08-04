@@ -143,7 +143,7 @@ const startMethod = async (item, socket, io) => {
                     console.log('deleted now');
                 }
                 
-                const threeMinAndHalf = 30 * 1000;
+                const threeMinAndHalf = 60 * 1000;
                 
                 setTimeout(finishGame,threeMinAndHalf); 
                 setTimeout(deleteRoom, (threeMinAndHalf) + 5000); 
@@ -603,15 +603,15 @@ const disconnectMethod = async (socket, data, io) => {
 }
 
 const exit = (socket, data) => {
-    console.log('Exit: ',data);
+    // console.log('Exit: ',data);
     
-    const player = data.find(e => e.socketId === socket.id);
+    // const player = data.find(e => e.socketId === socket.id);
 
-    if(player) {
-        player.terminated = false;
-    }
+    // if(player) {
+    //     player.terminated = false;
+    // }
 
-    console.log('Exit: ', player);
+    // console.log('Exit: ', player);
 }
 
 module.exports = game
