@@ -22,8 +22,6 @@ let data = []
 ioGame.on('connection', (socket) => {
     console.log('A user connected');
 
-    console.log(data);
-
     game(ioGame, socket, data);
 });
 
