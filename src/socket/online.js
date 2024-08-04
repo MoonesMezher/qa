@@ -91,10 +91,14 @@ const joinMethod = async (item, socket, io, data) => {
                     let thisRoom = await Room.findById(item.roomId);
 
                     if(!thisRoom) {
-                        return
+                        return;
                     }
 
-                    const thisPlayer = thisRoom.users.find(e => e.playerId === item.playerId);
+                    const thisPlayer = thisRoom.users.find(e => e.id === item.playerId);
+
+                    if(!thisPlayer) {
+                        return;
+                    }
 
                     console.log('check now:', thisPlayer);
 
