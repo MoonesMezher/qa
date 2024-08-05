@@ -73,7 +73,7 @@ const joinMethod = async (item, socket, io, data) => {
     data.push({ playerId: item.playerId, roomId: item.roomId, socketId: socket.id, terminated: true })
 
     try {
-        await socket.join(item.roomId);
+        socket.join(item.roomId);
 
         const room = await Room.findById(item.roomId);
 
@@ -375,7 +375,7 @@ const joinMethod2 = async (item, socket, io, data) => {
     data.push({ playerId: item.playerId, roomId: item.roomId, socketId: socket.id, terminated: true })
 
     try {
-        await socket.join(item.roomId);
+        socket.join(item.roomId);
 
         const room = await Room.findById(item.roomId);
 
@@ -614,6 +614,13 @@ const leaveMethod2 = async (item, socket, io, data) => {
 }
 const disconnectMethod = async (socket, data, io) => {
     console.log('user disconnected now');
+
+    const item = data.find(e => e.socketId === socket.id)
+
+    if(item) {
+        io.to(item.roomId).emit("disconnect", "user disconnected")
+    }
+
 }
 
 module.exports = game

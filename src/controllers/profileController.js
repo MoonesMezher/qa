@@ -416,13 +416,16 @@ const getAllUsersByNameWithFreindShipDetails = async (req, res) => {
             const isRequestFromHim = await Request.findOne({ from: id, to: userId });            
                         
             let state = "noraml";
+            let requestId = "";
 
             if(isFriend) {
                 state = "friend"
             } else if(isRequestFromMe) {
                 state = "request"
+                requestId = isRequestFromMe._id
             } else if(isRequestFromHim) {
                 state = "request"
+                requestId = isRequestFromHim._id
             }
 
             const otherUser = await User.findById(id);
@@ -438,6 +441,7 @@ const getAllUsersByNameWithFreindShipDetails = async (req, res) => {
                 active: otherUser.active,
                 isFree: otherUser.isFree,
                 picture: otherProfile?.picture,
+                requestId,
                 state,
             }
             
