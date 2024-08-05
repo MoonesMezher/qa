@@ -411,9 +411,9 @@ const getAllUsersByNameWithFreindShipDetails = async (req, res) => {
             
             const isFriend = await Friend.findOne({ user_id: userId, friends: { $in: id } });
 
-            const isRequestFromMe = await Request.findOne({ user_id: userId, friends: { $in: id } });
+            const isRequestFromMe = await Request.findOne({ from: userId, to: id } );
 
-            const isRequestFromHim = await Request.findOne({ user_id: id, friends: { $in: userId } });            
+            const isRequestFromHim = await Request.findOne({ from: id, to: userId });            
                         
             let state = "noraml";
 

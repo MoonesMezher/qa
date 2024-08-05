@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const { instrument } = require('@socket.io/admin-ui')
 
 const game = require('./socket/online');
+const Room = require('./database/models/Room');
 
 const server = require('http').createServer(app);
 const io = require('socket.io')(server, {
@@ -19,8 +20,10 @@ const ioGame = io.of('game1');
 
 let data = []
 
-ioGame.on('connection', (socket) => {
+ioGame.on('connection', async (socket) => {
     console.log('A user connected');
+
+    // await Room.deleteMany({ createdAt: { $le:  } })
 
     game(ioGame, socket, data);
 });

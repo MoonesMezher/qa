@@ -123,6 +123,8 @@ const joinMethod = async (item, socket, io, data) => {
                         if(thisRoom.users.length === 2 && thisRoom.users[0].status === 'finish' && thisRoom.users[1].status === 'finish') {
                             console.log('check now 3');
                             await Room.findByIdAndDelete(item.roomId)
+
+                            io.to(item.roomId).emit('game', 'finish');
                         }
                     }
                 };
@@ -177,7 +179,7 @@ const startMethod = async (item, socket, io) => {
                     if(room) {
                         await Room.findByIdAndUpdate(item.roomId, { gameState: 'finish' });
 
-                        io.to(room._id).emit('game', 'finish')
+                        io.to(item.roomId).emit('game', 'finish')
                         // console.log('finished now');
                     }
                 };
