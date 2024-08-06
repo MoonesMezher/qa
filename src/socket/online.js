@@ -70,16 +70,19 @@ const joinMethod = async (item, socket, io, data) => {
         return;
     }
 
-    data.push({ playerId: item.playerId, roomId: item.roomId, socketId: socket.id, terminated: true })
-
     try {
+        socket.data.palyerId = item.palyerId;
+        socket.data.roomId = item.roomId;
+        
         socket.join(item.roomId);
 
+        console.log('data X:', socket.data.palyerId, socket.data.roomId);
+        
         const room = await Room.findById(item.roomId);
 
         if(room) {
-            io.to(item.roomId).emit('player', userJson(room?.users));
-            io.to(item.roomId).emit('game', room.gameState);
+            socket.to(item.roomId).emit('player', userJson(room?.users));
+            socket.to(item.roomId).emit('game', room.gameState);
 
             const player = room.users.find(e => e.palyerId === item.palyerId);
 
@@ -118,13 +121,14 @@ const joinMethod = async (item, socket, io, data) => {
                         
                         const players = newUsers.sort((a, b) => b.score - a.score)
                         
-                        io.to(item.roomId).emit('player', userJson(players));
+                        socket.to(item.roomId).emit('player', userJson(players));
 
                         if(thisRoom.users.length === 2 && thisRoom.users[0].status === 'finish' && thisRoom.users[1].status === 'finish') {
                             console.log('check now 3');
                             await Room.findByIdAndDelete(item.roomId)
 
-                            io.to(item.roomId).emit('game', 'finish');
+                            socket.to(item.roomId).emit('game', 'finish');
+                            io.in(item?.roomId).disconnect()
                         }
                     }
                 };
@@ -132,7 +136,8 @@ const joinMethod = async (item, socket, io, data) => {
                 setTimeout(finishPlayer, 10000)
             }
         } else {
-            io.to(socket.id).emit('game', 'remove');
+            socket.to(socket.id).emit('game', 'remove');
+            io.in(item?.roomId).disconnect()
         }
     } catch (error) {
         console.log('Error -> Join: ', error.message);            
@@ -149,7 +154,7 @@ const playerMethod = async (item, socket, io) => {
         if(room) {
             const players = room.users.sort((a, b) => b.score - a.score);
             
-            io.to(item.roomId).emit('player', userJson(players));
+            socket.to(item.roomId).emit('player', userJson(players));
         }
     } catch (error) {
         console.log('Error -> Player: ', error.message);            
@@ -179,7 +184,8 @@ const startMethod = async (item, socket, io) => {
                     if(room) {
                         await Room.findByIdAndUpdate(item.roomId, { gameState: 'finish' });
 
-                        io.to(item.roomId).emit('game', 'finish')
+                        socket.to(item.roomId).emit('game', 'finish')
+                        io.in(item?.roomId).disconnect()
                         // console.log('finished now');
                     }
                 };
@@ -198,8 +204,8 @@ const startMethod = async (item, socket, io) => {
             
             const players = room.users.sort((a, b) => b.score - a.score)
             
-            io.to(item.roomId).emit('player', userJson(players));
-            io.to(item.roomId).emit('game', room.gameState);
+            socket.to(item.roomId).emit('player', userJson(players));
+            socket.to(item.roomId).emit('game', room.gameState);
         }
     } catch (error) {
         console.log('Error -> Start: ', error.message);            
@@ -236,10 +242,15 @@ const finishMethod = async (item, socket, io, data) => {
                 data = data.filter(e => e.roomId !== item.roomId)
             }
             
-            io.to(item.roomId).emit('player', userJson(players));
-            io.to(item.roomId).emit('game', room?.gameState);
+            socket.to(item.roomId).emit('player', userJson(players));
+            socket.to(item.roomId).emit('game', room?.gameState);
+
+            if(item.gameState == 'finish') {
+                io.in(item?.roomId).disconnect()
+            }
         } else {
-            io.to(item.roomId).emit('game', 'remove');
+            socket.to(item.roomId).emit('game', 'remove');
+            io.in(item?.roomId).disconnect()
         }
     } catch (error) {
         console.log('Error -> Start: ', error.message);            
@@ -254,7 +265,11 @@ const gameMethod = async (item, socket, io) => {
         const room = await Room.findById(item.roomId);
 
         if(room) {
-            io.to(item.roomId).emit('game', room.gameState);
+            socket.to(item.roomId).emit('game', room.gameState);
+
+            if(room.gameState === 'finish') {
+                io.in(item?.roomId).disconnect()
+            }
         }
     } catch (error) {
         console.log('Error -> Game: ', error.message);            
@@ -278,7 +293,7 @@ const scoreMethod = async (item, socket, io) => {
 
             const players = room.users.sort((a, b) => b.score - a.score)
                                 
-            io.to(item.roomId).emit('player', userJson(players));
+            socket.to(item.roomId).emit('player', userJson(players));
         }
     } catch (error) {
         console.log('Error -> Start: ', error.message);            
@@ -349,11 +364,15 @@ const leaveMethod = async (item, socket, io, data) => {
                         await Room.findByIdAndDelete(item.roomId);
                     }, 5000);
 
-                    data = data.filter(e => e.roomId !== item.roomId)
+                    data = data.filter(e => e.roomId !== item.roomId);
                 }
                                         
-                io.to(item.roomId).emit('player', userJson(players));                
-                io.to(item.roomId).emit('game', room.gameState);
+                socket.to(item.roomId).emit('player', userJson(players));                
+                socket.to(item.roomId).emit('game', room.gameState);
+
+                if(room.gameState === 'finish') {
+                    io.in(item?.roomId).disconnect()
+                }
             } else {
                 setTimeout(async () => {
                     await Room.findByIdAndDelete(item.roomId);
@@ -361,7 +380,8 @@ const leaveMethod = async (item, socket, io, data) => {
 
                 data = data.filter(e => e.roomId !== item.roomId)
     
-                io.to(item?.roomId).emit('game', 'finish');
+                socket.to(item?.roomId).emit('game', 'finish');
+                io.in(item?.roomId).disconnect()
             }
         }
     } catch (error) {
