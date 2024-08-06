@@ -308,16 +308,12 @@ const leaveMethod = async (item, socket, io, data) => {
     
                     room = await Room.updateOne({ _id: item.roomId }, { users: newUsers }, { new: true });
 
-                    if(room.users.length == 2 && room.users[0].status === 'finish' && room.users[1].status === 'finish') {
+                    if(newUsers.length == 2 && newUsers[0].status === 'finish' && newUsers[1].status === 'finish') {
                         room.gameState = 'finish';
         
                         await room.save();
 
-                        setTimeout(async () => {
-                            await Room.findByIdAndDelete(item.roomId);
-                        }, 5000);
-
-                        data = data.filter(e => e.roomId !== item.roomId)
+                        await Room.findByIdAndDelete(item.roomId);
                     }
                                             
                     io.to(item.roomId).emit('player', userJson(players));                
@@ -341,21 +337,13 @@ const leaveMethod = async (item, socket, io, data) => {
     
                     await room.save();
 
-                    setTimeout(async () => {
-                        await Room.findByIdAndDelete(item.roomId);
-                    }, 5000);
-
-                    data = data.filter(e => e.roomId !== item.roomId)
+                    await Room.findByIdAndDelete(item.roomId);
                 }
                                         
                 io.to(item.roomId).emit('player', userJson(players));                
                 io.to(item.roomId).emit('game', room.gameState);
             } else {
-                setTimeout(async () => {
-                    await Room.findByIdAndDelete(item.roomId);
-                }, 5000)
-
-                data = data.filter(e => e.roomId !== item.roomId)
+                await Room.findByIdAndDelete(item.roomId);
     
                 io.to(item?.roomId).emit('game', 'finish');
             }
