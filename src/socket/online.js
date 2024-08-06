@@ -76,7 +76,7 @@ const joinMethod = async (item, socket, io, data) => {
         
         socket.join(item.roomId);
 
-        console.log('data X:', socket.data.palyerId, socket.data.roomId);
+        console.log('data X:', item.palyerId, socket.data.roomId);
         
         const room = await Room.findById(item.roomId);
 
@@ -642,7 +642,7 @@ const disconnectMethod = async (socket, data, io) => {
     const item = data.find(e => e.socketId === socket.id)
 
     if(item) {
-        io.to(item.roomId).emit("disconnect", "user disconnected")
+        // io.to(item.roomId).emit("disconnect", "user disconnected")
     }
 
 }
