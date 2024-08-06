@@ -68,22 +68,15 @@ const game = async (io, socket, data) => {
 const joinMethod = async (item, socket, io, data) => {
     if(!item) {
         return;
-    }
-
-    console.log("YES: ############", item);
-    
-
-    data.push({ playerId: item.playerId, roomId: item.roomId, socketId: socket.id, terminated: true })
+    }    
 
     try {
-        socket.join(item.roomId);
+        // socket.join(item.roomId);
+        socket.data.roomId = item.roomId;
 
         const room = await Room.findById(item.roomId);
 
-        if(room) {
-            io.to(item.roomId).emit('player', userJson(room?.users));
-            io.to(item.roomId).emit('game', room.gameState);
-
+        if(room) {            
             const player = room.users.find(e => e.palyerId === item.palyerId);
 
             if(player && room.gameState === 'ready') {
@@ -117,13 +110,13 @@ const joinMethod = async (item, socket, io, data) => {
                         
                         newUsers.push( { id: bot.id, name: bot.name, image: bot.image, status: 'finish', score: onlineGameBot(thisRoom.questions) } );
                         
-                        await Room.updateOne({ _id: item.roomId }, { users: newUsers }, { new: true });
+                        await Room.findByIdAndUpdate(item.roomId, { users: newUsers });
                         
                         const players = newUsers.sort((a, b) => b.score - a.score)
                         
                         io.to(item.roomId).emit('player', userJson(players));
 
-                        if(thisRoom.users.length === 2 && thisRoom.users[0].status === 'finish' && thisRoom.users[1].status === 'finish') {
+                        if(newUsers.length === 2 && newUsers[0].status === 'finish' && newUsers[1].status === 'finish') {
                             console.log('check now 3');
                             await Room.findByIdAndDelete(item.roomId)
 
