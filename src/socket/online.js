@@ -212,14 +212,14 @@ const finishMethod = async (item, socket, io, data) => {
             const player = room?.users.find(e => e?.id?.toString() === item?.playerId.toString());
 
             player.status = 'finish';
+
+            await room.save();            
             
             if(room.users.length == 2 && room.users[0].status === 'finish' && room.users[1].status === 'finish') {
                 room.gameState = 'finish';
 
                 await room.save();
             }
-
-            await room.save();            
 
             const players = room.users.sort((a, b) => b.score - a.score);
 
