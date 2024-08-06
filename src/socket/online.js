@@ -71,8 +71,7 @@ const joinMethod = async (item, socket, io, data) => {
     }    
 
     try {
-        // socket.join(item.roomId);
-        socket.data.roomId = item.roomId;
+        socket.join(item.roomId);
 
         const room = await Room.findById(item.roomId);
 
