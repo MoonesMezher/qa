@@ -70,6 +70,9 @@ const joinMethod = async (item, socket, io, data) => {
         return;
     }
 
+    console.log("YES: ############", item);
+    
+
     data.push({ playerId: item.playerId, roomId: item.roomId, socketId: socket.id, terminated: true })
 
     try {
@@ -618,8 +621,6 @@ const leaveMethod2 = async (item, socket, io, data) => {
 }
 const disconnectMethod = async (socket, data, io) => {
     console.log('user disconnected now');
-
-    const item = data.find(e => e.socketId === socket.id)
 }
 
 module.exports = game
