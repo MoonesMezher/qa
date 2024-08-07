@@ -92,20 +92,26 @@ const joinMethod = async (item, socket, io, data) => {
                         return;
                     }
 
-                    const thisPlayer = thisRoom.users.find(e => e.id.toString() === item.playerId.toString());
+                    const players = thisRoom.users;
 
-                    if(!thisPlayer) {
+                    if(!players) {
                         return;
                     }
 
-                    console.log('check now:', thisPlayer);
+                    console.log('check now:', players);
 
-                    if(thisPlayer.status !== 'ready') {
+                    if(players[0].status !== 'ready' && players[1].status !== 'ready') {
                         console.log('check now 1');
                         return;
                     } else {   
                         console.log('check now 2');
-                        let newUsers = thisRoom.users.filter(e => !e?.id?.equals(item?.playerId));
+                        let newUsers = thisRoom.users.filter(e => e.status === 'ready');
+
+                        if(newUsers.length === 0) {
+                            await Room.findByIdAndDelete(thisRoom._id);
+
+                            return;
+                        }
                         
                         const bot = generateRandomBot(thisRoom.questions);
                         
