@@ -134,14 +134,6 @@ const joinMethod = async (item, socket, io, data) => {
 
                 setTimeout(finishPlayer, 10000)
             }
-
-            setInterval(async () => {
-                if(room.gameState === 'finish' || room.users.find(e => e.status === 'finish').length === 2) {
-                    await Room.findByIdAndDelete(item.roomId);
-
-                    io.to(item.roomId).emit("game", "finish")
-                }
-            }, 5000)
         } else {
             io.to(socket.id).emit('game', 'remove');
         }
@@ -268,6 +260,14 @@ const gameMethod = async (item, socket, io) => {
 
         if(room) {
             io.to(item.roomId).emit('game', room?.gameState);
+
+            setInterval(async () => {
+                if(room.gameState === 'finish' || room.users.find(e => e.status === 'finish').length === 2) {
+                    await Room.findByIdAndDelete(item.roomId);
+
+                    io.to(item.roomId).emit("game", "finish")
+                }
+            }, 5000)
         } else {
             io.to(item.roomId).emit('game', 'remove');
         }
