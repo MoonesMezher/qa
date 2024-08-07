@@ -217,7 +217,7 @@ const finishMethod = async (item, socket, io, data) => {
         if(room) {
             const player = room?.users.find(e => e?.id?.toString() === item?.playerId.toString());
 
-            player?.status = 'finish';
+            player.status = 'finish';
 
             await room.save();            
             
