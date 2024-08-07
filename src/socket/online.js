@@ -105,7 +105,7 @@ const joinMethod = async (item, socket, io, data) => {
                         return;
                     } else {   
                         console.log('check now 2');
-                        let newUsers = thisRoom.users.filter(e => e.status === 'ready');
+                        let newUsers = thisRoom.users.filter(e => e.status !== 'ready');
 
                         if(newUsers.length === 0) {
                             await Room.findByIdAndDelete(thisRoom._id);
@@ -247,7 +247,7 @@ const finishMethod = async (item, socket, io, data) => {
             io.to(item.roomId).emit('game', 'remove');
         }
     } catch (error) {
-        console.log('Error -> Start: ', error.message);            
+        console.log('Error -> Finish: ', error.message);            
     }
 }
 const gameMethod = async (item, socket, io) => {
@@ -289,7 +289,7 @@ const scoreMethod = async (item, socket, io) => {
             io.to(item.roomId).emit('game', room.gameState);
         }
     } catch (error) {
-        console.log('Error -> Start: ', error.message);            
+        console.log('Error -> Score: ', error.message);            
     }
 }
 const leaveMethod = async (item, socket, io, data) => {
