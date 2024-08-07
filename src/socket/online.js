@@ -226,6 +226,9 @@ const finishMethod = async (item, socket, io, data) => {
             player.status = 'finish';
 
             await room.save();            
+
+            console.log("@#", room.users);
+            
             
             if(room.users.length === 2 && room.users[0].status === 'finish' && room.users[1].status === 'finish') {
                 room.gameState = 'finish';
@@ -260,14 +263,6 @@ const gameMethod = async (item, socket, io) => {
 
         if(room) {
             io.to(item.roomId).emit('game', room?.gameState);
-
-            setInterval(async () => {
-                if(room.gameState === 'finish' || room.users.filter(e => e.status === 'finish').length === 2) {
-                    await Room.findByIdAndDelete(item.roomId);
-
-                    io.to(item.roomId).emit("game", "finish")
-                }
-            }, 5000)
         } else {
             io.to(item.roomId).emit('game', 'remove');
         }
