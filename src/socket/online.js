@@ -262,7 +262,7 @@ const gameMethod = async (item, socket, io) => {
             io.to(item.roomId).emit('game', room?.gameState);
 
             setInterval(async () => {
-                if(room.gameState === 'finish' || room.users.find(e => e.status === 'finish').length === 2) {
+                if(room.gameState === 'finish' || room.users.filter(e => e.status === 'finish').length === 2) {
                     await Room.findByIdAndDelete(item.roomId);
 
                     io.to(item.roomId).emit("game", "finish")
