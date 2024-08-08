@@ -62,7 +62,7 @@ const joinToRoom = async (req, res) => {
     const findRoom = await Room.findOne({ users: { $elemMatch: { id: user._id } } });
 
     if(findRoom) {
-        return res.status(400).json({ state:'failed', message: 'You cannot join to room before you leave your room now' });
+        return res.status(400).json({ state:'failed', message: 'عذراً لا يمكنك الانضمام الآن حاول مرة أخرى' });
     }
 
     try {
@@ -168,7 +168,7 @@ const createNewRoomInGroupGame = async (req, res) => {
     const findRoom = await Room.findOne({ users: { $elemMatch: { id: user._id } } });
 
     if(findRoom) {
-        return res.status(400).json({ state:'failed', message: 'You cannot create this room before you leave your room now' });
+        return res.status(400).json({ state:'failed', message: 'عذراً لا يمكنك الانضمام الآن حاول مرة أخرى' });
     }
 
     try {
@@ -252,7 +252,7 @@ const createNewRoomInOnlineGame = async (req, res) => {
     const findRoom = await Room.findOne({ users: { $elemMatch: { id: user._id } } });
 
     if(findRoom) {
-        return res.status(400).json({ state:'failed', message: 'You cannot create this room before you leave your room now' });
+        return res.status(400).json({ state:'failed', message: 'عذراً لا يمكنك الانضمام الآن حاول مرة أخرى' });
     }
 
     try {
@@ -320,7 +320,7 @@ const joinToRoomInGroupGame = async (req, res) => {
     const findRoom = await Room.findOne({ users: { $elemMatch: { id: user._id } } });
 
     if(findRoom) {
-        return res.status(400).json({ state:'failed', message: 'انتظر بعض الوقت وحاول مرة أخرى' });
+        return res.status(400).json({ state:'failed', message: 'عذراً لا يمكنك الانضمام الآن حاول مرة أخرى' });
     }
 
     try {
@@ -392,7 +392,7 @@ const joinToRoomInOnlineGame = async (req, res) => {
     const findRoom = await Room.findOne({ users: { $elemMatch: { id: user._id } } });
 
     if(findRoom) {
-        return res.status(400).json({ state:'failed', message: 'انتظر بعض الوقت وحاول مرة أخرى' });
+        return res.status(400).json({ state:'failed', message: 'عذراً لا يمكنك الانضمام الآن حاول مرة أخرى' });
     }
 
     try {
