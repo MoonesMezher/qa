@@ -78,15 +78,13 @@ const joinMethod = async (item, socket, io, data) => {
         const room = await Room.findById(item?.roomId);
 
         if(room) {            
-            const player = room.users.find(e => e.id.toString() === item.playerId.toString());
-
-            if(player && room.gameState === 'ready') {
-                console.log('check now');
+            if(room.gameState === 'ready') {
+                // console.log('check now');
                 
                 const finishPlayer = async () => {
                     let thisRoom = await Room.findById(item.roomId);
 
-                    console.log('check now', item.playerId);
+                    // console.log('check now', item.playerId);
 
                     if(!thisRoom) {
                         return;
@@ -98,13 +96,13 @@ const joinMethod = async (item, socket, io, data) => {
                         return;
                     }
 
-                    console.log('check now:', players);
+                    // console.log('check now:', players);
 
                     if(players[0].status !== 'ready' && players[1].status !== 'ready') {
-                        console.log('check now 1');
+                        // console.log('check now 1');
                         return;
                     } else {   
-                        console.log('check now 2');
+                        // console.log('check now 2');
                         let newUsers = thisRoom.users.filter(e => e.status !== 'ready');
 
                         if(newUsers.length === 0) {
@@ -124,7 +122,7 @@ const joinMethod = async (item, socket, io, data) => {
                         io.to(item.roomId).emit('player', userJson(players));
 
                         if(newUsers.length === 2 && newUsers[0].status === 'finish' && newUsers[1].status === 'finish') {
-                            console.log('check now 3');
+                            // console.log('check now 3');
                             await Room.findByIdAndDelete(item.roomId)
 
                             io.to(item.roomId).emit('game', 'finish');
@@ -225,10 +223,7 @@ const finishMethod = async (item, socket, io, data) => {
 
             player.status = 'finish';
 
-            await room.save();            
-
-            console.log("@#", room.users);
-            
+            await room.save();                        
             
             if(room.users.length === 2 && room.users[0].status === 'finish' && room.users[1].status === 'finish') {
                 room.gameState = 'finish';
@@ -356,7 +351,7 @@ const leaveMethod = async (item, socket, io, data) => {
 
                     setTimeout(async () => {
                         await Room.findByIdAndDelete(item.roomId);
-                    }, 2000)
+                    }, 2000);
                 }
                                         
                 io.to(item.roomId).emit('player', userJson(players));                
@@ -381,10 +376,10 @@ const joinMethod2 = async (item, socket, io, data) => {
         return;
     }
 
-    data.push({ playerId: item.playerId, roomId: item.roomId, socketId: socket.id, terminated: true })
-
     try {
         socket.join(item.roomId);
+
+        socket.data.roomId = item.roomId;
 
         const room = await Room.findById(item.roomId);
 
@@ -438,30 +433,26 @@ const startMethod2 = async (item, socket, io) => {
             
             io.to(item.roomId).emit('player2', userJsonToGroupGame(players));
             io.to(item.roomId).emit('game2', room.gameState);
+
             const finishGame = async () => {
-                const thisRoom = await Room.findById(item.roomId);
+                    if(room) {
+                        await Room.findByIdAndUpdate(item.roomId, { gameState: 'finish' }, { new: true });
 
-                if(thisRoom) {
-                    await Room.findByIdAndUpdate(thisRoom._id, { gameState: 'finish' });
-
-                    console.log(item.roomId, thisRoom._id, room._id);
-
-                    io.to(item.roomId).emit('game2', 'finish');
-
-                    console.log('finished now');
+                        io.to(item.roomId).emit('game2', 'finish')
+                        // console.log('finished now');
+                    }
+                };
+                const deleteRoom = async () => {
+                    if(room) {
+                        await Room.findByIdAndDelete(item.roomId)
+                        // console.log('deleted now');
+                    }
                 }
-            };
-            const deleteRoom = async () => {
-                if(room) {
-                    await Room.findByIdAndDelete(room.id)
-                    console.log('deleted now');
-                }
-            }
-            
-            const threeMinAndHalf = (3 * 60 * 1000) + 40000;
-            
-            setTimeout(finishGame,threeMinAndHalf); 
-            setTimeout(deleteRoom, (threeMinAndHalf) + 30000);
+                
+                const threeMinAndHalf = (3 * 60 * 1000) + 40000;
+                
+                setTimeout(finishGame,threeMinAndHalf); 
+                setTimeout(deleteRoom, (threeMinAndHalf) + 2000); 
         }
     } catch (error) {
         console.log('Error -> Start: ', error.message);            
@@ -499,7 +490,7 @@ const finishMethod2 = async (item, socket, io, data) => {
 
                 setTimeout(async () => {
                     await Room.findByIdAndDelete(item.roomId);
-                }, 5000);
+                }, 2000);
 
                 data = data.filter(e => e.roomId !== room._id)
 
@@ -528,6 +519,8 @@ const gameMethod2 = async (item, socket, io) => {
 
         if(room) {
             io.to(item.roomId).emit('game2', room.gameState);
+        } else {
+            io.to(item.roomId).emit('game2', 'remove');
         }
     } catch (error) {
         console.log('Error -> Game: ', error.message);            
@@ -551,6 +544,7 @@ const scoreMethod2 = async (item, socket, io) => {
             const players = room.users.sort((a, b) => b.score - a.score)
                                 
             io.to(item.roomId).emit('player2', userJsonToGroupGame(players));
+            io.to(item.roomId).emit('game2', room?.gameState);
         }
     } catch (error) {
         console.log('Error -> Start: ', error.message);            
@@ -599,9 +593,7 @@ const leaveMethod2 = async (item, socket, io, data) => {
 
                     setTimeout(async () => {
                         await Room.findByIdAndDelete(item.roomId);
-                    }, 5000);
-
-                    data = data.filter(e => e.roomId !== room._id)
+                    }, 2000);
                 }
                                         
                 io.to(item.roomId).emit('player2', userJsonToGroupGame(players));                
