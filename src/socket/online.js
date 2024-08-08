@@ -184,13 +184,7 @@ const startMethod = async (item, socket, io) => {
 
                 const finishGame = async () => {
                     if(room) {
-                        room.users[0].status = 'finish';
-                        room.users[1].status = 'finish';
-                        room.gameState = 'finish'
-
-                        await room.save();
-
-                        // await Room.findByIdAndUpdate(item.roomId, { gameState: 'finish' });
+                        await Room.findByIdAndUpdate(item.roomId, { gameState: 'finish' }, { new: true });
 
                         io.to(item.roomId).emit('game', 'finish')
                         // console.log('finished now');
@@ -380,6 +374,7 @@ const leaveMethod = async (item, socket, io, data) => {
     } catch (error) {
         console.log('Error -> Leave: ', error.message);
     }
+    
 }
 const joinMethod2 = async (item, socket, io, data) => {
     if(!item) {
