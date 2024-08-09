@@ -442,17 +442,17 @@ const startMethod2 = async (item, socket, io) => {
                         // console.log('finished now');
                     }
                 };
-                const deleteRoom = async () => {
-                    if(room) {
-                        await Room.findByIdAndDelete(item.roomId)
-                        // console.log('deleted now');
-                    }
+            const deleteRoom = async () => {
+                if(room) {
+                    await Room.findByIdAndDelete(item.roomId)
+                    // console.log('deleted now');
                 }
-                
-                const threeMinAndHalf = (3 * 60 * 1000) + 40000;
-                
-                setTimeout(finishGame,threeMinAndHalf); 
-                setTimeout(deleteRoom, (threeMinAndHalf) + 2000); 
+            }
+            
+            const threeMinAndHalf = (3 * 60 * 1000) + 40000;
+            
+            setTimeout(finishGame,threeMinAndHalf); 
+            setTimeout(deleteRoom, (threeMinAndHalf) + 2000); 
         }
     } catch (error) {
         console.log('Error -> Start: ', error.message);            
@@ -483,6 +483,8 @@ const finishMethod2 = async (item, socket, io, data) => {
                 }               
             }
 
+            console.log('FF: ',count, room.users.length);
+
             if(count === room.users.length) {
                 room.gameState = 'finish';
 
@@ -491,8 +493,6 @@ const finishMethod2 = async (item, socket, io, data) => {
                 setTimeout(async () => {
                     await Room.findByIdAndDelete(item.roomId);
                 }, 2000);
-
-                data = data.filter(e => e.roomId !== room._id)
 
                 io.to(item.roomId).emit('game2', 'finish');
             }
