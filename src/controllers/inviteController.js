@@ -49,16 +49,16 @@ const readInvite = async (req, res) => {
         return res.status(400).json({ state: 'failed', message: "User not found" })
     }
 
-    const isExist = await Invite.findOne({ _id: id  });
+    const isExist = await NotefectionsList.findOne({ _id: id  });
 
     if(!isExist) {
         return res.status(400).json({ state: 'failed', message: 'This invite not exist' })        
     }
 
     try {
-        const invite = await Invite.findByIdAndUpdate(id, { read: true }, { new: true });
+        const invite = await NotefectionsList.findByIdAndUpdate(id, { read: true }, { new: true });
 
-        return res.status(200).json({ state: 'success', message: 'تم قراءة الدعوة بنجاح', invite })                
+        return res.status(200).json({ state: 'success', message: 'تم قراءة الاشعار بنجاح', invite })                
     } catch (error) {
         return res.status(400).json({ state: 'failed', message: error.message })        
     }
@@ -75,7 +75,7 @@ const cancelInvite = async (req, res) => {
         return res.status(400).json({ state: 'failed', message: "User not found" })
     }
 
-    const isExist = await Invite.findOne({ _id: id  });
+    const isExist = await NotefectionsList.findOne({ _id: id  });
 
     if(!isExist) {
         return res.status(400).json({ state: 'failed', message: 'This invite not exist' })        
@@ -86,7 +86,7 @@ const cancelInvite = async (req, res) => {
     }
 
     try {
-        await Invite.findByIdAndDelete(id);
+        await NotefectionsList.findByIdAndDelete(id);
 
         return res.status(200).json({ state: 'success', message: 'تم حذف الدعوة بنجاح' });                
     } catch (error) {
