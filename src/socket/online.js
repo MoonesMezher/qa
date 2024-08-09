@@ -473,18 +473,16 @@ const finishMethod2 = async (item, socket, io, data) => {
             
             await room.save();
 
-            if(!room.users.find(e => e.status !== 'finish')) {
-                console.log('QQ:::', room.users);
-                
+            if(!room.users.find(e => e.status !== 'finish')) {                
                 room.gameState = 'finish';
 
                 await room.save();            
 
+                io.to(item.roomId).emit('game2', 'finish');
+
                 setTimeout(async () => {
                     await Room.findByIdAndDelete(item.roomId);
                 }, 2000);
-
-                io.to(item.roomId).emit('game2', 'finish');
             }
 
             await room.save();            
@@ -507,6 +505,25 @@ const gameMethod2 = async (item, socket, io) => {
 
         if(room) {
             io.to(item.roomId).emit('game2', room.gameState);
+
+            setInterval(async () => {
+                if(!room) {
+                    io.to(item.roomId).emit('game2', 'remove');
+                    return;
+                }
+
+                if(!room.users.find(e => e.status !== 'finish')) {                
+                    room.gameState = 'finish';
+    
+                    await room.save();            
+    
+                    io.to(item.roomId).emit('game2', 'finish');
+    
+                    setTimeout(async () => {
+                        await Room.findByIdAndDelete(item.roomId);
+                    }, 2000);
+                }
+            }, 5000);
         }
     } catch (error) {
         console.log('Error -> Game: ', error.message);            
