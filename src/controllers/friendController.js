@@ -145,7 +145,7 @@ const acceptFriendRequest = async (req, res) => {
 
         const notefication = await Notefication.create({ title: 'موافقة على طلب الصداقة', body: text })
 
-        await NoteficationsList.create({ roomId: '', user_id: request.from, user: user.username, title: text, type: 'accept', img: 'uploads/invite/acceptRequest.webp' });
+        await NoteficationsList.create({ roomId: notefication._id, user_id: request.from, user: user.username, title: text, type: 'accept', img: 'uploads/invite/acceptRequest.webp' });
 
         fcmTokens?.map(async (fcmToken) => {
             await sendNotification({ fcmToken: fcmToken,
