@@ -424,7 +424,7 @@ const getAllUsersByNameWithFreindShipDetails = async (req, res) => {
                 state = "request"
                 requestId = isRequestFromMe._id
             } else if(isRequestFromHim) {
-                state = "request"
+                state = "normal"
                 requestId = isRequestFromHim._id
             }
 
