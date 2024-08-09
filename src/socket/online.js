@@ -403,8 +403,6 @@ const playerMethod2 = async (item, socket, io) => {
         
         if(room) {
             const players = room.users.sort((a, b) => b.score - a.score);
-
-            console.log(players);
             
             io.to(item.roomId).emit('player2', userJsonToGroupGame(players));
         }
@@ -455,7 +453,7 @@ const startMethod2 = async (item, socket, io) => {
             const threeMinAndHalf = (3 * 60 * 1000) + 40000;
             
             setTimeout(finishGame,threeMinAndHalf); 
-            setTimeout(deleteRoom, (threeMinAndHalf) + 2000); 
+            setTimeout(deleteRoom, (threeMinAndHalf) + (1.5 * 60 * 1000)); 
         }
     } catch (error) {
         console.log('Error -> Start: ', error.message);            

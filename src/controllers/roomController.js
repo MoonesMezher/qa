@@ -60,11 +60,11 @@ const joinToRoom = async (req, res) => {
         return res.status(400).json({ state:'failed', message: 'This user doesnot have a profile' });
     }
 
-    const findRoom = await Room.findOne({ users: { $elemMatch: { id: user._id } } });
+    // const findRoom = await Room.findOne({ users: { $elemMatch: { id: user._id } } });
 
-    if(findRoom) {
-        return res.status(400).json({ state:'failed', message: 'عذراً لا يمكنك الانضمام الآن حاول مرة أخرى' });
-    }
+    // if(findRoom) {
+    //     return res.status(400).json({ state:'failed', message: 'عذراً لا يمكنك الانضمام الآن حاول مرة أخرى' });
+    // }
 
     try {
         const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
@@ -166,11 +166,11 @@ const createNewRoomInGroupGame = async (req, res) => {
         return res.status(400).json({ state:'failed', message: 'This user doesnot have a profile' });
     }
 
-    const findRoom = await Room.findOne({ users: { $elemMatch: { id: user._id } } });
+    // const findRoom = await Room.findOne({ users: { $elemMatch: { id: user._id } } });
 
-    if(findRoom) {
-        return res.status(400).json({ state:'failed', message: 'عذراً لا يمكنك الانضمام الآن حاول مرة أخرى' });
-    }
+    // if(findRoom) {
+    //     return res.status(400).json({ state:'failed', message: 'عذراً لا يمكنك الانضمام الآن حاول مرة أخرى' });
+    // }
 
     try {
         const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
@@ -250,11 +250,11 @@ const createNewRoomInOnlineGame = async (req, res) => {
         return res.status(400).json({ state:'failed', message: 'This user doesnot have a profile' });
     }
 
-    const findRoom = await Room.findOne({ users: { $elemMatch: { id: user._id } } });
+    // const findRoom = await Room.findOne({ users: { $elemMatch: { id: user._id } } });
 
-    if(findRoom) {
-        return res.status(400).json({ state:'failed', message: 'عذراً لا يمكنك الانضمام الآن حاول مرة أخرى' });
-    }
+    // if(findRoom) {
+    //     return res.status(400).json({ state:'failed', message: 'عذراً لا يمكنك الانضمام الآن حاول مرة أخرى' });
+    // }
 
     try {
         const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
@@ -318,14 +318,18 @@ const joinToRoomInGroupGame = async (req, res) => {
         return res.status(400).json({ state:'failed', message: 'This user does not have a profile' });
     }
 
-    const findRoom = await Room.findOne({ users: { $elemMatch: { id: user._id } } });
+    // const findRoom = await Room.findOne({ users: { $elemMatch: { id: user._id } } });
 
-    if(findRoom) {
-        return res.status(400).json({ state:'failed', message: 'عذراً لا يمكنك الانضمام الآن حاول مرة أخرى' });
-    }
+    // if(findRoom) {
+    //     return res.status(400).json({ state:'failed', message: 'عذراً لا يمكنك الانضمام الآن حاول مرة أخرى' });
+    // }
 
     try {
         const room = await Room.findOne({ _id: roomId, type: 'Group'});
+
+        if(room.gameState !== 'ready') {
+            return res.status(400).json({ state:'failed', message: 'لا يمكنك الانضمام فاللعبة تخطت حالة تجميع اللاعبين' });        
+        }
 
         if(room.users.length >= 13) {
             return res.status(400).json({ state:'failed', message: 'لا يمكنك الانضمام فاللعبة تحوي العدد الأعظمي من اللاعبين المتاح' });        
@@ -372,7 +376,7 @@ const joinToRoomInOnlineGame = async (req, res) => {
         return res.status(400).json({ state:'failed', message: 'هذا الكود غير صحيح' });
     }
 
-    const roomExist = await Room.findOne({_id: roomId, type: "Online"});
+    const roomExist = await Room.findOne({_id: roomId, type: "Online", type: 'waiting'});
 
     if(!roomExist) {
         return res.status(400).json({ state:'failed', message: 'عذرا لا يوجد لعبة تملك هذا الكود' });
@@ -390,11 +394,11 @@ const joinToRoomInOnlineGame = async (req, res) => {
         return res.status(400).json({ state:'failed', message: 'This user does not have a profile' });
     }
 
-    const findRoom = await Room.findOne({ users: { $elemMatch: { id: user._id } } });
+    // const findRoom = await Room.findOne({ users: { $elemMatch: { id: user._id } } });
 
-    if(findRoom) {
-        return res.status(400).json({ state:'failed', message: 'عذراً لا يمكنك الانضمام الآن حاول مرة أخرى' });
-    }
+    // if(findRoom) {
+    //     return res.status(400).json({ state:'failed', message: 'عذراً لا يمكنك الانضمام الآن حاول مرة أخرى' });
+    // }
 
     try {
         const room = await Room.findOne({ _id: roomId, type: 'Online'});
