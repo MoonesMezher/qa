@@ -407,9 +407,9 @@ const deleteFriend = async (req, res) => {
             return res.status(400).json({ state:'failed', message: 'You must be friends first to make this action' });
         }
 
-        const removeHim = me.friends.filter(userId);
+        const removeHim = me.friends.filter(e => e.toString() !== userId.toString());
 
-        const removeMe = he.friends.filter(user._id);
+        const removeMe = he.friends.filter(e => e.toString() !== user._id.toString());
 
         await Friend.findByIdAndUpdate(me._id ,{ friends: removeHim });
 
