@@ -502,8 +502,6 @@ const finishMethod2 = async (item, socket, io, data) => {
             const players = room.users.sort((a, b) => b.score - a.score);
 
             io.to(item.roomId).emit('player2', userJsonToGroupGame(players));
-        } else {
-            io.to(item.roomId).emit('game2', 'remove');
         }
     } catch (error) {
         console.log('Error -> Start: ', error.message);            
@@ -519,8 +517,6 @@ const gameMethod2 = async (item, socket, io) => {
 
         if(room) {
             io.to(item.roomId).emit('game2', room.gameState);
-        } else {
-            io.to(item.roomId).emit('game2', 'remove');
         }
     } catch (error) {
         console.log('Error -> Game: ', error.message);            
