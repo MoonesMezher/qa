@@ -473,19 +473,9 @@ const finishMethod2 = async (item, socket, io, data) => {
             
             await room.save();
 
-            let count = 0;
-
-            for (let index = 0; index < room.users.length; index++) {
-                if(room.users[index].status === 'finish') {
-                    count+=1;
-                } else {
-                    break;
-                }               
-            }
-
-            console.log('FF: ',count, room.users.length);
-
-            if(count === room.users.length) {
+            if(!room.users.find(e => e.status !== 'finish')) {
+                console.log('QQ:::', room.users);
+                
                 room.gameState = 'finish';
 
                 await room.save();            
