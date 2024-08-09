@@ -483,7 +483,7 @@ const finishMethod2 = async (item, socket, io, data) => {
 
                 setTimeout(async () => {
                     await Room.findByIdAndDelete(item.roomId);
-                }, 2000);
+                }, (1.5 * 60 * 1000));
             }
 
             await room.save();            
