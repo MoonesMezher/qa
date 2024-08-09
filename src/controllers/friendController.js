@@ -6,6 +6,7 @@ const FcmToken = require("../database/models/FcmToken");
 const { sendNotification } = require("../services/firebase/notefications");
 const Request = require("../database/models/Request");
 const Notefication = require("../database/models/Notefication");
+const NoteficationsList = require("../database/models/NotefectionsList");
 
 const limit = 50;
 
@@ -52,6 +53,8 @@ const addFriend = async (req, res) => {
         const text = user.username + 'ارسل لك طلب صداقة'
 
         const notefication = await Notefication.create({ title: 'طلب صداقة', body: text })
+
+        await NoteficationsList.create({ roomId: request._id, user_id: userId, user: user.username, title: text, type: 'friend', img: 'uploads/invite/friendRequest.webp' });
 
         fcmTokens?.map(async (fcmToken) => {
             await sendNotification({ fcmToken: fcmToken,
@@ -141,6 +144,8 @@ const acceptFriendRequest = async (req, res) => {
         const text = user.username + 'وافق على طلب الداقة الخاص بك'
 
         const notefication = await Notefication.create({ title: 'موافقة على طلب الصداقة', body: text })
+
+        await NoteficationsList.create({ roomId: '', user_id: request.from, user: user.username, title: text, type: 'accept', img: 'uploads/invite/acceptRequest.webp' });
 
         fcmTokens?.map(async (fcmToken) => {
             await sendNotification({ fcmToken: fcmToken,

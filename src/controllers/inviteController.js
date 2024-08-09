@@ -1,4 +1,5 @@
 const Invite = require("../database/models/Invite");
+const NotefectionsList = require("../database/models/NotefectionsList");
 const User = require("../database/models/User");
 
 const showOwnInvites = async (req, res) => {
@@ -15,22 +16,23 @@ const showOwnInvites = async (req, res) => {
 
         await Invite.deleteMany({ createdAt: { $lt: foudHoursAgo } });
 
-        const invites = await Invite.find({ user_id: userId });
+        await NotefectionsList.deleteMany({ createdAt: { $lt: foudHoursAgo } });
 
-        const data = await Promise.all(invites.map(invite => {
+        const nots = await NotefectionsList.find({ user_id: userId });
+
+        const data = await Promise.all(nots.map(note => {
             return {
-                id: invite._id,
-                roomId: invite.roomId,
-                user: invite.user,
-                title: invite.title,
-                read: invite.read,
-                type: invite.type,
-                img: invite.img
+                id: note._id,
+                roomId: note.roomId,
+                user: note.user,
+                title: note.title,
+                read: note.read,
+                type: note.type,
+                img: note.img
             }
         }));
 
-
-        return res.status(200).json({ state: 'success', message: 'تم عرض جميع الدعوات بنجاح', data })        
+        return res.status(200).json({ state: 'success', message: 'تم عرض جميع الاشعارات بنجاح', data })        
     } catch (error) {
         return res.status(400).json({ state: 'failed', message: error.message })        
     }

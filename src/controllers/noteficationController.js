@@ -44,6 +44,8 @@ const saveToken = async (req, res) => {
 
         return res.status(200).json({ state: 'success', message: 'Saved FCM token successfully'});
     } catch (error) {
+        console.log(error.message);
+        
         return res.status(400).json({ state: 'failed', message: error.message});      
     }
 };

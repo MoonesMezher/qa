@@ -11,6 +11,7 @@ const FcmToken = require("../database/models/FcmToken");
 const { sendNotification } = require("../services/firebase/notefications");
 const Invite = require("../database/models/Invite");
 const userJsonToGroupGame = require("../helpers/handleUserJsonToGroupGame");
+const NoteficationsList = require("../database/models/NotefectionsList");
 
 const joinToRoom = async (req, res) => {
     const { type, subject } = req.body;
@@ -477,6 +478,10 @@ const makeAnInviteToGame = async (req, res) => {
         const username = user.username;
 
         await Promise.all(users.map(async user => {
+            await NoteficationsList.create({ roomId: roomId, user_id: user, user: username, title: text, type, img: type === 'online' 
+                ? 'uploads/invite/onlineInvite.webp'
+                : 'uploads/invite/groupInvite.webp' });
+
             const invite = await Invite.create({ roomId: roomId, user_id: user, user: username, title: text, type, img: type === 'online' 
                 ? 'uploads/invite/onlineInvite.webp'
                 : 'uploads/invite/groupInvite.webp' })
