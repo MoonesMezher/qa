@@ -454,6 +454,66 @@ const getAllUsersByNameWithFreindShipDetails = async (req, res) => {
     }
 }
 
+const getTopUsersAndFriends = async (req, res) => {
+    const user = req.user._id;
+
+    try {
+        let users = await Profile.find({}).sort( { exp: -1 } ).limit(100);
+
+        const friend = await Friend.findOne({ user_id: user });
+
+        let friends = await Promise.all(friend.friends.map(async e => {
+            return await Profile.findOne({ user_id: e });
+        }))
+
+        friends = await Promise.all(friends.map(async e => {
+            const user = await User.findById(e.user_id);
+
+            const data = {
+                _id: user._id,
+                username: user.username,
+                email: user.email,
+                password: user.password,
+                verified: user.verified,
+                active: user.active,
+                isFree: user.isFree,
+                picture: e?.picture,
+                exp: e?.exp
+            }
+
+            return data;
+        }))
+
+        friends = friends.sort((a, b) => b.exp - a.exp );
+
+        users = await Promise.all(users.map(async e => {            
+            const user = await User.findById(e.user_id);
+
+            if(user) {
+                const data = {
+                    _id: e.user_id,
+                    username: user.username,
+                    email: user.email,
+                    password: user.password,
+                    verified: user.verified,
+                    active: user.active,
+                    isFree: user.isFree,
+                    picture: e?.picture,
+                    exp: e?.exp
+                }
+    
+                return data;
+            }
+        }))
+
+        console.log(3, users);
+
+        return res.status(200).json({ state: "success", message: 'تم عرض ترتيب الاصدقاء والمستخدمين عالميا بنجاح', users, friends });                    
+    } catch (error) {
+        return res.status(400).json({ state: "failed", message: error.message });                                    
+    }
+}
+
 module.exports = {
     getProfile,
     updateProfile,
@@ -465,5 +525,6 @@ module.exports = {
     updateExpAndTokensToUser,
     paysCoastOfGame,
     levelOfPlayerOnTheWorld,
-    getAllUsersByNameWithFreindShipDetails
+    getAllUsersByNameWithFreindShipDetails,
+    getTopUsersAndFriends
 }

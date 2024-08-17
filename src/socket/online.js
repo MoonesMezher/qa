@@ -198,7 +198,7 @@ const startMethod = async (item, socket, io) => {
                 const threeMinAndHalf = (3 * 60 * 1000) + 40000;
                 
                 setTimeout(finishGame,threeMinAndHalf); 
-                setTimeout(deleteRoom, (threeMinAndHalf) + 2000); 
+                setTimeout(deleteRoom, (threeMinAndHalf) + (60 * 1000)); 
             }
             
             const players = room.users.sort((a, b) => b.score - a.score)
@@ -424,7 +424,7 @@ const startMethod2 = async (item, socket, io) => {
             if(!player.admin || room.users.length <= 2) {
                 return;
             }
-                        
+            
             room.gameState = 'start';
             
             await room.save();
