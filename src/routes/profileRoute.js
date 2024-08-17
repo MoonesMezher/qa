@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 // methods
-const { getProfile, updateProfile, showTopUsersByExp, showTopUsersByExpDepandLastMonth, showTopUsersByExpDepandLastWeek, showTopUsersByExpDepandLastDay, updateScoreOfUser, updateExpAndTokensToUser, paysCoastOfGame, levelOfPlayerOnTheWorld, getAllUsersByNameWithFreindShipDetails, getTopUsersAndFriends } = require('../controllers/profileController');
+const { getProfile, updateProfile, showTopUsersByExp, showTopUsersByExpDepandLastMonth, showTopUsersByExpDepandLastWeek, showTopUsersByExpDepandLastDay, updateScoreOfUser, updateExpAndTokensToUser, paysCoastOfGame, levelOfPlayerOnTheWorld, getAllUsersByNameWithFreindShipDetails, getTopUsersAndFriends, levelOfPlayerOnTheWorldByAuth } = require('../controllers/profileController');
 
 // middlewares
 const requireAuth = require('../middlewares/requireAuth');
@@ -23,9 +23,11 @@ router.get('/top-users/last-day', [requireAuth, authorize(["admin", "user"])], s
 
 router.get('/top-users-and-friends', [requireAuth, authorize(["user", "guest", 'admin'])], getTopUsersAndFriends);
 
-router.get('/:id', [validateObjectId, requireAuth, authorize(["user", "guest"])], getProfile);
+router.get('/index-user/', [requireAuth, authorize(["user", "guest", 'admin'])], levelOfPlayerOnTheWorldByAuth);
 
 router.get('/index/:id', [validateObjectId, requireAuth, authorize(["user", "guest", 'admin'])], levelOfPlayerOnTheWorld);
+
+router.get('/:id', [validateObjectId, requireAuth, authorize(["user", "guest"])], getProfile);
 
 router.get('/search-users-by-name/name/:name', [requireAuth, authorize(["user", "guest", 'admin'])], getAllUsersByNameWithFreindShipDetails);
 

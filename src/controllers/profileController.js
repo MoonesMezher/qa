@@ -388,6 +388,47 @@ const levelOfPlayerOnTheWorld = async (req, res) => {
     }
 }
 
+const levelOfPlayerOnTheWorldByAuth = async (req, res) => {
+    const id = req.user._id;
+
+    try {
+        
+        let data = {
+            byExp: 1,
+            bySpeedScore: 1,
+            byChainScore: 1,
+        };
+
+        const byExp = await Profile.find({}).sort( { exp: -1 } );
+
+        Promise.all(byExp.map(async (e, index) => {
+            if(e.user_id.toString() === id.toString()) {
+                data.byExp = index + 1;
+            }
+        }));
+
+        const bySpeedScore = await Profile.find({}).sort( { 'score.speed': -1 } );
+
+        Promise.all(bySpeedScore.map(async (e, index) => {
+            if(e.user_id.toString() === id.toString()) {
+                data.bySpeedScore = index + 1;
+            }
+        }));
+
+        const byChainScore = await Profile.find({}).sort( { 'score.chain': -1  } );
+
+        Promise.all(byChainScore.map(async (e, index) => {
+            if(e.user_id.toString() === id.toString()) {
+                data.byChainScore = index + 1;
+            }
+        }));
+
+        return res.status(200).json({ state: "success", message: 'Get index of user on the world successfully', data });                    
+    } catch (error) {
+        return res.status(400).json({ state: "failed", message: error.message });                    
+    }
+}
+
 const getAllUsersByNameWithFreindShipDetails = async (req, res) => {
     const { name } = req.params;
 
@@ -526,5 +567,6 @@ module.exports = {
     paysCoastOfGame,
     levelOfPlayerOnTheWorld,
     getAllUsersByNameWithFreindShipDetails,
-    getTopUsersAndFriends
+    getTopUsersAndFriends,
+    levelOfPlayerOnTheWorldByAuth
 }
