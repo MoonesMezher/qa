@@ -37,6 +37,10 @@ const Competition = model("Competition", new Schema({
     },
     users: {
         type: [usersSchema]
+    },
+    state: {
+        type: String,
+        default: 'waiting'
     }
 }, { timestamps : true }));
 

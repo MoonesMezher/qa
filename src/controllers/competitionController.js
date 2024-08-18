@@ -7,8 +7,30 @@ const { toDate } = require("validator");
 const { deleteImages } = require("../middlewares/checkFromImageMiddleware");
 
 const getAllCompetitions = async (req, res) => {
+    const userId = req.user._id;
+
     try {
-        const competitions = await Competition.find({});
+        let competitions = await Competition.find({});
+
+        competitions = await Promise.all(competitions.map(async (e, i) => {
+            if(toDate(e.startDate).getTime() <= new Date().getTime()) {
+                e.state = 'started'
+            } 
+            
+            if(toDate(e.endDate).getTime() < new Date().getTime()) {
+                e.state = 'finished'
+            } 
+
+            await e.save()
+
+            const isFind = e.users.find(user => user.user_id.toString() === userId.toString());
+
+            if(isFind) {
+                return {...e._doc, me: 'مشترك'}
+            } else {
+                return {...e._doc, me: 'غير مشترك'}
+            }
+        }));
 
         return res.status(200).json({state: 'success', message: 'Get all competitions successfully', competitions})
     } catch (err) {
@@ -86,8 +108,6 @@ const createCompetition = async (req, res) => {
             return res.status(400).json({state: 'failed', message: 'TypeID must be a refference id to existed section or category' })
         }
     }
-
-    console.log(toDate(startDate),startDate);
 
     if(toDate(startDate).getTime() > toDate(endDate).getTime()) {
         return res.status(400).json({state: 'failed', message: 'EndDate must be bigger than StartDate' })
@@ -253,11 +273,34 @@ const deleteCompetition = async (req, res) => {
     } 
 }
 
+const topUsersInCompetions = async (req, res) => {
+    const { id } = req.params;
+
+    const competition = await Competition.findById(id);
+
+    if(!competition) {
+        return res.status(400).json({state: 'failed', message: 'This competition does not exist' })
+    }
+
+    // if(toDate(competition.endDate).getTime() > new Date().getTime()) {
+
+    // }
+
+    try {
+        const users = competition.users.sort((a, b) => b.exp - a.exp).slice(0, 3);        
+
+        return res.status(200).json({state: 'success', message: 'Get top three users in this competition successfully', users})
+    } catch (err) {
+        return res.status(400).json({state: 'failed', message: err.message })        
+    }
+}
+
 
 module.exports = {
     getAllCompetitions,
     createCompetition,
     updateCompetition,
     deleteCompetition,
-    joinUser
+    joinUser,
+    topUsersInCompetions
 }
