@@ -547,7 +547,7 @@ const getTopUsersAndFriends = async (req, res) => {
             }
         }))
 
-        console.log(3, users);
+        users = users.filter(e => e !== undefined);        
 
         return res.status(200).json({ state: "success", message: 'تم عرض ترتيب الاصدقاء والمستخدمين عالميا بنجاح', users, friends });                    
     } catch (error) {
