@@ -165,10 +165,22 @@ const moveCategoryToAnotherSection = async (req, res) => {
     }
 }
 
+const deleteAllNotActiveDataEntry = async (req, res) => {
+    try {
+        await User.deleteMany({ role: 'data-entry', active: false });
+
+        return res.status(200).json({ state: 'success', message: 'Deleted all not active data entries successfully'});
+    } catch (err) {
+        return res.status(400).json({ state: 'failed', message: err.message })                
+    }
+
+}
+
 module.exports = {
     addOtherCategoryToQuestionNoHaveCategory,
     editAdminPassword,
     deleteAllNotificationsAndReports,
     createProfileToUser,
-    moveCategoryToAnotherSection
+    moveCategoryToAnotherSection,
+    deleteAllNotActiveDataEntry
 }

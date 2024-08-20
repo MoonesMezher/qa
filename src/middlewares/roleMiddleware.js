@@ -5,6 +5,10 @@ function authorize(roles) {
         try {
             const user = await User.findById(req.user);
 
+            if(!user.active) {
+                return res.status(401).json({state: 'failed',message: 'You are not authorized'});
+            }
+
             for (const role of roles) {
 
                 if(user.role == role) {

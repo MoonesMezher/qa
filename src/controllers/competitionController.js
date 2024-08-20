@@ -28,9 +28,9 @@ const getAllCompetitions = async (req, res) => {
             const isFind = e.users.find(user => user.user_id.toString() === userId.toString());
 
             if(isFind) {
-                return {...e._doc, me: 'مشترك'}
+                return { typeId: e.type_id, name: e.name, picture: e.picture, prizeOne: e.prizeOne, prizeTwo: e.prizeTwo, prizeThree: e.prizeThree, startDate: e.startDate, endDate: e.endDate, status: e.status, me: 'مشترك' }
             } else {
-                return {...e._doc, me: 'غير مشترك'}
+                return { typeId: e.type_id, name: e.name, picture: e.picture, prizeOne: e.prizeOne, prizeTwo: e.prizeTwo, prizeThree: e.prizeThree, startDate: e.startDate, endDate: e.endDate, status: e.status, me: 'غير مشترك' }
             }
         }));
 
@@ -310,6 +310,8 @@ const deleteCompetition = async (req, res) => {
 const topUsersInCompetions = async (req, res) => {
     const { id } = req.params;
 
+    const { topThree } = req.body;
+
     const competition = await Competition.findById(id);
 
     if(!competition) {
@@ -321,7 +323,27 @@ const topUsersInCompetions = async (req, res) => {
     // }
 
     try {
-        const users = competition.users.sort((a, b) => b.exp - a.exp).slice(0, 3);        
+        let users = competition.users.sort((a, b) => b.exp - a.exp).slice(0, topThree? 3: competition.users.length);        
+
+        users = await Promise.all(users.map(async e => {
+            const user = await User.findById(e.user_id);
+
+            if(user) {
+                const profile = await Profile.findOne({ user_id: e.user_id })
+
+                return {
+                    _id: e.user_id,
+                    username: user.username,
+                    email: user.email,
+                    password: user.password,
+                    verified: user.verified,
+                    active: user.active,
+                    isFree: user.isFree,
+                    picture: profile?.picture,
+                    expInCompetion: e?.exp
+                }
+            }
+        }));
 
         return res.status(200).json({state: 'success', message: 'Get top three users in this competition successfully', users})
     } catch (err) {
