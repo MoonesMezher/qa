@@ -3,8 +3,10 @@ const Competition = require("../database/models/Competition");
 const moment = require("moment");
 const Section = require("../database/models/Section");
 const Category = require("../database/models/Category");
+const Profile = require("../database/models/Profile");
 const { toDate } = require("validator");
 const { deleteImages } = require("../middlewares/checkFromImageMiddleware");
+const User = require("../database/models/User");
 
 const getAllCompetitions = async (req, res) => {
     const userId = req.user._id;
@@ -39,7 +41,7 @@ const getAllCompetitions = async (req, res) => {
 }
 
 const createCompetition = async (req, res) => {
-    const { startDate, endDate, name, description, picture, typeId } = req.body;
+    const { startDate, endDate, name, prizeOne, prizeTwo, prizeThree, picture, typeId } = req.body;
 
     const wrongInputs = [];
 
@@ -55,8 +57,16 @@ const createCompetition = async (req, res) => {
         wrongInputs.push('name');
     }
 
-    if(!description) {
-        wrongInputs.push('description');
+    if(!prizeOne) {
+        wrongInputs.push('prizeOne');
+    }
+
+    if(!prizeTwo) {
+        wrongInputs.push('prizeTwo');
+    }
+
+    if(!prizeThree) {
+        wrongInputs.push('prizeThree');
     }
 
     if(!picture) {
@@ -75,8 +85,16 @@ const createCompetition = async (req, res) => {
         return res.status(400).json({state: 'failed', message: 'Name must be string' })
     }
 
-    if(typeof description !== 'string') {
-        return res.status(400).json({state: 'failed', message: 'Description must be string' })
+    if(typeof prizeOne !== 'string') {
+        return res.status(400).json({state: 'failed', message: 'PrizeOne must be string' })
+    }
+
+    if(typeof prizeTwo !== 'string') {
+        return res.status(400).json({state: 'failed', message: 'PrizeTwo must be string' })
+    }
+
+    if(typeof prizeThree !== 'string') {
+        return res.status(400).json({state: 'failed', message: 'PrizeThree must be string' })
     }
 
     if(typeof picture !== 'string') {
@@ -114,7 +132,7 @@ const createCompetition = async (req, res) => {
     }
 
     try {
-        await Competition.create({ endDate, startDate, name, description, picture, type_id: typeId });
+        await Competition.create({ endDate, startDate, name, prizeOne, prizeTwo, prizeThree, picture, type_id: typeId });
 
         return res.status(200).json({state: 'success', message: 'Created competition successfully' })
     } catch (err) {
@@ -123,7 +141,7 @@ const createCompetition = async (req, res) => {
 }
 
 const updateCompetition = async (req, res) => {
-    const { startDate, endDate, name, description, picture, typeId } = req.body;
+    const { startDate, endDate, name, prizeOne, prizeTwo, prizeThree, picture, typeId } = req.body;
 
     const { id } = req.params;
 
@@ -147,8 +165,16 @@ const updateCompetition = async (req, res) => {
         wrongInputs.push('name');
     }
 
-    if(!description) {
-        wrongInputs.push('description');
+    if(!prizeOne) {
+        wrongInputs.push('prizeOne');
+    }
+
+    if(!prizeTwo) {
+        wrongInputs.push('prizeTwo');
+    }
+
+    if(!prizeThree) {
+        wrongInputs.push('prizeThree');
     }
 
     if(!picture) {
@@ -167,8 +193,16 @@ const updateCompetition = async (req, res) => {
         return res.status(400).json({state: 'failed', message: 'Name must be string' })
     }
 
-    if(typeof description !== 'string') {
-        return res.status(400).json({state: 'failed', message: 'Description must be string' })
+    if(typeof prizeOne !== 'string') {
+        return res.status(400).json({state: 'failed', message: 'PrizeOne must be string' })
+    }
+
+    if(typeof prizeTwo !== 'string') {
+        return res.status(400).json({state: 'failed', message: 'PrizeTwo must be string' })
+    }
+
+    if(typeof prizeThree !== 'string') {
+        return res.status(400).json({state: 'failed', message: 'PrizeThree must be string' })
     }
 
     if(typeof picture !== 'string') {
@@ -206,7 +240,7 @@ const updateCompetition = async (req, res) => {
     }
 
     try {
-        const competition = await Competition.findByIdAndUpdate(id,{ endDate, startDate, name, description, picture, type_id: typeId }, { new: true });
+        const competition = await Competition.findByIdAndUpdate(id,{ startDate, endDate, name, prizeOne, prizeTwo, prizeThree, picture, type_id: typeId }, { new: true });
         
         return res.status(200).json({state: 'success', message: 'Updated competition successfully', competition})
     } catch (err) {
@@ -295,6 +329,154 @@ const topUsersInCompetions = async (req, res) => {
     }
 }
 
+const getAllTypesToCompetions = async (req, res) => {
+    try {
+        const sections = await Section.find({});
+
+        const categories = await Category.find({});
+
+        let data = [...sections, ...categories];
+
+        data = data.map(e => {
+            return { id: e._id, name: e.name } 
+        });
+
+        data = data.filter(e => e.name !== 'Other')
+
+        return res.status(200).json({state: 'success', message: 'Get all sections and categories to competions', data})
+    } catch (err) {
+        return res.status(400).json({state: 'failed', message: err.message })                
+    }
+}
+
+const changeExpByCompetions = async (req, res) => {
+    const userId = req.user._id;
+
+    const { competitionId, exp } = req.body;
+
+    if(!competitionId) {
+        return res.status(400).json({state: 'failed', message: 'CompetionId must be inserted' })
+    }
+
+    if(!exp) {
+        return res.status(400).json({state: 'failed', message: 'Exp must be inserted' })
+    }
+
+    if(typeof exp !== 'number') {
+        return res.status(400).json({state: 'failed', message: 'Exp must be number' })
+    }
+
+    if(!mongoose.Types.ObjectId.isValid(competitionId)) {
+        return res.status(400).json({state: 'failed', message: 'CompetionId must be a valid ID' })
+    }
+
+    try {
+        const competition = await Competition.findById(competitionId);
+
+        if(!competition) {
+            return res.status(400).json({state: 'failed', message: 'This competion does not exist'})
+        }
+
+        const users = competition.users.map(e => {
+            if(e.user_id.toString() === userId.toString()) {
+                return { user_id: e.user_id, exp: e.exp + exp }
+            }
+            return e
+        })
+
+        competition.users = users;
+
+        await competition.save();
+
+        const profile = await Profile.findOne({ user_id: userId });
+
+        profile.exp = profile.exp + exp;
+
+        await profile.save();
+
+        return res.status(200).json({state: 'success', message: 'Change exp of user by competition successfully'})
+    } catch (err) {
+        return res.status(400).json({state: 'failed', message: err.message })                
+    }
+}
+
+const getStoredUsersToCompetition = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const competion = await Competition.findById(id);
+
+        if(!competion) {
+            return res.status(400).json({state: 'failed', message: 'This competion does not exist' })
+        }
+
+        const users = competion.users.sort((a, b) => b.exp - a.exp);
+
+        const data = await Promise.all(users.map( async (e) => {
+            const user = await User.findById(e.user_id);
+
+            if(user) {
+                const profile = await Profile.findOne({ user_id: e.user_id })
+
+                return {
+                    _id: e.user_id,
+                    username: user.username,
+                    email: user.email,
+                    password: user.password,
+                    verified: user.verified,
+                    active: user.active,
+                    isFree: user.isFree,
+                    picture: profile?.picture,
+                    expInCompetion: e?.exp
+                }
+            }
+        }
+        ))
+
+        return res.status(200).json({state: 'success', message: 'Get stored users by competion id successfully', data })
+    } catch (err) {
+        return res.status(400).json({state: 'failed', message: err.message })                        
+    }
+}
+
+const getCompetionsDataToUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const competions = await Competition.find({
+            users: { $elemMatch: { user_id: id } }
+        });
+
+        const data = await Promise.all(competions.map(async (e) => {
+            const user = e.users.find(e => e.user_id.toString() === id.toString())
+
+            const exp = user.exp;
+
+            let level;
+
+            const users = e.users.sort((a, b) => b.exp - a.exp);
+
+            users.forEach((e, i) => {
+                if(e.user_id.toString() === id.toString()) {
+                    level = i+1;
+                }
+            })
+
+            return {
+                id: e._id,
+                name: e.name,
+                startDate: e.startDate,
+                endDate: e.endDate,
+                userExp: exp,
+                userLevel: level,
+            }
+        }));
+
+        return res.status(200).json({state: 'success', message: 'Get competions info to user successfully', data })        
+    } catch (err) {
+        return res.status(400).json({state: 'failed', message: err.message })                        
+    }
+}
 
 module.exports = {
     getAllCompetitions,
@@ -302,5 +484,9 @@ module.exports = {
     updateCompetition,
     deleteCompetition,
     joinUser,
-    topUsersInCompetions
+    topUsersInCompetions,
+    getAllTypesToCompetions,
+    changeExpByCompetions,
+    getStoredUsersToCompetition,
+    getCompetionsDataToUser
 }

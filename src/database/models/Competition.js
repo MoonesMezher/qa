@@ -23,7 +23,15 @@ const Competition = model("Competition", new Schema({
         type: String,
         required: true,
     },
-    description: {
+    prizeOne: {
+        type: String,
+        required: true,
+    },
+    prizeTwo: {
+        type: String,
+        required: true,
+    },
+    prizeThree: {
         type: String,
         required: true,
     },
