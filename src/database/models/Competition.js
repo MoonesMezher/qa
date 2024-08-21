@@ -48,7 +48,7 @@ const Competition = model("Competition", new Schema({
     },
     state: {
         type: String,
-        default: 'waiting'
+        default: 'انتظار'
     }
 }, { timestamps : true }));
 

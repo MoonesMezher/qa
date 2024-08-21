@@ -15,8 +15,6 @@ const { getAllCompetitions, createCompetition, updateCompetition, deleteCompetit
 // GET
 router.get('/', [requireAuth, authorize(["user", "admin", 'guest'])],getAllCompetitions);
 
-router.get('/top-users/:id', [requireAuth, validateObjectId, authorize(["user", "admin", 'guest'])],topUsersInCompetions);
-
 router.get('/all-types', [requireAuth, authorize(["admin"])], getAllTypesToCompetions);
 
 router.get('/stored-users/:id', [requireAuth, authorize(["admin", "user", "guest"]), validateObjectId], getStoredUsersToCompetition);
@@ -25,6 +23,8 @@ router.get('/info/user/:id', [requireAuth, authorize(["admin", "user", "guest"])
 
 // POST
 router.post('/create', [requireAuth, authorize(["admin", "date-entry"]), isImage], createCompetition);
+
+router.post('/top-users/:id', [requireAuth, validateObjectId, authorize(["user", "admin", 'guest'])],topUsersInCompetions);
 
 // PUT
 router.put('/update/:id', [requireAuth, authorize(["admin", "date-entry"]), validateObjectId, isImage], updateCompetition);

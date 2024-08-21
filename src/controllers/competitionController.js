@@ -16,11 +16,11 @@ const getAllCompetitions = async (req, res) => {
 
         competitions = await Promise.all(competitions.map(async (e, i) => {
             if(toDate(e.startDate).getTime() <= new Date().getTime()) {
-                e.state = 'started'
+                e.state = 'بدء'
             } 
             
             if(toDate(e.endDate).getTime() < new Date().getTime()) {
-                e.state = 'finished'
+                e.state = 'انتهاء'
             } 
 
             await e.save()
@@ -256,13 +256,13 @@ const joinUser = async (req, res) => {
     const existCompetition = await Competition.findById(id);
 
     if(!existCompetition) {
-        return res.status(400).json({state: 'failed', message: 'This competition does not exist' })
+        return res.status(400).json({state: 'failed', message: 'هذه المسابقة غسر موجودة' })
     }
 
     const NOW = new Date();
 
     if(NOW.getTime() > toDate(existCompetition.endDate)?.getTime()) {
-        return res.status(400).json({state: 'failed', message: 'The end date to this competition is finished' })
+        return res.status(400).json({state: 'failed', message: 'للأسف هذه اللعبة منتهية' })
     }
 
     try {
@@ -271,7 +271,7 @@ const joinUser = async (req, res) => {
         });
 
         if(userIsExist > 0) {
-            return res.status(400).json({state: 'failed', message: 'You already joined to the competition' })        
+            return res.status(400).json({state: 'failed', message: 'أنت بالفعل منضم لهذه المسابقة' })        
         }
 
         await existCompetition.users.push({
@@ -281,7 +281,7 @@ const joinUser = async (req, res) => {
 
         await existCompetition.save();
 
-        return res.status(200).json({state: 'success', message: 'Joind to the competiton successfully' })        
+        return res.status(200).json({state: 'success', message: 'تم الانضمام للمسابقة بنجاح' })        
     } catch (err) {
         return res.status(400).json({state: 'failed', message: err.message })        
     }
@@ -315,7 +315,7 @@ const topUsersInCompetions = async (req, res) => {
     const competition = await Competition.findById(id);
 
     if(!competition) {
-        return res.status(400).json({state: 'failed', message: 'This competition does not exist' })
+        return res.status(400).json({state: 'failed', message: 'هذه المسابقة غير موجودة' })
     }
 
     // if(toDate(competition.endDate).getTime() > new Date().getTime()) {
@@ -339,13 +339,13 @@ const topUsersInCompetions = async (req, res) => {
                     verified: user.verified,
                     active: user.active,
                     isFree: user.isFree,
-                    picture: profile?.picture,
+                    picture: profile?.picture || 'uploads/profile/profileDefault1.webp',
                     expInCompetion: e?.exp
                 }
             }
         }));
 
-        return res.status(200).json({state: 'success', message: 'Get top three users in this competition successfully', users})
+        return res.status(200).json({state: 'success', message: 'تم عرض ترتيب المستخدمين داخل المسابقة بنجاح', users})
     } catch (err) {
         return res.status(400).json({state: 'failed', message: err.message })        
     }
@@ -429,7 +429,7 @@ const getStoredUsersToCompetition = async (req, res) => {
         const competion = await Competition.findById(id);
 
         if(!competion) {
-            return res.status(400).json({state: 'failed', message: 'This competion does not exist' })
+            return res.status(400).json({state: 'failed', message: 'هذه المسابقة غير موجودة' })
         }
 
         const users = competion.users.sort((a, b) => b.exp - a.exp);
@@ -448,14 +448,14 @@ const getStoredUsersToCompetition = async (req, res) => {
                     verified: user.verified,
                     active: user.active,
                     isFree: user.isFree,
-                    picture: profile?.picture,
+                    picture: profile?.picture || 'uploads/profile/profileDefault1.webp',
                     expInCompetion: e?.exp
                 }
             }
         }
         ))
 
-        return res.status(200).json({state: 'success', message: 'Get stored users by competion id successfully', data })
+        return res.status(200).json({state: 'success', message: 'تم عرض ترتيب اللاعبين داخل المسابقة بنجاح', data })
     } catch (err) {
         return res.status(400).json({state: 'failed', message: err.message })                        
     }
@@ -494,7 +494,7 @@ const getCompetionsDataToUser = async (req, res) => {
             }
         }));
 
-        return res.status(200).json({state: 'success', message: 'Get competions info to user successfully', data })        
+        return res.status(200).json({state: 'success', message: 'تم عرض بيانات المسابقات المتعلقة بالمستخدم بنجاح', data })        
     } catch (err) {
         return res.status(400).json({state: 'failed', message: err.message })                        
     }
