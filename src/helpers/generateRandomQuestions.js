@@ -1,4 +1,5 @@
 const Question = require("../database/models/Question");
+const Section = require("../database/models/Section");
 
 const generateRandomQuestions = async (type, limit, typeQuestion) => {
     let questions;
@@ -108,11 +109,38 @@ const generateRandomQuestionsForOnlineGame = async (type) => {
     result = result.filter(e => e != null);
 
     return result;
+}
+
+const generateRandomQuestionsForCompetion = async (typeId) => {
+    const limit = 50;
+
+    let type = { id: typeId, type: 'section' }
+
+    const section = await Section.findById(typeId);
+
+    if(!section) {
+        type.type = 'category'
+    }
     
+    const q1 = await generateRandomQuestions(type, limit, 'true-false');
+
+    const q2 = await generateRandomQuestions(type, limit, 'normal');
+
+    let result = [];
+
+    for (let index = 0; index < limit; index++) {
+        result.push(q1[index]);        
+        result.push(q2[index]);        
+    }
+
+    result = result.filter(e => e != null);
+
+    return result;
 }
 
 module.exports = {
     generateRandomQuestionsForSpeedGame,
     generateRandomQuestionsForChainGame,
-    generateRandomQuestionsForOnlineGame
+    generateRandomQuestionsForOnlineGame,
+    generateRandomQuestionsForCompetion
 };

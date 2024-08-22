@@ -8,7 +8,7 @@ const requireAuth = require('../middlewares/requireAuth');
 const authorize = require('../middlewares/roleMiddleware');
 const validateObjectId = require('../middlewares/checkFromIdMiddleware');
 const { isImage } = require('../middlewares/checkFromImageMiddleware');
-const { getAllCompetitions, createCompetition, updateCompetition, deleteCompetition, joinUser, topUsersInCompetions, getAllTypesToCompetions, changeExpByCompetions, getStoredUsersToCompetition, getCompetionsDataToUser } = require('../controllers/competitionController');
+const { getAllCompetitions, createCompetition, updateCompetition, deleteCompetition, joinUser, topUsersInCompetions, getAllTypesToCompetions, changeExpByCompetions, getStoredUsersToCompetition, getCompetionsDataToUser, getCompetionQuestions } = require('../controllers/competitionController');
 
 // routes
 
@@ -20,6 +20,8 @@ router.get('/all-types', [requireAuth, authorize(["admin"])], getAllTypesToCompe
 router.get('/stored-users/:id', [requireAuth, authorize(["admin", "user", "guest"]), validateObjectId], getStoredUsersToCompetition);
 
 router.get('/info/user/:id', [requireAuth, authorize(["admin", "user", "guest"]), validateObjectId], getCompetionsDataToUser);
+
+router.get('/generate-questions/type/:id', [requireAuth, authorize(["admin", "user", "guest"]), validateObjectId], getCompetionQuestions);
 
 // POST
 router.post('/create', [requireAuth, authorize(["admin", "date-entry"]), isImage], createCompetition);

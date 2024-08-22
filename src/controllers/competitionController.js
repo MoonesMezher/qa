@@ -7,6 +7,7 @@ const Profile = require("../database/models/Profile");
 const { toDate } = require("validator");
 const { deleteImages } = require("../middlewares/checkFromImageMiddleware");
 const User = require("../database/models/User");
+const { generateRandomQuestionsForCompetion } = require("../helpers/generateRandomQuestions");
 
 const getAllCompetitions = async (req, res) => {
     const userId = req.user._id;
@@ -252,11 +253,21 @@ const joinUser = async (req, res) => {
     const { id } = req.params;
 
     const user_id = req.user._id;
-
+    
     const existCompetition = await Competition.findById(id);
-
+    
     if(!existCompetition) {
-        return res.status(400).json({state: 'failed', message: 'هذه المسابقة غسر موجودة' })
+        return res.status(400).json({state: 'failed', message: 'هذه المسابقة غير موجودة' })
+    }
+
+    const { tokens } = req.body;
+
+    if(!tokens) {
+        return res.status(400).json({state: 'failed', message: 'Tokens must be insert' })
+    }
+
+    if(typeof tokens !== 'number') {
+        return res.status(400).json({state: 'failed', message: 'Tokens type must be number' })
     }
 
     const NOW = new Date();
@@ -280,6 +291,16 @@ const joinUser = async (req, res) => {
         });
 
         await existCompetition.save();
+
+        const profile = await Profile.findOne({ user_id: user_id })
+
+        if(profile.tokens < tokens) {
+            return res.status(400).json({state: 'failed', message: 'عذرا لا يوجد معك رصيد كافي للدخول في هذه المسابقة' })        
+        }
+
+        profile.tokens = profile.tokens + tokens;
+
+        await profile.save();
 
         return res.status(200).json({state: 'success', message: 'تم الانضمام للمسابقة بنجاح' })        
     } catch (err) {
@@ -500,6 +521,24 @@ const getCompetionsDataToUser = async (req, res) => {
     }
 }
 
+const getCompetionQuestions = async (req, res) => {
+    const { id } = req.params;
+
+    try {
+        const questions = await generateRandomQuestionsForCompetion(id);
+
+        const total = questions.length;
+
+        if(total === 0) {
+            return res.status(400).json({ state: 'failed', message: 'عذرا! لايوجد أسئلة تناسب اختيارك'})
+        }
+
+        return res.status(200).json({state: 'success', message: 'تم توليد اسئلة عشوائية خاصة بالمسابقة بنجاح', questions, total })                
+    } catch (err) {
+        return res.status(400).json({state: 'failed', message: err.message })                                
+    }
+}
+
 module.exports = {
     getAllCompetitions,
     createCompetition,
@@ -510,5 +549,6 @@ module.exports = {
     getAllTypesToCompetions,
     changeExpByCompetions,
     getStoredUsersToCompetition,
-    getCompetionsDataToUser
+    getCompetionsDataToUser,
+    getCompetionQuestions
 }
