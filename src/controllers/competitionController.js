@@ -260,6 +260,12 @@ const joinUser = async (req, res) => {
         return res.status(400).json({state: 'failed', message: 'هذه المسابقة غير موجودة' })
     }
 
+    const NOW = new Date();
+
+    if(NOW.getTime() > toDate(existCompetition.endDate)?.getTime()) {
+        return res.status(400).json({state: 'failed', message: 'للأسف هذه اللعبة منتهية' })
+    }
+
     const { tokens } = req.body;
 
     if(!tokens) {
@@ -270,27 +276,14 @@ const joinUser = async (req, res) => {
         return res.status(400).json({state: 'failed', message: 'Tokens type must be number' })
     }
 
-    const NOW = new Date();
-
-    if(NOW.getTime() > toDate(existCompetition.endDate)?.getTime()) {
-        return res.status(400).json({state: 'failed', message: 'للأسف هذه اللعبة منتهية' })
-    }
-
     try {
         const userIsExist = await Competition.countDocuments({
-            users: { $elemMatch: { user_id } }
+            _id: id, users: { $elemMatch: { user_id } }
         });
 
         if(userIsExist > 0) {
             return res.status(400).json({state: 'failed', message: 'أنت بالفعل منضم لهذه المسابقة' })        
         }
-
-        await existCompetition.users.push({
-            user_id,
-            exp: 0
-        });
-
-        await existCompetition.save();
 
         const profile = await Profile.findOne({ user_id: user_id })
 
@@ -298,9 +291,16 @@ const joinUser = async (req, res) => {
             return res.status(400).json({state: 'failed', message: 'عذرا لا يوجد معك رصيد كافي للدخول في هذه المسابقة' })        
         }
 
-        profile.tokens = profile.tokens + tokens;
+        profile.tokens = profile.tokens - tokens;
 
         await profile.save();
+
+        await existCompetition.users.push({
+            user_id,
+            exp: 0
+        });
+
+        await existCompetition.save();
 
         return res.status(200).json({state: 'success', message: 'تم الانضمام للمسابقة بنجاح' })        
     } catch (err) {
