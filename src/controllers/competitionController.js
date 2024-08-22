@@ -29,9 +29,9 @@ const getAllCompetitions = async (req, res) => {
             const isFind = e.users.find(user => user.user_id.toString() === userId.toString());
 
             if(isFind) {
-                return { typeId: e.type_id, name: e.name, picture: e.picture, prizeOne: e.prizeOne, prizeTwo: e.prizeTwo, prizeThree: e.prizeThree, startDate: e.startDate, endDate: e.endDate, status: e.status, me: 'مشترك' }
+                return { id: e._id,typeId: e.type_id, name: e.name, picture: e.picture, prizeOne: e.prizeOne, prizeTwo: e.prizeTwo, prizeThree: e.prizeThree, startDate: e.startDate, endDate: e.endDate, state: e.state, me: 'مشترك', tokens: e.tokens }
             } else {
-                return { typeId: e.type_id, name: e.name, picture: e.picture, prizeOne: e.prizeOne, prizeTwo: e.prizeTwo, prizeThree: e.prizeThree, startDate: e.startDate, endDate: e.endDate, status: e.status, me: 'غير مشترك' }
+                return { id: e._id,typeId: e.type_id, name: e.name, picture: e.picture, prizeOne: e.prizeOne, prizeTwo: e.prizeTwo, prizeThree: e.prizeThree, startDate: e.startDate, endDate: e.endDate, state: e.state, me: 'غير مشترك', tokens: e.tokens }
             }
         }));
 
@@ -42,7 +42,7 @@ const getAllCompetitions = async (req, res) => {
 }
 
 const createCompetition = async (req, res) => {
-    const { startDate, endDate, name, prizeOne, prizeTwo, prizeThree, picture, typeId } = req.body;
+    const { startDate, endDate, name, prizeOne, prizeTwo, prizeThree, picture, typeId, tokens } = req.body;
 
     const wrongInputs = [];
 
@@ -78,6 +78,10 @@ const createCompetition = async (req, res) => {
         wrongInputs.push('typeId');
     }
 
+    if(!tokens) {
+        wrongInputs.push('tokens');
+    }
+
     if(wrongInputs.length > 0) {
         return res.status(400).json({state: 'failed', message: 'Some data can not be empty', wrongInputs })
     }
@@ -100,6 +104,10 @@ const createCompetition = async (req, res) => {
 
     if(typeof picture !== 'string') {
         return res.status(400).json({state: 'failed', message: 'Picture must be string' })
+    }
+
+    if(typeof tokens !== 'number') {
+        return res.status(400).json({state: 'failed', message: 'Tokens must be number' })
     }
     
     if(!mongoose.Types.ObjectId.isValid(typeId)) {
@@ -133,7 +141,7 @@ const createCompetition = async (req, res) => {
     }
 
     try {
-        await Competition.create({ endDate, startDate, name, prizeOne, prizeTwo, prizeThree, picture, type_id: typeId });
+        await Competition.create({ endDate, startDate, name, prizeOne, prizeTwo, prizeThree, picture, type_id: typeId, tokens });
 
         return res.status(200).json({state: 'success', message: 'Created competition successfully' })
     } catch (err) {
@@ -142,7 +150,7 @@ const createCompetition = async (req, res) => {
 }
 
 const updateCompetition = async (req, res) => {
-    const { startDate, endDate, name, prizeOne, prizeTwo, prizeThree, picture, typeId } = req.body;
+    const { startDate, endDate, name, prizeOne, prizeTwo, prizeThree, picture, typeId, tokens } = req.body;
 
     const { id } = req.params;
 
@@ -186,6 +194,10 @@ const updateCompetition = async (req, res) => {
         wrongInputs.push('typeId');
     }
 
+    if(!tokens) {
+        wrongInputs.push('tokens');
+    }
+
     if(wrongInputs.length > 0) {
         return res.status(400).json({state: 'failed', message: 'Some data can not be empty', wrongInputs })
     }
@@ -208,6 +220,10 @@ const updateCompetition = async (req, res) => {
 
     if(typeof picture !== 'string') {
         return res.status(400).json({state: 'failed', message: 'Picture must be string' })
+    }
+
+    if(typeof tokens !== 'number') {
+        return res.status(400).json({state: 'failed', message: 'Tokens must be number' })
     }
     
     if(!mongoose.Types.ObjectId.isValid(typeId)) {
@@ -241,7 +257,7 @@ const updateCompetition = async (req, res) => {
     }
 
     try {
-        const competition = await Competition.findByIdAndUpdate(id,{ startDate, endDate, name, prizeOne, prizeTwo, prizeThree, picture, type_id: typeId }, { new: true });
+        const competition = await Competition.findByIdAndUpdate(id,{ startDate, endDate, name, prizeOne, prizeTwo, prizeThree, picture, type_id: typeId, tokens }, { new: true });
         
         return res.status(200).json({state: 'success', message: 'Updated competition successfully', competition})
     } catch (err) {
@@ -266,16 +282,6 @@ const joinUser = async (req, res) => {
         return res.status(400).json({state: 'failed', message: 'للأسف هذه اللعبة منتهية' })
     }
 
-    const { tokens } = req.body;
-
-    if(!tokens) {
-        return res.status(400).json({state: 'failed', message: 'Tokens must be insert' })
-    }
-
-    if(typeof tokens !== 'number') {
-        return res.status(400).json({state: 'failed', message: 'Tokens type must be number' })
-    }
-
     try {
         const userIsExist = await Competition.countDocuments({
             _id: id, users: { $elemMatch: { user_id } }
@@ -287,11 +293,11 @@ const joinUser = async (req, res) => {
 
         const profile = await Profile.findOne({ user_id: user_id })
 
-        if(profile.tokens < tokens) {
+        if(profile.tokens < existCompetition.tokens) {
             return res.status(400).json({state: 'failed', message: 'عذرا لا يوجد معك رصيد كافي للدخول في هذه المسابقة' })        
         }
 
-        profile.tokens = profile.tokens - tokens;
+        profile.tokens = profile.tokens - existCompetition.tokens;
 
         await profile.save();
 
