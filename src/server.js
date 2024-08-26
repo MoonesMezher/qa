@@ -10,8 +10,10 @@ const Room = require('./database/models/Room');
 
 const server = require('http').createServer(app);
 const io = require('socket.io')(server, {
+    transports: ['websocket'],
     cors: {
-        origin: ["https://admin.socket.io"],
+        origin: "*",
+        // origin: ["https://admin.socket.io"],
         credentials: true
     }
 });
@@ -22,8 +24,6 @@ let data = []
 
 ioGame.on('connection', async (socket) => {
     console.log('A user connected');
-
-    // await Room.deleteMany({ createdAt: { $le:  } })
 
     game(ioGame, socket, data);
 });

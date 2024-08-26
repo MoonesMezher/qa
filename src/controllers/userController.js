@@ -97,7 +97,7 @@ const signupUser = async (req, res) => {
             score: profile.score,            
         }
 
-        return res.status(200).json({state: "success", message: "تم التسجيل بنجاح", user: userData});
+        return res.status(200).json({state: "success", message: "تم التسجيل بنجاح", userData: userData});
     } catch (error) {
         return res.status(400).json({state: "failed", message: error.message})
     }

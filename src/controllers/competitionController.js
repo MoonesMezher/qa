@@ -29,9 +29,9 @@ const getAllCompetitions = async (req, res) => {
             const isFind = e.users.find(user => user.user_id.toString() === userId.toString());
 
             if(isFind) {
-                return { id: e._id,typeId: e.type_id, name: e.name, picture: e.picture, prizeOne: e.prizeOne, prizeTwo: e.prizeTwo, prizeThree: e.prizeThree, startDate: e.startDate, endDate: e.endDate, state: e.state, me: 'مشترك', tokens: e.tokens }
+                return { id: e._id, typeId: e.type_id, name: e.name, picture: e.picture, prizeOne: e.prizeOne, prizeTwo: e.prizeTwo, prizeThree: e.prizeThree, startDate: e.startDate, endDate: e.endDate, state: e.state, me: 'مشترك', tokens: e.tokens, exp: isFind.exp }
             } else {
-                return { id: e._id,typeId: e.type_id, name: e.name, picture: e.picture, prizeOne: e.prizeOne, prizeTwo: e.prizeTwo, prizeThree: e.prizeThree, startDate: e.startDate, endDate: e.endDate, state: e.state, me: 'غير مشترك', tokens: e.tokens }
+                return { id: e._id,typeId: e.type_id, name: e.name, picture: e.picture, prizeOne: e.prizeOne, prizeTwo: e.prizeTwo, prizeThree: e.prizeThree, startDate: e.startDate, endDate: e.endDate, state: e.state, me: 'غير مشترك', tokens: e.tokens, exp: 0 }
             }
         }));
 
