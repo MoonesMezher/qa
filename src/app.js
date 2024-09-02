@@ -20,6 +20,7 @@ const gameRouter = require('./routes/gameRoute');
 const roomRouter = require('./routes/roomRoute');
 const friendRouter = require('./routes/friendRoute');
 const inviteRouter = require('./routes/inviteRoute');
+const otpRouter = require('./routes/otpRoute');
 
 const app = express();
 
@@ -47,5 +48,6 @@ app.use('/api/games', gameRouter);
 app.use('/api/rooms', roomRouter);
 app.use('/api/friends', friendRouter);
 app.use('/api/invites', inviteRouter);
+app.use('/api/otp', otpRouter);
 
 module.exports = app;

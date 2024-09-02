@@ -11,10 +11,22 @@ const game = async (io, socket, data) => {
         joinMethod(item, socket, io, data);
     });
 
-    socket.on('player', async (item) => {
+    socket.on('player-waiting', async (item) => {
         console.log("player");
 
-        playerMethod(item, socket, io);
+        playerMethod(item, socket, io, 'player-waiting');
+    })
+
+    socket.on('player-start', async (item) => {
+        console.log("player");
+
+        playerMethod(item, socket, io, 'player-start');
+    })
+
+    socket.on('player-finish', async (item) => {
+        console.log("player");
+
+        playerMethod(item, socket, io, 'player-finish');
     })
 
     socket.on('startPlayer', async (item) => {
@@ -29,10 +41,22 @@ const game = async (io, socket, data) => {
         finishMethod(item, socket, io, data);
     })
 
-    socket.on('game', async (item) => {
-        console.log("game");
+    socket.on('game-waiting', async (item) => {
+        console.log("game-waiting");
 
-        gameMethod(item, socket, io);
+        gameMethod(item, socket, io, 'game-waiting');
+    });
+
+    socket.on('game-start', async (item) => {
+        console.log("game-start");
+
+        gameMethod(item, socket, io, 'game-start');
+    });
+
+    socket.on('game-finish', async (item) => {
+        console.log("game-finish");
+
+        gameMethod(item, socket, io, 'game-finish');
     });
 
     socket.on('score', async (item) => {
@@ -54,32 +78,32 @@ const game = async (io, socket, data) => {
 
     socket.on('player2', async (item) => {
         console.log("player2");
-        playerMethod2(item, socket, io);
+        await playerMethod2(item, socket, io);
     })
 
     socket.on('startPlayer2', async (item) => {
         console.log("startPlayer2");
-        startMethod2(item, socket, io);
+        await startMethod2(item, socket, io);
     })
 
     socket.on('finishPlayer2', async (item) => {
         console.log("finishPlayer2");
-        finishMethod2(item, socket, io, data);
+        await finishMethod2(item, socket, io, data);
     })
 
     socket.on('game2', async (item) => {
         console.log("game2")
-        gameMethod2(item, socket, io);
+        await gameMethod2(item, socket, io);
     });
 
     socket.on('score2', async (item) => {
         console.log("score2")
-        scoreMethod2(item, socket, io);
+        await scoreMethod2(item, socket, io);
     });
 
     socket.on('leave2', async (item) => {
         console.log("leave2")
-        leaveMethod2(item, socket, io, data);
+        await leaveMethod2(item, socket, io, data);
     });
 
     socket.on('disconnect', async () => {        
@@ -148,7 +172,7 @@ const joinMethod = async (item, socket, io, data) => {
                             // console.log('check now 3');
                             await Room.findByIdAndDelete(item.roomId)
 
-                            io.to(item.roomId).emit('game', 'finish');
+                            io.to(item.roomId).emit('game-waiting', 'finish');
                         }
                     }
                 };
@@ -162,7 +186,7 @@ const joinMethod = async (item, socket, io, data) => {
         console.log('Error -> Join: ', error.message);            
     }
 } 
-const playerMethod = async (item, socket, io) => {       
+const playerMethod = async (item, socket, io, event) => {       
     if(!item) {
         return;
     }
@@ -173,7 +197,7 @@ const playerMethod = async (item, socket, io) => {
         if(room) {
             const players = room.users.sort((a, b) => b.score - a.score);
             
-            io.to(item.roomId).emit('player', userJson(players));
+            io.to(item.roomId).emit(event, userJson(players));
         }
     } catch (error) {
         console.log('Error -> Player: ', error.message);            
@@ -207,7 +231,7 @@ const startMethod = async (item, socket, io) => {
                     if(room) {
                         await Room.findByIdAndUpdate(item.roomId, { gameState: 'finish' }, { new: true });
 
-                        io.to(item.roomId).emit('game', 'finish')
+                        io.to(item.roomId).emit('game-finish', 'finish')
                         // console.log('finished now');
                     }
                 };
@@ -226,8 +250,8 @@ const startMethod = async (item, socket, io) => {
             
             const players = room.users.sort((a, b) => b.score - a.score)
             
-            io.to(item.roomId).emit('player', userJson(players));
-            io.to(item.roomId).emit('game', room? room.gameState: 'remove');
+            // io.to(item.roomId).emit('player', userJson(players));
+            // io.to(item.roomId).emit('game', room? room.gameState: 'remove');
         }
     } catch (error) {
         console.log('Error -> Start: ', error.message);            
@@ -267,16 +291,16 @@ const finishMethod = async (item, socket, io, data) => {
                 }, 10000);
             }
             
-            io.to(item.roomId).emit('player', userJson(players));
-            io.to(item.roomId).emit('game', room? room.gameState: 'remove');
+            // io.to(item.roomId).emit('player', userJson(players));
+            // io.to(item.roomId).emit('game', room? room.gameState: 'remove');
         } else {
-            io.to(item.roomId).emit('game', 'remove');
+            // io.to(item.roomId).emit('game', 'remove');
         }
     } catch (error) {
         console.log('Error -> Finish: ', error.message);            
     }
 }
-const gameMethod = async (item, socket, io) => {
+const gameMethod = async (item, socket, io, event) => {
     if(!item) {
         return;
     }
@@ -285,12 +309,12 @@ const gameMethod = async (item, socket, io) => {
         const room = await Room.findById(item.roomId);
 
         if(room) {
-            io.to(item.roomId).emit('game', room?.gameState);
+            io.to(item.roomId).emit(event, room?.gameState);
         } else {
-            io.to(item.roomId).emit('game', 'remove');
+            io.to(item.roomId).emit(event, 'remove');
         }
     } catch (error) {
-        console.log('Error -> Game: ', error.message);            
+        console.log(`Error -> ${event}:`, error.message);            
     }
 }
 
@@ -311,7 +335,7 @@ const scoreMethod = async (item, socket, io) => {
 
             const players = room.users.sort((a, b) => b.score - a.score)
                                 
-            io.to(item.roomId).emit('player', userJson(players));            
+            // io.to(item.roomId).emit('player', userJson(players));            
         }
     } catch (error) {
         console.log('Error -> Score: ', error.message);            
@@ -332,18 +356,20 @@ const leaveMethod = async (item, socket, io, data) => {
                 return;
             }
     
-            if(room.users.length === 2) {            
+            if(room.users?.length === 2) {            
                 if(room.gameState === 'start') {
                     let newUsers = room.users.map(e => {
                         if(e?.id?.toString() === (item?.playerId?.toString())) {
                             return {name: e.name, id: e.id, admin: e.admin, image: e.image,score: e.score, status: 'finish'};
                         }    
                         return e;
-                    });
+                    });                    
     
                     room = await Room.updateOne({ _id: item.roomId }, { users: newUsers }, { new: true });
 
-                    if(newUsers.length == 2 && newUsers[0].status === 'finish' && newUsers[1].status === 'finish') {
+                    console.log("LLLLEAVE:", newUsers);
+
+                    if(newUsers?.length == 2 && newUsers[0].status === 'finish' && newUsers[1].status === 'finish') {
                         room.gameState = 'finish';
         
                         await room.save();
@@ -353,12 +379,14 @@ const leaveMethod = async (item, socket, io, data) => {
                         }, 10000)
                     }
                                             
-                    io.to(item.roomId).emit('player', userJson(players));                
-                    io.to(item.roomId).emit('game', room? room.gameState: 'remove');
+                    // io.to(item.roomId).emit('player', userJson(players));                
+                    // io.to(item.roomId).emit('game', room? room.gameState: 'remove');
                     return;
                 }
     
                 let newUsers = room.users.filter(e => !e?.id?.equals(item?.playerId));
+
+                console.log("LLLLEAVE: 2", newUsers);
     
                 const bot = generateRandomBot(room.questions);
     
@@ -366,7 +394,9 @@ const leaveMethod = async (item, socket, io, data) => {
     
                 room = await Room.updateOne({ _id: item.roomId }, { users: newUsers }, { new: true });
     
-                const players = newUsers.sort((a, b) => b.score - a.score)
+                const players = newUsers?.sort((a, b) => b.score - a.score)
+
+                console.log("LLLLEAVE: 3", newUsers);
     
                 if((room.users.length == 2 && room.users[0].status === 'finish' && room.users[1].status === 'finish') ||
                     (newUsers.length == 2 && newUsers[0].status === 'finish' && newUsers[1].status === 'finish')) {
@@ -379,8 +409,8 @@ const leaveMethod = async (item, socket, io, data) => {
                     }, 10000);
                 }
                                         
-                io.to(item.roomId).emit('player', userJson(players));                
-                io.to(item.roomId).emit('game', room? room.gameState: 'remove');
+                // io.to(item.roomId).emit('player', userJson(players));                
+                // io.to(item.roomId).emit('game', room? room.gameState: 'remove');
             } else {
                 await Room.findByIdAndUpdate(item.roomId, { gameState: 'finish' });
 
@@ -388,7 +418,7 @@ const leaveMethod = async (item, socket, io, data) => {
                     await Room.findByIdAndDelete(item.roomId);
                 }, 10000)
     
-                io.to(item?.roomId).emit('game', 'finish');
+                // io.to(item?.roomId).emit('game', 'finish');
             }
         }
     } catch (error) {
@@ -401,15 +431,18 @@ const joinMethod2 = async (item, socket, io, data) => {
     }
 
     try {
-        socket.join(item.roomId);
+        socket.join(item?.roomId);
 
         socket.data.roomId = item.roomId;
+        socket.data.playerId = item.playerId;
 
-        const room = await Room.findById(socket.data.roomId);
+        console.log("JOIN: 2", socket.id);
 
-        if(room) {
-            io.to(socket.data.roomId).emit('player2', userJsonToGroupGame(room?.users));
-            io.to(socket.data.roomId).emit('game2', room?.gameState);
+        const room = await Room.findById(item.roomId);
+
+        if(room) {            
+            io.to(item.roomId).emit('player2', userJsonToGroupGame(room?.users));
+            io.to(item.roomId).emit('game2', room?.gameState);
         } else {
             io.to(socket.id).emit('game2', 'remove');
         }
@@ -423,12 +456,12 @@ const playerMethod2 = async (item, socket, io) => {
     }
     
     try {
-        const room = await Room.findById(socket.data.roomId);
+        const room = await Room.findById(item.roomId);
         
         if(room) {
             const players = room.users.sort((a, b) => b.score - a.score);
             
-            io.to(socket.data.roomId).emit('player2', userJsonToGroupGame(players));
+            io.to(item.roomId).emit('player2', userJsonToGroupGame(players));
         }
     } catch (error) {
         console.log('Error -> Player: ', error.message);            
@@ -440,7 +473,7 @@ const startMethod2 = async (item, socket, io) => {
     }
 
     try {
-        const room = await Room.findById(socket.data.roomId);
+        const room = await Room.findById(item.roomId);
 
         if(room) {            
             const player = room.users.find(e => e.id.equals(item.playerId));
@@ -454,22 +487,24 @@ const startMethod2 = async (item, socket, io) => {
             await room.save();
             
             const players = room.users.sort((a, b) => b.score - a.score)
+
+            console.log("START-GAME:",room.gameState);
             
-            io.to(socket.data.roomId).emit('player2', userJsonToGroupGame(players));
-            io.to(socket.data.roomId).emit('game2', room.gameState);
+            io.to(item.roomId).emit('player2', userJsonToGroupGame(players));
+            io.to(item.roomId).emit('game2', room.gameState);
 
             const finishGame = async () => {
                 if(room) {
-                    await Room.findByIdAndUpdate(socket.data.roomId, { gameState: 'finish' }, { new: true });
+                    await Room.findByIdAndUpdate(item.roomId, { gameState: 'finish' }, { new: true });
 
-                    io.to(socket.data.roomId).emit('game2', 'finish')
+                    io.to(item.roomId).emit('game2', 'finish')
                     // console.log('finished now');
                 }
             };
 
             const deleteRoom = async () => {
                 if(room) {
-                    await Room.findByIdAndDelete(socket.data.roomId);
+                    await Room.findByIdAndDelete(item.roomId);
                     // console.log('deleted now');
                 }
             }
@@ -484,19 +519,23 @@ const startMethod2 = async (item, socket, io) => {
     }
 }
 const finishMethod2 = async (item, socket, io, data) => {
+    console.log("FINISH-ITEM",item);
+    
     if(!item) {
         return;
     }
 
     try {
-        const room = await Room.findById(socket.data.roomId);
+        const room = await Room.findById(item.roomId);
 
         if(room) {
             const player = room?.users.find(e => e?.id?.toString() === item?.playerId.toString());
-
-            player.status = 'finish';
             
+            player.status = 'finish';
+
             await room.save();
+
+            console.log("#@#:", room.users, socket.data.roomId)
 
             if(!room.users.find(e => e.status !== 'finish')) {                
                 room.gameState = 'finish';
@@ -521,17 +560,19 @@ const finishMethod2 = async (item, socket, io, data) => {
     }
 }
 const gameMethod2 = async (item, socket, io) => {
+    console.log("GAME-ITEM",item);
+
     if(!item) {
         return;
     }
 
     try {
-        const room = await Room.findById(socket.data.roomId);
+        const room = await Room.findById(item.roomId);
 
         if(room) {
             console.log('GAME: ',room.gameState);
 
-            io.to(socket.data.roomId).emit('game2', room.gameState);
+            io.to(item.roomId).emit('game2', room.gameState);
 
             // setInterval(async () => {
             //     if(!room) {
@@ -557,12 +598,14 @@ const gameMethod2 = async (item, socket, io) => {
     }
 }
 const scoreMethod2 = async (item, socket, io) => {
+    console.log("SCORE-ITEM",item);
+
     if(!item) {
         return;
     }
 
     try {
-        const room = await Room.findById(socket.data.roomId);
+        const room = await Room.findById(item.roomId);
         
         if(room) {
             const player = room.users.find(e => e.id.toString() === item.playerId.toString());
@@ -572,9 +615,11 @@ const scoreMethod2 = async (item, socket, io) => {
             await room.save();
 
             const players = room.users.sort((a, b) => b.score - a.score)
+
+            console.log("SCORE-GAME:",room.gameState);
                                 
-            io.to(socket.data.roomId).emit('player2', userJsonToGroupGame(players));
-            io.to(socket.data.roomId).emit('game2', room?.gameState);
+            io.to(item.roomId).emit('player2', userJsonToGroupGame(players));
+            // io.to(socket.data.roomId).emit('game2', room?.gameState);
         }
     } catch (error) {
         console.log('Error -> Start: ', error.message);            
@@ -585,7 +630,9 @@ const leaveMethod2 = async (item, socket, io, data) => {
         return;
     }
 
-    let room = await Room.findById(socket.data.roomId);
+    socket.leave(item.roomId);
+
+    let room = await Room.findById(item.roomId);
 
     try {
         if(room) {
@@ -597,14 +644,14 @@ const leaveMethod2 = async (item, socket, io, data) => {
     
             if(room.gameState === 'start') {
                 let newUsers = room.users.map(e => {
-                    if(e?.id?.toString() === (item?.playerId?.toString())) {
+                    if(e?.id?.toString() === (item?.playerId.toString())) {
                         return { id: e.id, name: e.name, image: e.image, status: 'finish', admin: e.admin, score: e.score }
                     }
 
                     return e;
                 });
 
-                room = await Room.updateOne({ _id: socket.data.roomId }, { users: newUsers }, { new: true });
+                room = await Room.updateOne({ _id: item.roomId }, { users: newUsers }, { new: true });
 
                 let count = 0;
 
@@ -616,31 +663,30 @@ const leaveMethod2 = async (item, socket, io, data) => {
                     }               
                 }
 
+                console.log('LLLL,', room.users);
+
                 if(count === room.users?.length) {
                     room.gameState = 'finish' ;
 
                     await room.save();
 
                     setTimeout(async () => {
-                        await Room.findByIdAndDelete(socket.data.roomId);
+                        await Room.findByIdAndDelete(item.roomId);
                     }, 2000);
                 }
                                         
-                io.to(socket.data.roomId).emit('player2', userJsonToGroupGame(players));                
-                io.to(socket.data.roomId).emit('game2', room.gameState);    
-                socket.leave(socket.data.roomId);
+                io.to(item.roomId).emit('player2', userJsonToGroupGame(players));                
+                io.to(item.roomId).emit('game2', room.gameState);    
                 return;
             } else {
                 let newUsers = room.users.filter(e => !e?.id?.equals(item?.playerId));
 
-                room = await Room.updateOne({ _id: socket.data.roomId }, { users: newUsers }, { new: true });
+                room = await Room.updateOne({ _id: item.roomId }, { users: newUsers }, { new: true });
 
                 const players = newUsers.sort((a, b) => b.score - a.score)
 
-                
-                io.to(socket.data.roomId).emit('player2', userJsonToGroupGame(players));                
-                io.to(socket.data.roomId).emit('game2', room.gameState);
-                socket.leave(socket.data.roomId);
+                io.to(item.roomId).emit('player2', userJsonToGroupGame(players));                
+                io.to(item.roomId).emit('game2', room.gameState);
             }    
         }
     } catch (error) {

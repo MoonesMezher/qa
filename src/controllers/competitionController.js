@@ -260,7 +260,7 @@ const updateCompetition = async (req, res) => {
         let competition = await Competition.findByIdAndUpdate(id,{ startDate, endDate, name, prizeOne, prizeTwo, prizeThree, picture, type_id: typeId, tokens }, { new: true });
 
         competition = {
-            id: id, startDate, endDate, name, prizeOne, prizeTwo, prizeThree, picture, typeId: typeId, tokens
+            id: id, startDate, endDate, name, prizeOne, prizeTwo, prizeThree, picture, typeId: typeId, tokens, state: competition.state
         }
         
         return res.status(200).json({state: 'success', message: 'Updated competition successfully', competition})

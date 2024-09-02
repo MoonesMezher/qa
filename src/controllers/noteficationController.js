@@ -43,9 +43,7 @@ const saveToken = async (req, res) => {
         await FcmToken.create( { user_id, fcmTokens: [fcm_token], role: user.role } );
 
         return res.status(200).json({ state: 'success', message: 'Saved FCM token successfully'});
-    } catch (error) {
-        console.log(error.message);
-        
+    } catch (error) {        
         return res.status(400).json({ state: 'failed', message: error.message});      
     }
 };

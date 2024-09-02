@@ -95,6 +95,7 @@ const signupUser = async (req, res) => {
             tokens: profile.tokens,
             exp: profile.exp,
             score: profile.score,            
+            isGuest: false            
         }
 
         return res.status(200).json({state: "success", message: "تم التسجيل بنجاح", userData: userData});
@@ -148,10 +149,11 @@ const signupUserAsGuest = async (req, res) => {
             picture: profile.picture,
             tokens: profile.tokens,
             exp: profile.exp,
-            score: profile.score,            
+            score: profile.score,
+            isGuest: true            
         }
 
-        return res.status(200).json({state: "success", message: 'تم التسجيل بنجاح', user: userData});
+        return res.status(200).json({state: "success", message: 'تم التسجيل بنجاح', userData});
     } catch (error) {
         return res.status(400).json({state: "failed", message: error.message})
     }
@@ -256,7 +258,8 @@ const loginUserInApp = async (req, res) => {
             picture: profile.picture,
             tokens: profile.tokens,
             exp: profile.exp,
-            score: profile.score,            
+            score: profile.score, 
+            isGuest: false                       
         }
 
         res.status(200).json({state: "success", message: "Logged in successfully", userData});

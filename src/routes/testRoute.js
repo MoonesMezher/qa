@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 // methods
-const { addOtherCategoryToQuestionNoHaveCategory, editAdminPassword, deleteAllNotificationsAndReports, createProfileToUser, moveCategoryToAnotherSection, deleteAllNotActiveDataEntry } = require('../controllers/testController');
+const { addOtherCategoryToQuestionNoHaveCategory, editAdminPassword, deleteAllNotificationsAndReports, createProfileToUser, moveCategoryToAnotherSection, deleteAllNotActiveDataEntry, deleteAllDataEntry } = require('../controllers/testController');
 
 // middlewares
 const testAuth = require('../middlewares/testAuthMiddleware');
@@ -27,5 +27,7 @@ router.put('/edit-admin-password', testAuth,editAdminPassword)
 router.delete('/deleteall', testAuth, deleteAllNotificationsAndReports);
 
 router.delete('/delete-all-not-active-data-entry', testAuth, deleteAllNotActiveDataEntry);
+
+router.delete('/delete-all-data-entry', testAuth, deleteAllDataEntry);
 
 module.exports = router;

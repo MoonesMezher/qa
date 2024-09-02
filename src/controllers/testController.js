@@ -173,7 +173,16 @@ const deleteAllNotActiveDataEntry = async (req, res) => {
     } catch (err) {
         return res.status(400).json({ state: 'failed', message: err.message })                
     }
+}
 
+const deleteAllDataEntry = async (req, res) => {
+    try {
+        await User.deleteMany({ role: 'data-entry'});
+
+        return res.status(200).json({ state: 'success', message: 'Deleted all data entries successfully'});
+    } catch (err) {
+        return res.status(400).json({ state: 'failed', message: err.message })                
+    }
 }
 
 module.exports = {
@@ -182,5 +191,6 @@ module.exports = {
     deleteAllNotificationsAndReports,
     createProfileToUser,
     moveCategoryToAnotherSection,
-    deleteAllNotActiveDataEntry
+    deleteAllNotActiveDataEntry,
+    deleteAllDataEntry
 }

@@ -376,7 +376,7 @@ const joinToRoomInOnlineGame = async (req, res) => {
         return res.status(400).json({ state:'failed', message: 'هذا الكود غير صحيح' });
     }
 
-    const roomExist = await Room.findOne({_id: roomId, type: "Online", type: 'waiting'});
+    const roomExist = await Room.findOne({_id: roomId, type: "Online", gameState: 'waiting' });
 
     if(!roomExist) {
         return res.status(400).json({ state:'failed', message: 'عذرا لا يوجد لعبة تملك هذا الكود' });
