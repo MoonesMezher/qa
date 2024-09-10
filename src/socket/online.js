@@ -79,6 +79,8 @@ const startGame = (roomId) => {
 const getRoomGameState = (roomId) => {
     const room = rooms.find(e => e.roomId === roomId);
 
+    console.log(rooms, room)
+
     if(room) {
         if(room.gameState === 'finish') {
             setTimeout(() => {
