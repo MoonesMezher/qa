@@ -33,21 +33,21 @@ app.use(express.static(path.join(__dirname, "dist")));
 app.use('/uploads', express.static('src/uploads'));
 
 // routes
-app.use("/api/test", testRouter);
-app.use("/api/upload", uploadRouter);
-app.use('/api/users',userRouter);
-app.use('/api/profile',profileRouter);
-app.use('/api/sections',sectionRouter);
-app.use('/api/categories',categoryRouter);
-app.use('/api/questions',questionRouter);
-app.use('/api/offers',offerRouter);
-app.use('/api/reports',reportRouter);
-app.use('/api/notefications', noteficationRouter);
-app.use('/api/competitions', competitionRouter);
-app.use('/api/games', gameRouter);
-app.use('/api/rooms', roomRouter);
-app.use('/api/friends', friendRouter);
-app.use('/api/invites', inviteRouter);
-app.use('/api/otp', otpRouter);
+app.use("/game/api/test", testRouter);
+app.use("/game/api/upload", uploadRouter);
+app.use('/game/api/users',userRouter);
+app.use('/game/api/profile',profileRouter);
+app.use('/game/api/sections',sectionRouter);
+app.use('/game/api/categories',categoryRouter);
+app.use('/game/api/questions',questionRouter);
+app.use('/game/api/offers',offerRouter);
+app.use('/game/api/reports',reportRouter);
+app.use('/game/api/notefications', noteficationRouter);
+app.use('/game/api/competitions', competitionRouter);
+app.use('/game/api/games', gameRouter);
+app.use('/game/api/rooms', roomRouter);
+app.use('/game/api/friends', friendRouter);
+app.use('/game/api/invites', inviteRouter);
+app.use('/game/api/otp', otpRouter);
 
 module.exports = app;

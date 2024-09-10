@@ -18,7 +18,10 @@ async function sendEmail(to, otp) {
             from: 'support@superquizgame.com',
             to,
             subject: 'Password Reset OTP',
-            text: `Your OTP is ${otp}`
+            text: 
+            `Please enter the following code to complete your verification: 
+                ${otp}
+            This code is valid for a limited time only.`,
         };
 
         await transporter.sendMail(mailOptions);
@@ -27,6 +30,7 @@ async function sendEmail(to, otp) {
         console.error('Error sending email:', error);
     }
 }
+
 
 // const x = async () => {
 //     await sendEmail('moonesmezher9@gmail.com', 1234)
