@@ -47,15 +47,12 @@ const removeRoom = (roomId) => {
 }
 
 const editScore = (player, roomId, score) => {
-    console.log("SCORE:", score)
     const isExist = rooms.find(e => e.roomId === roomId);
 
-    console.log("SCORE:", isExist)
+    console.log("SCORE:", isExist.players)
 
     if(isExist) {
         const playerr = isExist.players.find(e => e.id === player);
-
-        console.log("SCORE:", playerr)
 
         if(playerr) {
             playerr.score += score;
