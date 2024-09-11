@@ -24,9 +24,9 @@ const joinToRoom = async (player, roomId) => {
 
         if(newPlayer) {
             if(isExist) {
-                isExist.players.push({ playerId: player, status: 'ready', admin: false, score: 0, image: newPlayer.image, name: newPlayer.name });
+                isExist.players.push({ id: player, status: 'ready', admin: false, score: 0, image: newPlayer.image, name: newPlayer.name });
             } else {
-                rooms.push({roomId: roomId, gameState: 'waiting' ,players:[{ playerId: player, status: 'ready', admin: true, score: 0, image: newPlayer.image, name: newPlayer.name }]});
+                rooms.push({roomId: roomId, gameState: 'waiting' ,players:[{ id: player, status: 'ready', admin: true, score: 0, image: newPlayer.image, name: newPlayer.name }]});
             }
         }
     }
@@ -36,7 +36,7 @@ const leaveRoom = (player, roomId) => {
     const isExist = rooms.find(e => e.roomId === roomId);
 
     if(isExist) {
-        isExist.players = isExist.players.filter(e => e.playerId !== player);
+        isExist.players = isExist.players.filter(e => e.id !== player);
     }
 }
 
@@ -48,7 +48,7 @@ const editScore = (player, roomId, score) => {
     const isExist = rooms.find(e => e.roomId === roomId);
 
     if(isExist) {
-        const playerr = isExist.players.find(e => e.playerId === player);
+        const playerr = isExist.players.find(e => e.id === player);
 
         if(playerr) {
             playerr.score += score;
@@ -60,7 +60,7 @@ const finishPlayer = (player, roomId) => {
     const isExist = rooms.find(e => e.roomId === roomId);
 
     if(isExist) {
-        const playerr = isExist.players.find(e => e.playerId === player);
+        const playerr = isExist.players.find(e => e.id === player);
 
         if(playerr) {
             playerr.status = 'finish';
