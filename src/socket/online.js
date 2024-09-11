@@ -169,7 +169,7 @@ const game = async (io, socket, data) => {
 
     // GROUP
 
-    socket.on('join2', (item) => {        
+    socket.on('join2', async (item) => {        
         console.log("join2");
         await joinMethod2(item, socket, io, data);
     });
