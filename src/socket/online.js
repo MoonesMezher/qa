@@ -64,10 +64,15 @@ const editScore = (player, roomId, score) => {
 }
 
 const finishPlayer = (player, roomId, io) => {
+    console.log("FINISH");
     const isExist = rooms.find(e => e.roomId === roomId);
+
+    console.log("FINISH", isExist);
 
     if(isExist) {
         const playerr = isExist.players.find(e => e.id === player);
+
+        console.log("FINISH", player);
 
         if(playerr) {
             playerr.status = 'finish';
@@ -75,6 +80,8 @@ const finishPlayer = (player, roomId, io) => {
     }
 
     if(!isExist.players.find(e => e.status !== 'finish')) {
+        console.log("finished game");
+
         isExist.gameState = 'finish'
 
         io.to(roomId).emit('game2-finish', 'finish');
@@ -196,26 +203,31 @@ const game = async (io, socket, data) => {
 
     socket.on('player2-waiting', async (item) => {
         console.log("player2-waiting");
+
         await playerMethod2(item, socket, io, 'player2-waiting');
     })
 
     socket.on('player2-start', async (item) => {
         console.log("player2-start");
+
         await playerMethod2(item, socket, io, 'player2-start');
     })
 
     socket.on('player2-finish', async (item) => {
         console.log("player2-finish");
+
         await playerMethod2(item, socket, io, 'player2-finish');
     })
 
     socket.on('startPlayer2', async (item) => {
         console.log("startPlayer2");
+
         startMethod2(item, socket, io);
     })
 
     socket.on('finishPlayer2', async (item) => {
         console.log("finishPlayer2");
+
         await finishMethod2(item, socket, io, data);
     })
 
