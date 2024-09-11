@@ -11,16 +11,14 @@ const joinToRoom = async (player, roomId) => {
 
     console.log("#############JOIN##############")
 
-    console.log(isExist)
-
     const room = await Room.findById(roomId);
-
-    console.log(room, roomId)
 
     if(room) {
         const newPlayer = room.users.find(e => e.id.toString() === player)
 
-        console.log(newPlayer)
+        if(isExist.players.find(e => e.id === player)) {
+            return;
+        }
 
         if(newPlayer) {
             if(isExist) {
@@ -69,7 +67,7 @@ const finishPlayer = (player, roomId, io) => {
     if(isExist) {
         const playerr = isExist.players.find(e => e.id === player);
 
-        console.log("FINISH", player);
+        console.log("FINISH", playerr);
 
         if(playerr) {
             playerr.status = 'finish';
@@ -125,69 +123,47 @@ const getRoomPlayers = (roomId) => {
 }
 
 const game = async (io, socket, data) => {
-    socket.on('join', (item) => {
-        console.log("join");
-        
+    socket.on('join', (item) => {        
         joinMethod(item, socket, io, data);
     });
 
     socket.on('player-waiting', async (item) => {
-        console.log("player");
-
         playerMethod(item, socket, io, 'player-waiting');
     })
 
     socket.on('player-start', async (item) => {
-        console.log("player");
-
         playerMethod(item, socket, io, 'player-start');
     })
 
     socket.on('player-finish', async (item) => {
-        console.log("player");
-
         playerMethod(item, socket, io, 'player-finish');
     })
 
     socket.on('startPlayer', async (item) => {
-        console.log("start");
-
         startMethod(item, socket, io);
     })
 
     socket.on('finishPlayer', async (item) => {
-        console.log("finish");
-
         finishMethod(item, socket, io, data);
     })
 
     socket.on('game-waiting', async (item) => {
-        console.log("game-waiting");
-
         gameMethod(item, socket, io, 'game-waiting');
     });
 
     socket.on('game-start', async (item) => {
-        console.log("game-start");
-
         gameMethod(item, socket, io, 'game-start');
     });
 
     socket.on('game-finish', async (item) => {
-        console.log("game-finish");
-
         gameMethod(item, socket, io, 'game-finish');
     });
 
     socket.on('score', async (item) => {
-        console.log("score");
-
         scoreMethod(item, socket, io);
     });
 
     socket.on('leave', async (item) => {
-        console.log("leave");
-
         leaveMethod(item, socket, io, data);
     });
 
@@ -195,25 +171,25 @@ const game = async (io, socket, data) => {
 
     socket.on('join2', (item) => {        
         console.log("join2");
-        joinMethod2(item, socket, io, data);
+        await joinMethod2(item, socket, io, data);
     });
 
     socket.on('player2-waiting', async (item) => {
         console.log("player2-waiting");
 
-        await playerMethod2(item, socket, io, 'player2-waiting');
+        playerMethod2(item, socket, io, 'player2-waiting');
     })
 
     socket.on('player2-start', async (item) => {
         console.log("player2-start");
 
-        await playerMethod2(item, socket, io, 'player2-start');
+        playerMethod2(item, socket, io, 'player2-start');
     })
 
     socket.on('player2-finish', async (item) => {
         console.log("player2-finish");
 
-        await playerMethod2(item, socket, io, 'player2-finish');
+        playerMethod2(item, socket, io, 'player2-finish');
     })
 
     socket.on('startPlayer2', async (item) => {
@@ -225,22 +201,22 @@ const game = async (io, socket, data) => {
     socket.on('finishPlayer2', async (item) => {
         console.log("finishPlayer2");
 
-        await finishMethod2(item, socket, io, data);
+        finishMethod2(item, socket, io, data);
     })
 
     socket.on('game2-waiting', async (item) => {
         console.log("game2-waiting")
-        await gameMethod2(item, socket, io, 'game2-waiting');
+        gameMethod2(item, socket, io, 'game2-waiting');
     });
 
     socket.on('game2-start', async (item) => {
         console.log("game2-start")
-        await gameMethod2(item, socket, io, 'game2-start');
+        gameMethod2(item, socket, io, 'game2-start');
     });
 
     socket.on('game2-finish', async (item) => {
         console.log("game2-finish")
-        await gameMethod2(item, socket, io, 'game2-finish');
+        gameMethod2(item, socket, io, 'game2-finish');
     });
 
     socket.on('score2', async (item) => {
