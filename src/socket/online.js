@@ -36,7 +36,9 @@ const leaveRoom = (player, roomId) => {
     const isExist = rooms.find(e => e.roomId === roomId);
 
     if(isExist) {
-        isExist.players = isExist.players.filter(e => e.id !== player);
+        const playerr = isExist.players.find(e => e.id === player);
+
+        playerr.status = 'finish'
     }
 }
 
@@ -45,10 +47,15 @@ const removeRoom = (roomId) => {
 }
 
 const editScore = (player, roomId, score) => {
+    console.log("SCORE:", score)
     const isExist = rooms.find(e => e.roomId === roomId);
+
+    console.log("SCORE:", isExist)
 
     if(isExist) {
         const playerr = isExist.players.find(e => e.id === player);
+
+        console.log("SCORE:", playerr)
 
         if(playerr) {
             playerr.score += score;
@@ -56,7 +63,7 @@ const editScore = (player, roomId, score) => {
     }
 }
 
-const finishPlayer = (player, roomId) => {
+const finishPlayer = (player, roomId, io) => {
     const isExist = rooms.find(e => e.roomId === roomId);
 
     if(isExist) {
@@ -69,6 +76,8 @@ const finishPlayer = (player, roomId) => {
 
     if(!isExist.players.find(e => e.status !== 'finish')) {
         isExist.gameState = 'finish'
+
+        io.to(roomId).emit('game2-finish', 'finish');
 
         setTimeout(() => {
             removeRoom(roomId)
@@ -605,7 +614,7 @@ const finishMethod2 = async (item, socket, io, data) => {
     }
 
     try {
-        finishPlayer(item.playerId,item.roomId)
+        finishPlayer(item.playerId,item.roomId, io)
     } catch (error) {
         console.log('Error -> Start: ', error.message);            
     }
