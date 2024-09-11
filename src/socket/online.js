@@ -9,10 +9,18 @@ let rooms = [];
 const joinToRoom = async (player, roomId) => {
     const isExist = rooms.find(e => e.roomId === roomId);
 
+    console.log("#############JOIN##############")
+
+    console.log(isExist)
+
     const room = await Room.findById(roomId);
+
+    console.log(room, roomId)
 
     if(room) {
         const newPlayer = room.users.find(e => e.id.toString() === player)
+
+        console.log(newPlayer)
 
         if(newPlayer) {
             if(isExist) {
