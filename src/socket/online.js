@@ -16,12 +16,11 @@ const joinToRoom = async (player, roomId) => {
     if(room) {
         const newPlayer = room.users.find(e => e.id.toString() === player)
 
-        if(isExist.players.find(e => e.id === player)) {
-            return;
-        }
-
         if(newPlayer) {
             if(isExist) {
+                if(isExist.players.find(e => e.id === player)) {
+                    return;
+                }
                 isExist.players.push({ id: player, status: 'ready', admin: false, score: 0, image: newPlayer.image, name: newPlayer.name });
             } else {
                 rooms.push({roomId: roomId, gameState: 'waiting' ,players:[{ id: player, status: 'ready', admin: true, score: 0, image: newPlayer.image, name: newPlayer.name }]});
