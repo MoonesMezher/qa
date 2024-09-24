@@ -22,9 +22,7 @@ const retrieveOrCreateStripeCustomer = async (user) => {
 
             return customer;
         } else {
-            const response = await stripe.customers.retrieve({
-                id: payment.stripe_customer_id
-            })
+            const response = await stripe.customers.retrieve(payment.stripe_customer_id)
 
             return response.data;
         }
