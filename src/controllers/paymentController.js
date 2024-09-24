@@ -1,4 +1,3 @@
-const axios = require("axios");
 const CustomerCard = require("../database/models/CustomerCard");
 const Payment = require("../database/models/Payment");
 const User = require("../database/models/User");
