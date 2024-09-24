@@ -26,7 +26,7 @@ const retrieveOrCreateStripeCustomer = async (user) => {
 
             console.log("Res::",response);
 
-            return response.data;
+            return response;
         }
     } catch (error) {
         console.log("##@@##");
