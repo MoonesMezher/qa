@@ -21,7 +21,7 @@ router.get('/top-users/last-week', [requireAuth, authorize(["admin", "user"])], 
 
 router.get('/top-users/last-day', [requireAuth, authorize(["admin", "user"])], showTopUsersByExpDepandLastDay);
 
-router.get('/top-users-and-friends', [requireAuth, authorize(["user", "guest", 'admin'])], getTopUsersAndFriends);
+router.get('/top-users-and-friends', [requireAuth, authorize(["user", 'admin'])], getTopUsersAndFriends);
 
 router.get('/index-user/', [requireAuth, authorize(["user", "guest", 'admin'])], levelOfPlayerOnTheWorldByAuth);
 

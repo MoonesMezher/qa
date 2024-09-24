@@ -503,29 +503,33 @@ const getTopUsersAndFriends = async (req, res) => {
 
         const friend = await Friend.findOne({ user_id: user });
 
-        let friends = await Promise.all(friend.friends.map(async e => {
-            return await Profile.findOne({ user_id: e });
-        }))
+        let friends = []
 
-        friends = await Promise.all(friends.map(async e => {
-            const user = await User.findById(e.user_id);
-
-            const data = {
-                _id: user._id,
-                username: user.username,
-                email: user.email,
-                password: user.password,
-                verified: user.verified,
-                active: user.active,
-                isFree: user.isFree,
-                picture: e?.picture,
-                exp: e?.exp
-            }
-
-            return data;
-        }))
-
-        friends = friends.sort((a, b) => b.exp - a.exp );
+        if(friend) {
+            friends = await Promise.all(friend.friends.map(async e => {
+                return await Profile.findOne({ user_id: e });
+            }))
+    
+            friends = await Promise.all(friends.map(async e => {
+                const user = await User.findById(e.user_id);
+    
+                const data = {
+                    _id: user._id,
+                    username: user.username,
+                    email: user.email,
+                    password: user.password,
+                    verified: user.verified,
+                    active: user.active,
+                    isFree: user.isFree,
+                    picture: e?.picture,
+                    exp: e?.exp
+                }
+    
+                return data;
+            }))
+    
+            friends = friends.sort((a, b) => b.exp - a.exp);
+        }
 
         users = await Promise.all(users.map(async e => {            
             const user = await User.findById(e.user_id);

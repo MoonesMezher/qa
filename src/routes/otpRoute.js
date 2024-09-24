@@ -7,9 +7,9 @@ const { createOtpAndSendToMail, checkFromOtp, updatePassword } = require('../con
 // middlewares
 
 // routes
-router.get('/check', checkFromOtp);
-
 router.post('/send', createOtpAndSendToMail);
+
+router.put('/check', checkFromOtp);
 
 router.put('/update', updatePassword);
 

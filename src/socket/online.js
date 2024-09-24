@@ -9,12 +9,14 @@ let rooms = [];
 const joinToRoom = async (player, roomId) => {
     const isExist = rooms.find(e => e.roomId === roomId);
 
-    console.log("#############JOIN##############")
+    console.log("#############JOIN##############", roomId);
 
     const room = await Room.findById(roomId);
 
     if(room) {
         const newPlayer = room.users.find(e => e.id.toString() === player)
+
+        console.log("######PLAYER#######", newPlayer)
 
         if(newPlayer) {
             if(isExist) {
@@ -29,24 +31,47 @@ const joinToRoom = async (player, roomId) => {
     }
 }
 
-const leaveRoom = (player, roomId) => {
+const leaveRoom = async (player, roomId, io, socket) => {
     const isExist = rooms.find(e => e.roomId === roomId);
+
+    console.log("###########LEAVE###############", isExist, 'roomId', roomId);
 
     if(isExist) {
         const playerr = isExist.players.find(e => e.id === player);
 
-        playerr.status = 'finish'
+        console.log('########PLAYER########', playerr);
+
+        if(playerr) {
+            playerr.status = 'finish'
+    
+            if(playerr.admin && isExist.gameState === 'waiting') {
+                isExist.gameState = 'remove';
+                removeRoom(roomId);
+                await Room.findByIdAndDelete(roomId);
+                socket.leave(roomId);
+                io.to(roomId).emit('game2-waiting', 'remove');          
+            }
+
+            console.log("########AFTER LEAVE#######",isExist)
+        }
+
+
+        // if(isExist.players.length === 1 || !isExist.players.find(e => e.status !== 'finish')) {
+        //     removeRoom(roomId)
+        // }
     }
 }
 
 const removeRoom = (roomId) => {
+    console.log("BEFORE",rooms)
     rooms = rooms.filter(e => e.roomId !== roomId);
+    console.log("AFTER",rooms)
 }
 
 const editScore = (player, roomId, score) => {
     const isExist = rooms.find(e => e.roomId === roomId);
 
-    console.log("SCORE:", isExist.players)
+    console.log('#############SCORE################', isExist, 'roomId:',roomId);
 
     if(isExist) {
         const playerr = isExist.players.find(e => e.id === player);
@@ -58,32 +83,28 @@ const editScore = (player, roomId, score) => {
 }
 
 const finishPlayer = (player, roomId, io) => {
-    console.log("FINISH");
     const isExist = rooms.find(e => e.roomId === roomId);
-
-    console.log("FINISH", isExist);
+    
+    console.log("#########FINISH PLAYER########", isExist, "roomId:", roomId);
 
     if(isExist) {
         const playerr = isExist.players.find(e => e.id === player);
 
-        console.log("FINISH", playerr);
-
         if(playerr) {
             playerr.status = 'finish';
         }
+        
+        if(!isExist.players.find(e => e.status !== 'finish')) {
+            isExist.gameState = 'finish'
+    
+            // io.to(roomId).emit('game2-finish', 'finish');
+    
+            setTimeout(() => {
+                removeRoom(roomId)
+            }, 10000)
+        }
     }
 
-    if(!isExist.players.find(e => e.status !== 'finish')) {
-        console.log("finished game");
-
-        isExist.gameState = 'finish'
-
-        io.to(roomId).emit('game2-finish', 'finish');
-
-        setTimeout(() => {
-            removeRoom(roomId)
-        }, 30000)
-    }
 }
 
 const startGame = (roomId) => {
@@ -97,13 +118,13 @@ const startGame = (roomId) => {
 const getRoomGameState = (roomId) => {
     const room = rooms.find(e => e.roomId === roomId);
 
-    console.log(rooms, room)
+    console.log("###############AFTER GET GAMESTATE################",room)
 
     if(room) {
         if(room.gameState === 'finish') {
             setTimeout(() => {
                 removeRoom(roomId)
-            }, 30000)
+            }, 10000)
         }
         return room.gameState;
     } else {
@@ -118,6 +139,29 @@ const getRoomPlayers = (roomId) => {
         const players = room.players.sort((a, b) => b.score - a.score);
 
         return userJsonToGroupGame(players);
+    }
+}
+
+const checkFromBalance = (roomId) => {
+    const isExist = rooms.find(e => e.roomId === roomId);
+
+    if(isExist) {
+        if(isExist?.players && isExist?.players.length > 0) {
+            const newPlayers = []
+
+            isExist.players.map((e, i) => {
+                if(newPlayers.find(p => p.score === e.score)) {
+                    let value = 1;
+                    while(newPlayers.find(p => p.score === (e.score + value))) {
+                        value++;
+                    }
+                    e.score = e.score + value;
+                }
+                newPlayers.push(e)
+            })
+
+            isExist.players = newPlayers;
+        }
     }
 }
 
@@ -568,6 +612,7 @@ const playerMethod2 = async (item, socket, io, event) => {
     }
     
     try {                    
+        checkFromBalance(item.roomId);
         io.to(item.roomId).emit(event, getRoomPlayers(item.roomId));
     } catch (error) {
         console.log('Error -> Player: ', error.message);            
@@ -579,7 +624,10 @@ const startMethod2 = async (item, socket, io) => {
     }
 
     try {
-        startGame(item.roomId)
+        console.log("Start ->#", item.roomId);
+        startGame(item.roomId);
+
+        io.to(item.roomId).emit('roomId2', item?.roomId);        
         
         const finishGame = async () => {
             io.to(item.roomId).emit('game2-finish', 'finish')
@@ -600,7 +648,7 @@ const finishMethod2 = async (item, socket, io, data) => {
     try {
         finishPlayer(item.playerId,item.roomId, io)
     } catch (error) {
-        console.log('Error -> Start: ', error.message);            
+        console.log('Error -> Finish: ', error.message);            
     }
 }
 const gameMethod2 = async (item, socket, io, event) => {
@@ -623,7 +671,7 @@ const scoreMethod2 = async (item, socket, io) => {
     try {
         editScore(item.playerId,item.roomId,item.score)
     } catch (error) {
-        console.log('Error -> Start: ', error.message);            
+        console.log('Error -> Score: ', error.message);            
     }
 }
 const leaveMethod2 = async (item, socket, io, data) => {
@@ -633,9 +681,7 @@ const leaveMethod2 = async (item, socket, io, data) => {
 
     
     try {
-        leaveRoom(item.playerId, item.roomId)
-
-        socket.leave(item.roomId);
+        leaveRoom(item.playerId, item.roomId, io, socket)
     } catch (error) {
         console.log('Error -> Leave: ', error.message);
     }

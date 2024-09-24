@@ -5,13 +5,13 @@ const router = express.Router();
 const validatePageParameter = require('../middlewares/checkFromPageKeyMiddleware');
 const requireAuth = require('../middlewares/requireAuth');
 const authorize = require('../middlewares/roleMiddleware');
-const { getReports, getReport, createReport, readReport, replayReport } = require('../controllers/reportController');
+const { getReports, getReport, createReport, readReport, replayReport, deleteReport } = require('../controllers/reportController');
 const validateObjectId = require('../middlewares/checkFromIdMiddleware');
 
 // routes
 
 // GET
-router.get('/page/:page', [validatePageParameter], getReports);
+router.get('/all', getReports);
 
 router.get('/:id', [validateObjectId, requireAuth, authorize(['admin', "data-entry"])], getReport);
 
@@ -22,5 +22,8 @@ router.post('/replay/report-id/:id', [validateObjectId, requireAuth, authorize([
 
 // PUT
 router.put('/mark-as-read/:id', [validateObjectId, requireAuth, authorize(['admin', "data-entry"])], readReport)
+
+// DELETE
+router.delete('/:id', [validateObjectId, requireAuth, authorize(['admin', "data-entry"])], deleteReport)
 
 module.exports = router

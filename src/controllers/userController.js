@@ -61,9 +61,9 @@ const signupUser = async (req, res) => {
         return res.status(400).json({state: "failed", message: "هذا الاسم موجود بالفعل ولا يمكنك استخدامه"})
     }
 
-    if(!validateUsername(username)) {
-        return res.status(400).json({state: "failed", message: "هذا الاسم غير صالح تأكد من أنه لا يحوي رموز غير النقطة وأن لا يحتوي محارف كبيرة ولا ينتهي بنقطة أو يحوي نقطتين"})
-    }
+    // if(!validateUsername(username)) {
+    //     return res.status(400).json({state: "failed", message: "هذا الاسم غير صالح تأكد من أنه لا يحوي رموز غير النقطة وأن لا يحتوي محارف كبيرة ولا ينتهي بنقطة أو يحوي نقطتين"})
+    // }
 
     const exist = await User.findOne({email});
 

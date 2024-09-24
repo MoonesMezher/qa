@@ -78,19 +78,19 @@ const createReport = async (req, res) => {
 };
 
 const getReports = async (req, res) => {
-    const { page } = req.params;
+    // const { page } = req.params;
 
     try {
-        const count = await Report.countDocuments( {} );
+        // const count = await Report.countDocuments( {} );
 
-        const reports = await Report.find( {} ).skip((page - 1) * limit).limit(limit).lean();
+        const reports = await Report.find({});
 
         const newReports = await Promise.all(reports.map(async (report) => {
             const findUser = await User.findById(report.user_id);
-            return {...report, username: findUser.username };
+            return {...report._doc, username: findUser?.username || 'deleted' };
         }));
 
-        return res.status(200).json({ state: 'success', message: 'Get reports successfully', newReports, total: count});
+        return res.status(200).json({ state: 'success', message: 'Get reports successfully', newReports});
     } catch (error) {
         return res.status(400).json({ state: 'failed', message: error.message});      
     }
@@ -200,10 +200,23 @@ const replayReport = async (req, res) => {
     }
 };
 
+const deleteReport = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        await Report.findByIdAndDelete(id);
+
+        return res.status(200).json({ state: 'success', message: 'Deleted report successfully'});
+    } catch (error) {
+        return res.status(400).json({ state: 'failed', message: error.message});      
+    }
+}
+
 module.exports = {
     createReport,
     readReport,
     replayReport,
     getReports,
-    getReport
+    getReport,
+    deleteReport
 }

@@ -21,6 +21,7 @@ const roomRouter = require('./routes/roomRoute');
 const friendRouter = require('./routes/friendRoute');
 const inviteRouter = require('./routes/inviteRoute');
 const otpRouter = require('./routes/otpRoute');
+const paymentRouter = require('./routes/paymentRoute');
 
 const app = express();
 
@@ -30,11 +31,11 @@ app.use(express.json());
 app.use(cors());
 
 app.use(express.static(path.join(__dirname, "dist")));
-app.use('/uploads', express.static('src/uploads'));
+app.use('/game/uploads', express.static('src/uploads'));
 
 // routes
-app.use("/game/api/test", testRouter);
-app.use("/game/api/upload", uploadRouter);
+app.use('/game/api/test', testRouter);
+app.use('/game/api/upload', uploadRouter);
 app.use('/game/api/users',userRouter);
 app.use('/game/api/profile',profileRouter);
 app.use('/game/api/sections',sectionRouter);
@@ -49,5 +50,6 @@ app.use('/game/api/rooms', roomRouter);
 app.use('/game/api/friends', friendRouter);
 app.use('/game/api/invites', inviteRouter);
 app.use('/game/api/otp', otpRouter);
+app.use('/game/api/payments', paymentRouter);
 
 module.exports = app;

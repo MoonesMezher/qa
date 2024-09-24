@@ -48,7 +48,7 @@ const addFriend = async (req, res) => {
 
         request = await Request.create({ from: user_id , to: userId});
 
-        const { fcmTokens } = await FcmToken.findOne( { user_id: userId } );
+        const here = await FcmToken.findOne( { user_id: userId } );
 
         const text = user.username + 'ارسل لك طلب صداقة'
 
@@ -56,7 +56,7 @@ const addFriend = async (req, res) => {
 
         await NoteficationsList.create({ roomId: request._id, user_id: userId, user: user.username, title: text, type: 'friend', img: 'uploads/invite/friendRequest.webp' });
 
-        fcmTokens?.map(async (fcmToken) => {
+        here?.fcmTokens?.map(async (fcmToken) => {
             await sendNotification({ fcmToken: fcmToken,
                 title: 'طلب صداقة',
                 body: text,
@@ -139,7 +139,7 @@ const acceptFriendRequest = async (req, res) => {
 
         await he.save();
 
-        const { fcmTokens } = await FcmToken.findOne( { user_id: request.from } );
+        const here = await FcmToken.findOne( { user_id: request.from } );
 
         const text = user.username + 'وافق على طلب الداقة الخاص بك'
 
@@ -147,7 +147,7 @@ const acceptFriendRequest = async (req, res) => {
 
         await NoteficationsList.create({ roomId: notefication._id, user_id: request.from, user: user.username, title: text, type: 'accept', img: 'uploads/invite/acceptRequest.webp' });
 
-        fcmTokens?.map(async (fcmToken) => {
+        here?.fcmTokens?.map(async (fcmToken) => {
             await sendNotification({ fcmToken: fcmToken,
                 title: 'موافقة على طلب الصداقة',
                 body: text,

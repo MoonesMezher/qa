@@ -35,8 +35,12 @@ const createOtpAndSendToMail = async (req, res) => {
 
         const key = generateOTP();
 
+        // await OTP.deleteMany({ updatedAt:  })
+
         if(otp) {
             otp.pass = key
+
+            await otp.save();
         } else {
             otp = await OTP.create({ userId: user._id, pass: key })
         }
@@ -67,19 +71,23 @@ const checkFromOtp = async (req, res) => {
             return res.status(400).json({state: "failed", message: "لا يوجد حساب يحمل الإيميل السابق"})
         }
 
+        if(otp.length !== 4) {
+            return res.status(400).json({state: "failed", message: "الرمز يجب أن يتكون من أربع محارف فقط"})            
+        }
+
         const key = await OTP.findOne({ userId: user._id });
 
         if(!key) {
             return res.status(400).json({state: "failed", message: "لا يوجد رمز خاص بك قم بالإرسال مرة أخرى"})            
         }
         
-        if(key.otp !== otp) {
+        if(key.pass !== otp) {
             return res.status(400).json({state: "failed", message: "الرمز خاطئ"})            
         }
 
         await OTP.findByIdAndDelete(key.id);
 
-        return res.status(200).json({ state: "success", message: 'تم ارسال الكود بنجاح' });                    
+        return res.status(200).json({ state: "success", message: 'الرمز صحيح' });                    
     } catch (err) {
         return res.status(400).json({ state: "failed", message: err.message });                                    
     }
