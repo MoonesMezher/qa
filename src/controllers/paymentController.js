@@ -97,7 +97,7 @@ const createPaymentIntent = async (req, res) => {
             amount: Math.round(amount * 100), // Convert amount to the smallest currency unit
             currency: currency,
             payment_method: payment_method_id,
-            confirmation_method: 'manual',
+            // confirmation_method: 'manual',
             confirm: true,
             customer: user.stripe_customer_id,
             return_url: 'https://my-portfolio-client-3q09.onrender.com/',
