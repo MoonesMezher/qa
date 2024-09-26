@@ -100,6 +100,11 @@ const createPaymentIntent = async (req, res) => {
             confirmation_method: 'manual',
             confirm: true,
             customer: user.stripe_customer_id,
+            return_url: 'https://my-portfolio-client-3q09.onrender.com/',
+            automatic_payment_methods: {
+                enabled: true,
+                allow_redirects: 'never'
+            }
         });
 
         if (paymentIntent?.next_action?.redirect_to_url) {
