@@ -274,25 +274,26 @@ const getAllSectionsAndCategoris = async (req, res) => {
             return 0;
         });
 
+        let otherCount = 0;
+
         combinedData = await Promise.all(combinedData.map(async (e) => {
             if(e.section_id) {
-                let sectionName = "";
-
                 if(e._doc.name === 'Other') {
-                    const section = await Section.findById(e.section_id);
-
-                    sectionName = section?.name;
+                    otherCount += 1;
+                    return null;
                 }
 
-                return {id: e._doc._id, name: e._doc.name === 'Other'? "Other "+sectionName: e._doc.name, picture: e._doc.picture, type: 'category' }
+                return {id: e._doc._id, name: e._doc.name, picture: e._doc.picture, type: 'category' }
             } else {
                 return {id: e._doc._id, name: e._doc.name, picture: e._doc.picture, type: 'section' };
             }
         }));
 
+        combinedData = combinedData.filter(e => ((e !== undefined) && (e !== null)))
+
         const totalSectionsCount = await Section.countDocuments({ active: true });
 
-        const totalCategoriesCount = await Category.countDocuments({ active: true });
+        const totalCategoriesCount = await Category.countDocuments({ active: true }) - otherCount;
 
         const totalCount = totalSectionsCount + totalCategoriesCount;
 

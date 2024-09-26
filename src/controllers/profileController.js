@@ -535,23 +535,25 @@ const getTopUsersAndFriends = async (req, res) => {
             const user = await User.findById(e.user_id);
 
             if(user) {
-                const data = {
-                    _id: e.user_id,
-                    username: user.username,
-                    email: user.email,
-                    password: user.password,
-                    verified: user.verified,
-                    active: user.active,
-                    isFree: user.isFree,
-                    picture: e?.picture,
-                    exp: e?.exp
+                if(user.role !== 'guest') {
+                    const data = {
+                        _id: e.user_id,
+                        username: user.username,
+                        email: user.email,
+                        password: user.password,
+                        verified: user.verified,
+                        active: user.active,
+                        isFree: user.isFree,
+                        picture: e?.picture,
+                        exp: e?.exp
+                    }
+        
+                    return data;
                 }
-    
-                return data;
             }
         }))
 
-        users = users.filter(e => e !== undefined);        
+        users = users.filter(e => ((e !== undefined) && (e !== null)));        
 
         return res.status(200).json({ state: "success", message: 'تم عرض ترتيب الاصدقاء والمستخدمين عالميا بنجاح', users, friends });                    
     } catch (error) {

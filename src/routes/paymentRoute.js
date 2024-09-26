@@ -19,6 +19,8 @@ router.get('/', async (req, res) => {
 // Route to add a new card
 router.get('/all-cards', [requireAuth, authorize(["user"])], getAllUserCards);
 
+router.get('/all-payments-history', [requireAuth, authorize(["admin"])], getAllPaymentsHistory);
+
 router.post('/add-new-card', [requireAuth, authorize(["user"])], addNewCard);
 
 router.post('/create-payment-intent', [requireAuth, authorize(["user"])], createPaymentIntent);

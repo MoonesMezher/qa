@@ -70,6 +70,17 @@ const getAllUserCards = async (req, res) => {
     }
 }
 
+const getAllPaymentsHistory = async (req, res) => {
+    try {        
+        const paymentsHistory = await PaymentDetails.find({});
+
+        return res.status(200).json({ state: 'success',message: 'تم إرجاع كافة عمليات الدفع السابقة بنجاح', paymentsHistory });
+    } catch (error) {
+        // console.error('Error adding card:', error);
+        return res.status(400).json({ state: 'failed',message: error.message });
+    }
+}
+
 const createPaymentIntent = async (req, res) => {
     try {
         const { amount, currency, payment_method_id } = req.body;
@@ -143,9 +154,7 @@ const completeOrder = async (req, res) => {
             return res.status(400).json({ status: 'failed',message: 'This offer does not exist' });
         }
 
-        const paymentIntent = await stripe.paymentIntents.confirm(payment_intent_id, {
-            setup_future_usage: 'off_session',
-        });
+        const paymentIntent = await stripe.paymentIntents.retrieve(payment_intent_id);
     
         if (paymentIntent.status === 'succeeded') {
           // Payment succeeded, update the user's tokens
@@ -157,8 +166,25 @@ const completeOrder = async (req, res) => {
             const userDetails = await User.findById(req.user._id)
 
             await PaymentDetails.create({ userId: req.user._id, profileId: user._id, email: userDetails.email , username: userDetails.username, lastTokens, updatedTokens: user.tokens, offerId, offerPrice: offer.price, payment_intent_id });
+
+            const userData = {
+                _id: req.user._id,
+                username: userDetails.username,
+                email: userDetails.email,
+                password: userDetails.password,
+                verified: userDetails.verified,
+                active: userDetails.active,
+                isFree: userDetails.isFree,
+                description: user.description, 
+                country: user.country, 
+                picture: user.picture,
+                tokens: user.tokens,
+                exp: user.exp,
+                score: user.score, 
+                isGuest: false                       
+            }
     
-            return res.status(200).json({ status: 'success',message: 'Order completed successfully' });
+            return res.status(200).json({ status: 'success',message: 'Order completed successfully', userData });
         } else {
             return res.status(400).json({ status: 'failed',message: 'Payment not completed' });
         }
@@ -171,5 +197,6 @@ module.exports = {
     addNewCard,
     createPaymentIntent,
     completeOrder,
-    getAllUserCards
+    getAllUserCards,
+    getAllPaymentsHistory
 }
