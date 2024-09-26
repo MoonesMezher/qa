@@ -1,7 +1,9 @@
 const CustomerCard = require("../database/models/CustomerCard");
 const Payment = require("../database/models/Payment");
-const User = require("../database/models/User");
+const Profile = require("../database/models/Profile");
+const Offer = require("../database/models/Offer");
 const retrieveOrCreateStripeCustomer = require("../helpers/payment");
+const PaymentDetails = require("../database/models/PaymentDetails");
 const stripe = require('stripe')(process.env.STRIPE_KEY_TEST);
 
 
@@ -102,99 +104,48 @@ const createPaymentIntent = async (req, res) => {
     }
 }
 
-module.exports = {
-    addNewCard,
-    createPaymentIntent
+const completeOrder = async (req, res) => {
+    try {
+        const { payment_intent_id, offerId } = req.body;
+
+        if(!payment_intent_id) {
+            return res.status(400).json({ status: 'failed',message: 'You must insert payment_intent_id' });
+        }
+
+        if(!offerId) {
+            return res.status(400).json({ status: 'failed',message: 'You must insert offerId' });
+        }
+
+        const offer = await Offer.findById(offerId)
+
+        if(!offer) {
+            return res.status(400).json({ status: 'failed',message: 'This offer does not exist' });
+        }
+
+        const paymentIntent = await stripe.paymentIntents.confirm(payment_intent_id, {
+                setup_future_usage: 'off_session',
+        });
+    
+        if (paymentIntent.status === 'succeeded') {
+          // Payment succeeded, update the user's tokens
+            const user = await Profile.findOne({user_id: req.user._id});
+            const lastTokens = user.tokens;
+            user.tokens += offer?.tokens; // Update the user's tokens
+            await user.save();
+
+            await PaymentDetails({ userId: req.user._id, profileId: user._id, lastTokens, updatedTokens: user.tokens, offerId, payment_intent_id });
+    
+            return res.status(200).json({ status: 'success',message: 'Order completed successfully' });
+        } else {
+            return res.status(400).json({ status: 'failed',message: 'Payment not completed' });
+        }
+    } catch (error) {
+        return res.status(400).json({ status: 'failed',message: error.message });
+    }
 }
 
-
-
-
-// Add a new card to the customer
-// app.post('/add-card', async (req, res) => {
-//   try {
-//     const { payment_method_id } = req.body;
-//     const user = req.user; // Assuming user is authenticated and available in req.user
-
-//     // Retrieve or create Stripe customer
-//     const customer = await retrieveOrCreateStripeCustomer(user);
-
-//     // Attach the payment method to the customer
-//     const paymentMethod = await stripe.paymentMethods.attach(payment_method_id, {
-//       customer: customer.id,
-//     });
-
-//     // Save the card information to your database
-//     const card = {
-//       userId: user.id,
-//       stripeCustomerId: customer.id,
-//       stripeCardId: paymentMethod.id,
-//       last4: paymentMethod.card.last4,
-//       brand: paymentMethod.card.brand,
-//       expMonth: paymentMethod.card.exp_month,
-//       expYear: paymentMethod.card.exp_year,
-//     };
-//     // Save the card to your database here
-
-//     res.status(201).json({ message: 'Card added successfully!', card });
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// });
-
-// Create a payment intent
-
-// Complete the order
-// app.post('/complete-order', async (req, res) => {
-//   try {
-//     const { payment_intent_id, order_details } = req.body;
-//     const order = {}; // Assuming order_details is an object, populate it accordingly
-
-//     // Retrieve the payment intent from Stripe
-//     const paymentIntent = await stripe.paymentIntents.retrieve(payment_intent_id);
-
-//     if (paymentIntent.status === 'succeeded') {
-//       // Payment succeeded, proceed with creating a new order and payment records
-//       const newOrder = {
-//         userId: req.user.id, // Assuming user is authenticated
-//         date: new Date(),
-//         orderItems: order.cartproducts,
-//         totalPrice: order.amount,
-//         vatCost: order.vatcost,
-//         shippingCost: order.shippingcost,
-//         subtotal: order.subtotal,
-//         shippingDetails: order.adressdetails,
-//         store: order.store,
-//         couponId: order.couponID,
-//         couponTitle: order.coupontitle,
-//         couponDiscountValue: order.couponDiscountvalue,
-//         userNotes: '...',
-//         orderStatus: 'completed',
-//         paymentStatus: 'completed',
-//         shippingStatus: 'pending',
-//         paymentType: 'Stripe_credit_card',
-//       };
-
-//       // Save the order to your database
-
-//       // Create a new payment record
-//       const payment = {
-//         orderId: newOrder.id,
-//         userId: order.userID,
-//         amount: order.amount,
-//         description: 'Payment for order #' + newOrder.id,
-//         status: 'completed',
-//         paymentURL: '',
-//         paymentURLId: paymentIntent.id,
-//       };
-
-//       // Save the payment record to your database
-
-//       res.status(200).json({ message: 'Order completed successfully' });
-//     } else {
-//       res.status(400).json({ error: 'Payment not completed' });
-//     }
-//   } catch (error) {
-//     res.status(500).json({ error: error.message });
-//   }
-// });
+module.exports = {
+    addNewCard,
+    createPaymentIntent,
+    completeOrder
+}
