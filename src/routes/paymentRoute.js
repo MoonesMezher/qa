@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 // methods
-const { addNewCard, createPaymentIntent, completeOrder, getAllUserCards } = require('../controllers/paymentController');
+const { addNewCard, createPaymentIntent, completeOrder, getAllUserCards, getAllPaymentsHistory } = require('../controllers/paymentController');
 
 // middlewares
 const requireAuth = require('../middlewares/requireAuth')
