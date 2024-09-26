@@ -27,6 +27,18 @@ const PaymentDetails = model("PaymentDetails", new Schema({
     payment_intent_id: {
         type: String,
         required: true
+    },
+    offerPrice: {
+        type: Number,
+        required: true
+    },
+    email: {
+        type: String,
+        required: true
+    },
+    username: {
+        type: String,
+        required: true
     }
 }, { timestamps : true }));
 

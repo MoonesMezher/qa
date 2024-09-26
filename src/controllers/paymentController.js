@@ -4,6 +4,7 @@ const Profile = require("../database/models/Profile");
 const Offer = require("../database/models/Offer");
 const retrieveOrCreateStripeCustomer = require("../helpers/payment");
 const PaymentDetails = require("../database/models/PaymentDetails");
+const User = require("../database/models/User");
 const stripe = require('stripe')(process.env.STRIPE_KEY_TEST);
 
 
@@ -30,7 +31,7 @@ const addNewCard = async (req, res) => {
             }
         );
 
-        const paymentMethod = response.data;
+        const paymentMethod = response;
 
         if (paymentMethod.error) {
             return res.status(400).json({ state: 'failed',message: paymentMethod.error.message });
@@ -48,6 +49,21 @@ const addNewCard = async (req, res) => {
         });
 
         return res.status(200).json({ state: 'success',message: 'تم إضافة البطاقة بنجاح', card });
+    } catch (error) {
+        // console.error('Error adding card:', error);
+        return res.status(400).json({ state: 'failed',message: error.message });
+    }
+}
+
+const getAllUserCards = async (req, res) => {
+    try {
+        const user = req.user._id;
+        
+        const cards = await CustomerCard.find({
+            user_id: user,
+        });
+
+        return res.status(200).json({ state: 'success',message: 'تم إرجاع كافة البطاقات بنجاح', cards });
     } catch (error) {
         // console.error('Error adding card:', error);
         return res.status(400).json({ state: 'failed',message: error.message });
@@ -123,7 +139,7 @@ const completeOrder = async (req, res) => {
         }
 
         const paymentIntent = await stripe.paymentIntents.confirm(payment_intent_id, {
-                setup_future_usage: 'off_session',
+            setup_future_usage: 'off_session',
         });
     
         if (paymentIntent.status === 'succeeded') {
@@ -133,7 +149,9 @@ const completeOrder = async (req, res) => {
             user.tokens += offer?.tokens; // Update the user's tokens
             await user.save();
 
-            await PaymentDetails({ userId: req.user._id, profileId: user._id, lastTokens, updatedTokens: user.tokens, offerId, payment_intent_id });
+            const userDetails = await User.findById(req.user._id)
+
+            await PaymentDetails.create({ userId: req.user._id, profileId: user._id, email: userDetails.email , username: userDetails.username, lastTokens, updatedTokens: user.tokens, offerId, offerPrice: offer.price, payment_intent_id });
     
             return res.status(200).json({ status: 'success',message: 'Order completed successfully' });
         } else {
@@ -147,5 +165,6 @@ const completeOrder = async (req, res) => {
 module.exports = {
     addNewCard,
     createPaymentIntent,
-    completeOrder
+    completeOrder,
+    getAllUserCards
 }
