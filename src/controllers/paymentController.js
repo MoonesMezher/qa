@@ -16,7 +16,6 @@ const createPaymentMethod = async (req, res) => {
         }
 
         const paymentMethod = await stripe.tokens.create({
-            type: 'card',
             card: {
                 number: cardNumber,
                 exp_month: expMonth,
