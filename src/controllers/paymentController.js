@@ -15,7 +15,7 @@ const createPaymentMethod = async (req, res) => {
             return res.status(400).json({ state: 'failed', message: 'These data must be required { cardNumber, expMonth, expYear, cvc }' });
         }
 
-        const paymentMethod = await stripe.paymentMethods.create({
+        const paymentMethod = await stripe.tokens.create({
             type: 'card',
             card: {
                 number: cardNumber,
