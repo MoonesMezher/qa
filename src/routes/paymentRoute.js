@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 // methods
-const { addNewCard, createPaymentIntent, completeOrder, getAllUserCards, getAllPaymentsHistory, paymentNextAction } = require('../controllers/paymentController');
+const { addNewCard, createPaymentIntent, completeOrder, getAllUserCards, getAllPaymentsHistory, paymentNextAction, createPaymentMethod } = require('../controllers/paymentController');
 
 // middlewares
 const requireAuth = require('../middlewares/requireAuth')
@@ -17,11 +17,17 @@ router.get('/', async (req, res) => {
 })
 
 // Route to add a new card
+
+// GET
 router.get('/all-cards', [requireAuth, authorize(["user"])], getAllUserCards);
 
 router.get('/all-payments-history', [requireAuth, authorize(["admin"])], getAllPaymentsHistory);
 
 router.get('/check', paymentNextAction);
+
+// POST
+
+router.post('/create-payment-method', [requireAuth, authorize(["user"])], createPaymentMethod);
 
 router.post('/add-new-card', [requireAuth, authorize(["user"])], addNewCard);
 

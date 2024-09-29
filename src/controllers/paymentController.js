@@ -7,7 +7,29 @@ const PaymentDetails = require("../database/models/PaymentDetails");
 const User = require("../database/models/User");
 const stripe = require('stripe')(process.env.STRIPE_KEY_TEST);
 
+const createPaymentMethod = async (req, res) => {
+    try {
+        const { cardNumber, expMonth, expYear, cvc } = req.body;
 
+        if(!cardNumber || !expMonth || !expYear || !cvc) {
+            return res.status(400).json({ state: 'failed', message: 'These data must be required { cardNumber, expMonth, expYear, cvc }' });
+        }
+
+        const paymentMethod = await stripe.paymentMethods.create({
+            type: 'card',
+            card: {
+                number: cardNumber,
+                exp_month: expMonth,
+                exp_year: expYear,
+                cvc: cvc,
+            },
+        });
+
+        return res.status(200).json({ state: 'success', paymentMethod: paymentMethod });
+    } catch (error) {
+        return res.status(400).json({ state: 'failed', message: error.message });
+    }
+}
 const addNewCard = async (req, res) => { 
     try {
         const { payment_method_id } = req.body;
@@ -33,8 +55,14 @@ const addNewCard = async (req, res) => {
 
         const paymentMethod = response;
 
-        if (paymentMethod.error) {
+        if (paymentMethod?.error) {
             return res.status(400).json({ state: 'failed',message: paymentMethod.error.message });
+        }
+
+        const existedCard = await CustomerCard.findOne({user_id: user._id, stripe_card_id: paymentMethod.id});
+
+        if(existedCard) {
+            return res.status(400).json({ state: 'failed',message: 'لديك هذه البطاقة بالفعل لا يمكنك إضافتها مرة أخرى' });
         }
 
         // Save the card information to your database
@@ -146,17 +174,17 @@ const completeOrder = async (req, res) => {
         const { payment_intent_id, offerId } = req.body;
 
         if(!payment_intent_id) {
-            return res.status(400).json({ status: 'failed',message: 'You must insert payment_intent_id' });
+            return res.status(400).json({ state: 'failed',message: 'You must insert payment_intent_id' });
         }
 
         if(!offerId) {
-            return res.status(400).json({ status: 'failed',message: 'You must insert offerId' });
+            return res.status(400).json({ state: 'failed',message: 'You must insert offerId' });
         }
 
         const offer = await Offer.findById(offerId)
 
         if(!offer) {
-            return res.status(400).json({ status: 'failed',message: 'This offer does not exist' });
+            return res.status(400).json({ state: 'failed',message: 'This offer does not exist' });
         }
 
         const paymentIntent = await stripe.paymentIntents.retrieve(payment_intent_id);
@@ -189,7 +217,7 @@ const completeOrder = async (req, res) => {
                 isGuest: false                       
             }
     
-            return res.status(200).json({ status: 'success',message: 'Order completed successfully', userData });
+            return res.status(200).json({ state: 'success',message: 'Order completed successfully', userData });
         } else if(paymentIntent.status === 'requires_confirmation'){
             const confirmResult = await stripe.paymentIntents.confirm(payment_intent_id);
 
@@ -220,15 +248,15 @@ const completeOrder = async (req, res) => {
                     isGuest: false                       
                 }
         
-                return res.status(200).json({ status: 'success',message: 'Order completed successfully', userData });
+                return res.status(200).json({ state: 'success',message: 'Order completed successfully', userData });
             } else {
-                return res.status(400).json({ status: 'failed',message: 'Payment not completed' });
+                return res.status(400).json({ state: 'failed',message: 'Payment not completed' });
             }
         } else {
-            return res.status(400).json({ status: 'failed',message: 'Payment not completed' });
+            return res.status(400).json({ state: 'failed',message: 'Payment not completed' });
         }
     } catch (error) {
-        return res.status(400).json({ status: 'failed',message: error.message });
+        return res.status(400).json({ state: 'failed',message: error.message });
     }
 }
 
@@ -323,5 +351,6 @@ module.exports = {
     completeOrder,
     getAllUserCards,
     getAllPaymentsHistory,
-    paymentNextAction
+    paymentNextAction,
+    createPaymentMethod
 }
