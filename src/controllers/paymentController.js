@@ -238,7 +238,7 @@ const paymentNextAction = async (req, res) => {
         const paymentIntentId = req.query.payment_intent;
         const clientSecret = req.query.payment_intent_client_secret;
 
-        console.log(req.query, paymentIntentId)
+        // console.log(req.query, paymentIntentId)
 
         if(!paymentIntentId) {
             return res.send(`
@@ -246,7 +246,6 @@ const paymentNextAction = async (req, res) => {
                     window.flutter_inappwebview.callHandler('paymentStatus', JSON.stringify({
                         status: 'error',
                         message: 'Payment failed.',
-                        error: '${400}'
                     }));
                 </script>
             `);
@@ -260,7 +259,6 @@ const paymentNextAction = async (req, res) => {
                 <script>
                     window.flutter_inappwebview.callHandler('paymentStatus', JSON.stringify({
                         status: 'success',
-                        payment_intent_id: '${paymentIntent.id}',
                         message: 'Payment was successful.'
                     }));
                 </script>
@@ -273,7 +271,6 @@ const paymentNextAction = async (req, res) => {
                     <script>
                         window.flutter_inappwebview.callHandler('paymentStatus', JSON.stringify({
                             status: 'success',
-                            payment_intent_id: '${confirmResult.id}',
                             message: 'Payment was confirmed successfully.'
                         }));
                     </script>
@@ -293,7 +290,6 @@ const paymentNextAction = async (req, res) => {
                         window.flutter_inappwebview.callHandler('paymentStatus', JSON.stringify({
                             status: 'error',
                             message: 'Payment confirmation failed.',
-                            error: '${400}'
                         }));
                     </script>
                 `);
@@ -304,14 +300,20 @@ const paymentNextAction = async (req, res) => {
                     window.flutter_inappwebview.callHandler('paymentStatus', JSON.stringify({
                         status: 'error',
                         message: 'Payment failed.',
-                        error: '${paymentIntent.status}'
                     }));
                 </script>
             `);
         }
 
     } catch (err) {
-        console.error(err);
+        return res.send(`
+            <script>
+                window.flutter_inappwebview.callHandler('paymentStatus', JSON.stringify({
+                    status: 'server error',
+                    message: 'Payment failed.',
+                }));
+            </script>
+        `);
     }
 }
 
