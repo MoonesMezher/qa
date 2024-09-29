@@ -51,5 +51,6 @@ app.use('/game/api/friends', friendRouter);
 app.use('/game/api/invites', inviteRouter);
 app.use('/game/api/otp', otpRouter);
 app.use('/game/api/payments', paymentRouter);
+app.use('*', (req, res) => res.status(400).json({state: 'failed', 'message': 'This API does not exist'}))
 
 module.exports = app;

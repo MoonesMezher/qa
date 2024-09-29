@@ -3,6 +3,7 @@ const FcmToken = require("../database/models/FcmToken");
 const Notefication = require("../database/models/Notefication");
 const { admin, sendNotification } = require("../services/firebase/notefications");
 const User = require("../database/models/User");
+const NotefectionsList = require("../database/models/NotefectionsList");
 
 const saveToken = async (req, res) => {
     const { fcm_token, user_id } = req.body;
@@ -68,6 +69,11 @@ const createNotefication = async (req, res) => {
     }
 
     try {
+        const threeHAgo = new Date(Date.now() - (3 * 60 * 60 * 1000));
+
+        await Notefication.deleteMany({ createdAt: { $lt: threeHAgo } });
+        await NotefectionsList.deleteMany({ createdAt: { $lt: threeHAgo } });
+
         await Notefication.create( { title, body } );
 
         const tokens = await FcmToken.find( { } );

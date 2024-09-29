@@ -58,7 +58,7 @@ const generateRandomQuestions = async (type, limit, typeQuestion) => {
 }
 
 const generateRandomQuestionsForSpeedGame = async (type) => {
-    const limit = 50;
+    const limit = 100;
     
     const q1 = await generateRandomQuestions(type, limit, 'true-false');
 
@@ -77,7 +77,7 @@ const generateRandomQuestionsForSpeedGame = async (type) => {
 }
 
 const generateRandomQuestionsForChainGame = async (type) => {
-    const limit = 50;
+    const limit = 100;
     
     const q1 = await generateRandomQuestions(type, limit, 'true-false');
 
@@ -112,7 +112,7 @@ const generateRandomQuestionsForOnlineGame = async (type) => {
 }
 
 const generateRandomQuestionsForCompetion = async (typeId) => {
-    const limit = 50;
+    const limit = 100;
 
     let type = { id: typeId, type: 'section' }
 

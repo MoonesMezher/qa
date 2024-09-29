@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 // methods
-const { addNewCard, createPaymentIntent, completeOrder, getAllUserCards, getAllPaymentsHistory } = require('../controllers/paymentController');
+const { addNewCard, createPaymentIntent, completeOrder, getAllUserCards, getAllPaymentsHistory, paymentNextAction } = require('../controllers/paymentController');
 
 // middlewares
 const requireAuth = require('../middlewares/requireAuth')
@@ -11,7 +11,7 @@ const { default: Stripe } = require('stripe');
 
 
 router.get('/', async (req, res) => { 
-    const customers = await Stripe(process.env.STRIPE_KEY_REAL).customers.list();
+    const customers = await Stripe(process.env.STRIPE_KEY_TEST).customers.list();
 
     return res.json({customers})
 })
@@ -20,6 +20,8 @@ router.get('/', async (req, res) => {
 router.get('/all-cards', [requireAuth, authorize(["user"])], getAllUserCards);
 
 router.get('/all-payments-history', [requireAuth, authorize(["admin"])], getAllPaymentsHistory);
+
+router.get('/check', paymentNextAction);
 
 router.post('/add-new-card', [requireAuth, authorize(["user"])], addNewCard);
 

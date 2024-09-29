@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 // methods
-const { getAllFriends, getAllFriendRequests, addFriend, cancelFriendRequest, acceptFriendRequest, cancelAllFriendRequests, acceptAllFriendRequests, deleteFriend, unSendFriendRequest } = require('../controllers/friendController');
+const { getAllFriends, getAllFriendRequests, addFriend, cancelFriendRequest, acceptFriendRequest, cancelAllFriendRequests, acceptAllFriendRequests, deleteFriend, unSendFriendRequest, searchInMyFriends } = require('../controllers/friendController');
 
 // middlewares
 const requireAuth = require('../middlewares/requireAuth');
@@ -15,6 +15,8 @@ const validatePageParameter = require('../middlewares/checkFromPageKeyMiddleware
 router.get('/page/:page', [validatePageParameter, requireAuth, authorize(["admin","user","guest"])], getAllFriends);
 
 router.get('/requests/page/:page', [validatePageParameter, requireAuth, authorize(["admin","user","guest"])], getAllFriendRequests);
+
+router.get('/filter/username/:username', [requireAuth, authorize(["admin","user","guest"])], searchInMyFriends);
 
 // PUT
 router.put('/add-friend/:userId', [requireAuth, authorize(["admin","user","guest"])], addFriend);

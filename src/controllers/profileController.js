@@ -443,9 +443,13 @@ const getAllUsersByNameWithFreindShipDetails = async (req, res) => {
 
         let users = await User.find({ username: { $regex: newRegex } });
 
-        users = users.filter(user => user.role === 'user' || user.role === 'guest');
+        if(name === 'get-w-01020304-x-all') {
+            users = await User.find({});
+        }
 
-        users = users.filter(user => user._id !== userId);
+        users = users.filter(user => user.role === 'user');
+
+        users = users.filter(user => user._id.toString() !== userId.toString());
 
         const allUsers = await Promise.all(users.map(async (e) => {
             const id = e._id;

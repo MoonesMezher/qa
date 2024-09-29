@@ -93,6 +93,10 @@ const Room = model("Room", new Schema({
     invite: {
         type: Boolean,
         default: false
+    },
+    code: {
+        type: String,
+        required: true
     }
 }, { timestamps : true }));
 

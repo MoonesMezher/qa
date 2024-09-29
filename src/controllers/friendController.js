@@ -426,6 +426,34 @@ const deleteFriend = async (req, res) => {
     }
 }
 
+const searchInMyFriends = async (req, res) => {
+    try {
+        const { username } = req.params;
+
+        const user_id = req.user._id;
+
+        const friend = await Friend.findOne({ user_id: user_id });
+
+        if(!friend) {
+            return res.status(400).json({ state:'failed', message: 'لا يوجد لديك أصدقاء' });
+        }
+        
+        let finalFriends = await Promise.all(friend?.friends?.map(async friend => {
+            return await friendJson(friend, 'friend');
+        }));  
+        
+        const newRegex = new RegExp(`.*${username}.*`, 'i')
+
+        if(username !== 'get-w-01020304-x-all') {
+            finalFriends = finalFriends.filter(e => newRegex.test(e.username));
+        }
+
+        return res.status(200).json({ state:'success', message: 'تم البحث بنجاح', finalFriends});
+    } catch (error) {
+        return res.status(400).json({ state:'failed', message: error.message });
+    }
+}
+
 module.exports = {
     addFriend,
     acceptAllFriendRequests,
@@ -435,5 +463,6 @@ module.exports = {
     getAllFriendRequests,
     getAllFriends,
     deleteFriend,
-    unSendFriendRequest
+    unSendFriendRequest,
+    searchInMyFriends
 }

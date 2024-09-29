@@ -5,7 +5,7 @@ const Invite = model("Invite", new Schema({
         type: Schema.Types.ObjectId,
     },
     roomId: {
-        type: Schema.Types.ObjectId
+        type: String
     },
     user: {
         type: String

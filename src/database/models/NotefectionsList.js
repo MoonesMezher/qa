@@ -5,7 +5,7 @@ const NoteficationsList = model("NoteficationsList", new Schema({
         type: Schema.Types.ObjectId,
     },
     roomId: {
-        type: Schema.Types.ObjectId
+        type: String
     },
     user: {
         type: String
