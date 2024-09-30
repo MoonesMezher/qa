@@ -344,6 +344,83 @@ const paymentNextAction = async (req, res) => {
     }
 }
 
+const completeOrderToChangeUserAccountToPaid = async (req, res) => {
+    try {
+        const { payment_intent_id } = req.body;
+
+        if(!payment_intent_id) {
+            return res.status(400).json({ state: 'failed',message: 'You must insert payment_intent_id' });
+        }
+
+        const paymentIntent = await stripe.paymentIntents.retrieve(payment_intent_id);
+    
+        if (paymentIntent.status === 'succeeded') {
+          // Payment succeeded, update the user's tokens
+            const userr = await User.findByIdAndUpdate(req.user._id, { isFree: false });
+            await userr.save();
+
+            const userDetails = await User.findById(req.user._id);
+            const user = await Profile.findOne({userId: req.user._id})
+
+            const userData = {
+                _id: req.user._id,
+                username: userDetails.username,
+                email: userDetails.email,
+                password: userDetails.password,
+                verified: userDetails.verified,
+                active: userDetails.active,
+                isFree: userDetails.isFree,
+                description: user.description, 
+                country: user.country, 
+                picture: user.picture,
+                tokens: user.tokens,
+                exp: user.exp,
+                score: user.score, 
+                isGuest: false                       
+            }
+    
+            return res.status(200).json({ state: 'success',message: 'Order completed successfully', userData });
+        } else if(paymentIntent.status === 'requires_confirmation'){
+            const confirmResult = await stripe.paymentIntents.confirm(payment_intent_id);
+
+            if (confirmResult.status === 'succeeded') {
+                const userr = await User.findByIdAndUpdate(req.user._id, { isFree: false });
+                await userr.save();
+
+                const userDetails = await User.findById(req.user._id);
+                const user = await Profile.findOne({userId: req.user._id});
+
+                // await PaymentDetails.create({ userId: req.user._id, profileId: user._id, email: userDetails.email , username: userDetails.username, lastTokens, updatedTokens: user.tokens, offerId:0, offerPrice: 0, payment_intent_id });
+
+                const userData = {
+                    _id: req.user._id,
+                    username: userDetails.username,
+                    email: userDetails.email,
+                    password: userDetails.password,
+                    verified: userDetails.verified,
+                    active: userDetails.active,
+                    isFree: userDetails.isFree,
+                    description: user.description, 
+                    country: user.country, 
+                    picture: user.picture,
+                    tokens: user.tokens,
+                    exp: user.exp,
+                    score: user.score, 
+                    isGuest: false                       
+                }
+        
+                return res.status(200).json({ state: 'success',message: 'Order completed successfully', userData });
+            } else {
+                return res.status(400).json({ state: 'failed',message: 'Payment not completed' });
+            }
+        } else {
+            return res.status(400).json({ state: 'failed',message: 'Payment not completed' });
+        }
+    } catch (error) {
+        return res.status(400).json({ state: 'failed',message: error.message });
+    }
+}
+
 module.exports = {
     addNewCard,
     createPaymentIntent,
@@ -351,5 +428,6 @@ module.exports = {
     getAllUserCards,
     getAllPaymentsHistory,
     paymentNextAction,
-    createPaymentMethod
+    createPaymentMethod,
+    completeOrderToChangeUserAccountToPaid
 }

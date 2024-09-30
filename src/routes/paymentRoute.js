@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 // methods
-const { addNewCard, createPaymentIntent, completeOrder, getAllUserCards, getAllPaymentsHistory, paymentNextAction, createPaymentMethod } = require('../controllers/paymentController');
+const { addNewCard, createPaymentIntent, completeOrder, getAllUserCards, getAllPaymentsHistory, paymentNextAction, createPaymentMethod, completeOrderToChangeUserAccountToPaid } = require('../controllers/paymentController');
 
 // middlewares
 const requireAuth = require('../middlewares/requireAuth')
@@ -34,5 +34,7 @@ router.post('/add-new-card', [requireAuth, authorize(["user"])], addNewCard);
 router.post('/create-payment-intent', [requireAuth, authorize(["user"])], createPaymentIntent);
 
 router.post('/complete-order', [requireAuth, authorize(["user"])], completeOrder);
+
+router.post('/complete-order-paid', [requireAuth, authorize(["user"])], completeOrderToChangeUserAccountToPaid);
 
 module.exports = router;
