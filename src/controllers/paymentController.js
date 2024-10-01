@@ -162,6 +162,13 @@ const createPaymentIntent = async (req, res) => {
                 amount: Math.round(amount * 100),
                 currency: currency,
                 payment_method_types: ['card'],
+                confirm: true,
+                customer: user.stripe_customer_id,
+                return_url: 'https://quiz-app2-3q4e.onrender.com/game/api/payments/check',
+                automatic_payment_methods: {
+                    enabled: true,
+                    allow_redirects: 'never'
+                }
                 // payment_method: paymentMethod.id,
             })
 
