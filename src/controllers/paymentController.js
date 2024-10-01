@@ -161,7 +161,6 @@ const createPaymentIntent = async (req, res) => {
             paymentIntent = await stripe.paymentIntents.create({
                 amount: Math.round(amount * 100),
                 currency: currency,
-                payment_method_types: ['card'],
                 confirm: true,
                 customer: user.stripe_customer_id,
                 return_url: 'https://quiz-app2-3q4e.onrender.com/game/api/payments/check',
