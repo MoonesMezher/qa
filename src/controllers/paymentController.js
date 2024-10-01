@@ -168,10 +168,9 @@ const createPaymentIntent = async (req, res) => {
         }
 
         return res.status(200).json({state: 'success', data: {
-            client_secret: paymentIntent.client_secret,
+            client_secret: paymentIntent?.client_secret || 'Not exist',
             next_action_url: 'no url',
             payment_intent_id: paymentIntent.id,
-            // status: paymentIntent.status,
         }});
     } catch (error) {
         return res.status(400).json({ state: 'failed', message: error.message });
