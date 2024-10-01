@@ -121,7 +121,7 @@ const getAllPaymentsHistory = async (req, res) => {
 
 const createPaymentIntent = async (req, res) => {
     try {
-        const { amount, currency, payment_method_id, googlePlay, applePay } = req.body;
+        const { amount, currency, payment_method_id, googleOrApplePay } = req.body;
 
         if(!amount) {
             return res.status(400).json({ state: 'failed',message: 'You must insert amount value' });
@@ -131,8 +131,8 @@ const createPaymentIntent = async (req, res) => {
             return res.status(400).json({ state: 'failed',message: 'You must insert currency value' });
         }
 
-        if(!payment_method_id && !googlePlay && !applePay) {
-            return res.status(400).json({ state: 'failed',message: 'You must insert payment_method_id or google play or apple pay value' });
+        if(!payment_method_id && !googleOrApplePay) {
+            return res.status(400).json({ state: 'failed',message: 'You must insert payment_method_id or googleOrApplePay value' });
         }
 
         const user = await Payment.findOne({userId: req.user._id}); // Assuming user is authenticated and available in req.user
@@ -158,30 +158,14 @@ const createPaymentIntent = async (req, res) => {
                 }
             });
         } else {
-            // let paymentMethod;
-            
-            // if(googlePlay) {
-            //     paymentMethod = await stripe.paymentMethods.create({
-            //         type: 'google_pay',
-            //         google_pay: {
-            //             token: googlePlay,
-            //         },
-            //     });
-            // } else {
-            //     paymentMethod = await stripe.paymentMethods.create({
-            //         type: 'apple_pay',
-            //         apple_pay: {
-            //             token: applePay,
-            //         },
-            //     });
-            // };
-        
             paymentIntent = await stripe.paymentIntents.create({
                 amount: Math.round(amount * 100),
                 currency: currency,
-                payment_method_types: ['card', 'google_pay'],
+                payment_method_types: ['card'],
                 // payment_method: paymentMethod.id,
             });
+
+            console.log(paymentIntent);
         }
 
         if (paymentIntent?.next_action?.redirect_to_url) {
@@ -398,9 +382,7 @@ const completeOrderToChangeUserAccountToPaid = async (req, res) => {
             await userr.save();
 
             const userDetails = await User.findById(req.user._id);
-            const user = await Profile.findOne({userId: req.user._id})
-
-            console.log(user)
+            const user = await Profile.findOne({user_id: req.user._id})
 
             const userData = {
                 _id: req.user._id,

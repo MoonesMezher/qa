@@ -43,6 +43,7 @@ const Profile = model("Profile", new Schema({
     },
     description: { 
         type: String, 
+        default: "...",
         max: 255,
     },
     score: {
