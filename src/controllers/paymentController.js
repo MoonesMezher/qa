@@ -167,28 +167,27 @@ const createPaymentIntent = async (req, res) => {
 
             const clientSecret = paymentIntent.client_secret;
 
-            if(googlePay) {
-                console.log(stripe.googlePay);
-                const googlePayPaymentMethod = await stripe.googlePay.createPaymentMethod({
-                    clientSecret: clientSecret,
-                    paymentIntentId: paymentIntent.id,
-                });
+            // if(googlePay) {
+            //     const googlePayPaymentMethod = await stripe.googlePay.createPaymentMethod({
+            //         clientSecret: clientSecret,
+            //         paymentIntentId: paymentIntent.id,
+            //     });
                 
-                // Confirm the payment intent with the Google Pay payment method
-                const confirmedPaymentIntent = await stripe.paymentIntents.confirm(paymentIntent.id, {
-                    payment_method: googlePayPaymentMethod.id,
-                });
-            } else {
-                const applePayPaymentMethod = await stripe.applePay.createPaymentMethod({
-                    clientSecret: clientSecret,
-                    paymentIntentId: paymentIntent.id,
-                });
+            //     // Confirm the payment intent with the Google Pay payment method
+            //     const confirmedPaymentIntent = await stripe.paymentIntents.confirm(paymentIntent.id, {
+            //         payment_method: googlePayPaymentMethod.id,
+            //     });
+            // } else {
+            //     const applePayPaymentMethod = await stripe.applePay.createPaymentMethod({
+            //         clientSecret: clientSecret,
+            //         paymentIntentId: paymentIntent.id,
+            //     });
     
-                // Confirm the payment intent with the Apple Pay payment method
-                const confirmedPaymentIntent = await stripe.paymentIntents.confirm(paymentIntent.id, {
-                    payment_method: applePayPaymentMethod.id,
-                });
-            }
+            //     // Confirm the payment intent with the Apple Pay payment method
+            //     const confirmedPaymentIntent = await stripe.paymentIntents.confirm(paymentIntent.id, {
+            //         payment_method: applePayPaymentMethod.id,
+            //     });
+            // }
             // Use the client secret to collect payment information from the customer using Apple Pay
 
             console.log(paymentIntent);
