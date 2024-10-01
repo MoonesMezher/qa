@@ -158,29 +158,29 @@ const createPaymentIntent = async (req, res) => {
                 }
             });
         } else {
-            let paymentMethod;
+            // let paymentMethod;
             
-            if(googlePlay) {
-                paymentMethod = await stripe.paymentMethods.create({
-                    type: 'google_pay',
-                    google_pay: {
-                        token: googlePlay,
-                    },
-                });
-            } else {
-                paymentMethod = await stripe.paymentMethods.create({
-                    type: 'apple_pay',
-                    apple_pay: {
-                        token: applePay,
-                    },
-                });
-            };
+            // if(googlePlay) {
+            //     paymentMethod = await stripe.paymentMethods.create({
+            //         type: 'google_pay',
+            //         google_pay: {
+            //             token: googlePlay,
+            //         },
+            //     });
+            // } else {
+            //     paymentMethod = await stripe.paymentMethods.create({
+            //         type: 'apple_pay',
+            //         apple_pay: {
+            //             token: applePay,
+            //         },
+            //     });
+            // };
         
             paymentIntent = await stripe.paymentIntents.create({
                 amount: Math.round(amount * 100),
                 currency: currency,
                 payment_method_types: ['card', 'apple_pay', 'google_pay'],
-                payment_method: paymentMethod.id,
+                // payment_method: paymentMethod.id,
             });
         }
 
