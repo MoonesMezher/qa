@@ -168,6 +168,7 @@ const createPaymentIntent = async (req, res) => {
             const clientSecret = paymentIntent.client_secret;
 
             if(googlePay) {
+                console.log(stripe.googlePay);
                 const googlePayPaymentMethod = await stripe.googlePay.createPaymentMethod({
                     clientSecret: clientSecret,
                     paymentIntentId: paymentIntent.id,
