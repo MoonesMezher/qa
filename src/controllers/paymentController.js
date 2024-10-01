@@ -400,6 +400,8 @@ const completeOrderToChangeUserAccountToPaid = async (req, res) => {
             const userDetails = await User.findById(req.user._id);
             const user = await Profile.findOne({userId: req.user._id})
 
+            console.log(user)
+
             const userData = {
                 _id: req.user._id,
                 username: userDetails.username,
@@ -408,12 +410,12 @@ const completeOrderToChangeUserAccountToPaid = async (req, res) => {
                 verified: userDetails.verified,
                 active: userDetails.active,
                 isFree: userDetails.isFree,
-                description: user.description, 
-                country: user.country, 
-                picture: user.picture,
-                tokens: user.tokens,
-                exp: user.exp,
-                score: user.score, 
+                description: user?.description, 
+                country: user?.country, 
+                picture: user?.picture,
+                tokens: user?.tokens,
+                exp: user?.exp,
+                score: user?.score, 
                 isGuest: false                       
             }
     
