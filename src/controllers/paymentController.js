@@ -143,7 +143,7 @@ const createPaymentIntent = async (req, res) => {
 
         // Create a Payment Intent with manual confirmation
         let paymentIntent;
-        if(googlePlay || applePay) {
+        if(payment_method_id) {
             paymentIntent = await stripe.paymentIntents.create({
                 amount: Math.round(amount * 100), // Convert amount to the smallest currency unit
                 currency: currency,
@@ -158,12 +158,30 @@ const createPaymentIntent = async (req, res) => {
                 }
             });
         } else {
+            let paymentMethod;
+            
+            if(googlePlay) {
+                paymentMethod = await stripe.paymentMethods.create({
+                    type: 'google_pay',
+                    google_pay: {
+                        token: googlePlay,
+                    },
+                });
+            } else {
+                paymentMethod = await stripe.paymentMethods.create({
+                    type: 'apple_pay',
+                    apple_pay: {
+                        token: applePay,
+                    },
+                });
+            };
+        
             paymentIntent = await stripe.paymentIntents.create({
                 amount: Math.round(amount * 100),
                 currency: currency,
                 payment_method_types: ['card', 'apple_pay', 'google_pay'],
+                payment_method: paymentMethod.id,
             });
-            
         }
 
         if (paymentIntent?.next_action?.redirect_to_url) {
