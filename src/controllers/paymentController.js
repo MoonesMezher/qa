@@ -64,6 +64,16 @@ const addNewCard = async (req, res) => {
             return res.status(400).json({ state: 'failed',message: 'لديك هذه البطاقة بالفعل لا يمكنك إضافتها مرة أخرى' });
         }
 
+        let image;
+
+        if(paymentMethod.card.brand === 'visa') {
+            image = 'uploads/cards/visa.webp'
+        } else if(paymentMethod.card.brand === 'master_card') {
+            image = 'uploads/cards/master.webp'
+        } else {
+            image = 'uploads/cards/default.webp'
+        }
+
         // Save the card information to your database
         const card = await CustomerCard.create({
             user_id: user._id,
@@ -73,6 +83,7 @@ const addNewCard = async (req, res) => {
             brand: paymentMethod.card.brand,
             exp_month: paymentMethod.card.exp_month,
             exp_year: paymentMethod.card.exp_year,
+            image,
         });
 
         return res.status(200).json({ state: 'success',message: 'تم إضافة البطاقة بنجاح', card });

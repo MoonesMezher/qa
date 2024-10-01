@@ -24,6 +24,10 @@ const CustomerCard = model("CustomerCard", new Schema({
     exp_year: {
         type: String,
     },
+    image: {
+        type: String,
+        default: 'uploads/cards/default.webp'
+    }
 }, { timestamps : true }));
 
 module.exports = mongoose.model("CustomerCard") || CustomerCard;
