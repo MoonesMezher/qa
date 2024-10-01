@@ -35,8 +35,6 @@ const createOtpAndSendToMail = async (req, res) => {
 
         const key = generateOTP();
 
-        // await OTP.deleteMany({ updatedAt:  })
-
         if(otp) {
             otp.pass = key
 
@@ -74,6 +72,10 @@ const checkFromOtp = async (req, res) => {
         if(otp.length !== 4) {
             return res.status(400).json({state: "failed", message: "الرمز يجب أن يتكون من أربع محارف فقط"})            
         }
+
+        const M15 = new Date(Date.now() - (16 * 60 * 1000));
+
+        await OTP.deleteMany({ updatedAt: { $lt: M15 } })
 
         const key = await OTP.findOne({ userId: user._id });
 

@@ -110,7 +110,7 @@ const getAllPaymentsHistory = async (req, res) => {
 
 const createPaymentIntent = async (req, res) => {
     try {
-        const { amount, currency, payment_method_id } = req.body;
+        const { amount, currency, payment_method_id, googlePlay, applePay } = req.body;
 
         if(!amount) {
             return res.status(400).json({ state: 'failed',message: 'You must insert amount value' });
@@ -120,8 +120,8 @@ const createPaymentIntent = async (req, res) => {
             return res.status(400).json({ state: 'failed',message: 'You must insert currency value' });
         }
 
-        if(!payment_method_id) {
-            return res.status(400).json({ state: 'failed',message: 'You must insert payment_method_id value' });
+        if(!payment_method_id && !googlePlay && !applePay) {
+            return res.status(400).json({ state: 'failed',message: 'You must insert payment_method_id or google play or apple pay value' });
         }
 
         const user = await Payment.findOne({userId: req.user._id}); // Assuming user is authenticated and available in req.user
@@ -130,26 +130,36 @@ const createPaymentIntent = async (req, res) => {
             return res.status(400).json({ state: 'failed',message: 'No Stripe customer ID found for the user' });
         }
 
-    // Create a Payment Intent with manual confirmation
-        const paymentIntent = await stripe.paymentIntents.create({
-            amount: Math.round(amount * 100), // Convert amount to the smallest currency unit
-            currency: currency,
-            payment_method: payment_method_id,
-            // confirmation_method: 'manual',
-            confirm: true,
-            customer: user.stripe_customer_id,
-            return_url: 'https://quiz-app2-3q4e.onrender.com/game/api/payments/check',
-            automatic_payment_methods: {
-                enabled: true,
-                allow_redirects: 'never'
-            }
-        });
+        // Create a Payment Intent with manual confirmation
+        let paymentIntent;
+        if(googlePlay || applePay) {
+            paymentIntent = await stripe.paymentIntents.create({
+                amount: Math.round(amount * 100), // Convert amount to the smallest currency unit
+                currency: currency,
+                payment_method: payment_method_id,
+                // confirmation_method: 'manual',
+                confirm: true,
+                customer: user.stripe_customer_id,
+                return_url: 'https://quiz-app2-3q4e.onrender.com/game/api/payments/check',
+                automatic_payment_methods: {
+                    enabled: true,
+                    allow_redirects: 'never'
+                }
+            });
+        } else {
+            paymentIntent = await stripe.paymentIntents.create({
+                amount: Math.round(amount * 100),
+                currency: currency,
+                payment_method_types: ['card', 'apple_pay', 'google_pay'],
+            });
+            
+        }
 
         if (paymentIntent?.next_action?.redirect_to_url) {
             return res.status(200).json({
                 state: 'next',
                 data: {
-                    // client_secret: paymentIntent.client_secret,
+                    client_secret: paymentIntent.client_secret,
                     next_action_url: paymentIntent.next_action.redirect_to_url.url,
                     payment_intent_id: paymentIntent.id,
                     // status: paymentIntent.status,
@@ -158,7 +168,7 @@ const createPaymentIntent = async (req, res) => {
         }
 
         return res.status(200).json({state: 'success', data: {
-            // client_secret: paymentIntent.client_secret,
+            client_secret: paymentIntent.client_secret,
             next_action_url: 'no url',
             payment_intent_id: paymentIntent.id,
             // status: paymentIntent.status,

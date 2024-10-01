@@ -19,7 +19,8 @@ async function sendEmail(to, otp) {
             to,
             subject: 'Password Reset OTP',
             text: 
-            `Please enter the following code to complete your verification: ${otp}`,
+            `Please enter the following code to complete your verification: ${otp},
+            this code is valid for 15 minutes.`,
         };
 
         await transporter.sendMail(mailOptions);
