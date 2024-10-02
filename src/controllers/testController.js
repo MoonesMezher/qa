@@ -185,6 +185,25 @@ const deleteAllDataEntry = async (req, res) => {
     }
 }
 
+const addCheckVariable = async (req, res) => {
+    try {
+        const { page } = req.params;
+
+        const qs = await Question.find({}).skip(2000 * (page - 1)).limit(2000);
+        
+        await Promise.all(qs.map(async e => {
+            await Question.findByIdAndUpdate(e._id, { $set: { check: false } });
+        }));
+        
+        const all = await Question.countDocuments({})
+        const hasCheck = await Question.countDocuments({check: false})
+
+        return res.status(200).json({ state: 'success', message: 'Add check attr to questions successfully', all, hasCheck});
+    } catch (err) {
+        return res.status(400).json({ state: 'failed', message: err.message })                        
+    }
+}
+
 module.exports = {
     addOtherCategoryToQuestionNoHaveCategory,
     editAdminPassword,
@@ -192,5 +211,6 @@ module.exports = {
     createProfileToUser,
     moveCategoryToAnotherSection,
     deleteAllNotActiveDataEntry,
-    deleteAllDataEntry
+    deleteAllDataEntry,
+    addCheckVariable
 }

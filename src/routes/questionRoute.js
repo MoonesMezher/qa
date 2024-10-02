@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 
 // methods
-const { showQuestion, showQuestions, showAllActiveQuestions, showAllNotActiveQuestions, showQuestionsByUser, showQuestionsByType, showQuestionsByWord, createQuestion, updateQuestion, activateQuestion, disactivateQuestion, deleteQuestion, showDataEntryQuestions, showQuestionsByTypeForOneUser, showQuestionsByTypeForOneUserWithFilter, showQuestionsForOneUserWithFilter, showQuestionsByCategory, showQuestionsByCategoryAndWord, showQuestionsByCategoryAndType, showQuestionsByCategoryAndTypeAndWord } = require('../controllers/questionController');
+const { showQuestionsByUserByCheck, showQuestion, showQuestions, showAllActiveQuestions, showAllNotActiveQuestions, showQuestionsByUser, showQuestionsByType, showQuestionsByWord, createQuestion, updateQuestion, activateQuestion, disactivateQuestion, deleteQuestion, showDataEntryQuestions, showQuestionsByTypeForOneUser, showQuestionsByTypeForOneUserWithFilter, showQuestionsForOneUserWithFilter, showQuestionsByCategory, showQuestionsByCategoryAndWord, showQuestionsByCategoryAndType, showQuestionsByCategoryAndTypeAndWord, checkedQuestion, showQuestionsByCheck } = require('../controllers/questionController');
 
 // middlewares
 const requireAuth = require('../middlewares/requireAuth');
@@ -33,6 +33,10 @@ router.get('/word/:word/page/:page', [validatePageParameter,requireAuth], showQu
 
 router.get('/user/:id/page/:page', [validateObjectId, validatePageParameter,requireAuth], showQuestionsByUser);
 
+router.get('/by-check/:check/page/:page', [validatePageParameter,requireAuth], showQuestionsByCheck);
+
+router.get('/by-user/:id/by-check/:check/page/:page', [validateObjectId,validatePageParameter,requireAuth], showQuestionsByUserByCheck);
+
 router.get('/by-category/section/:section/category/:category/page/:page', [validatePageParameter,requireAuth], showQuestionsByCategory);
 
 router.get('/by-category-and-word/section/:section/category/:category/word/:word/page/:page', [validatePageParameter,requireAuth], showQuestionsByCategoryAndWord);
@@ -50,6 +54,8 @@ router.post('/', [requireAuth, authorize(["admin", "data-entry"]),isImage], crea
 router.put('/activate/:id', [validateObjectId ,requireAuth, authorize(["admin", "data-entry"])], activateQuestion);
 
 router.put('/disactivate/:id', [validateObjectId ,requireAuth, authorize(["admin", "data-entry"])], disactivateQuestion);
+
+router.put('/checked/:id', [validateObjectId ,requireAuth, authorize(["admin", "data-entry"])], checkedQuestion);
 
 router.put('/:id', [validateObjectId ,requireAuth, authorize(["admin", "data-entry"]), isImage], updateQuestion);
 

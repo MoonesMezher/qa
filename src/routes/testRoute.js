@@ -2,11 +2,12 @@ const express = require('express');
 const router = express.Router();
 
 // methods
-const { addOtherCategoryToQuestionNoHaveCategory, editAdminPassword, deleteAllNotificationsAndReports, createProfileToUser, moveCategoryToAnotherSection, deleteAllNotActiveDataEntry, deleteAllDataEntry } = require('../controllers/testController');
+const { addOtherCategoryToQuestionNoHaveCategory, editAdminPassword, deleteAllNotificationsAndReports, createProfileToUser, moveCategoryToAnotherSection, deleteAllNotActiveDataEntry, deleteAllDataEntry, addCheckVariable } = require('../controllers/testController');
 
 // middlewares
 const testAuth = require('../middlewares/testAuthMiddleware');
 const validateObjectId = require('../middlewares/checkFromIdMiddleware');
+const validatePageParameter = require('../middlewares/checkFromPageKeyMiddleware');
 
 // routes
 
@@ -21,6 +22,8 @@ router.put('/move-category/:id', [testAuth, validateObjectId], moveCategoryToAno
 // router.put('/questions/section/:id',testAuth, addOtherCategoryToQuestionNoHaveCategory)
 
 router.put('/edit-admin-password', testAuth,editAdminPassword)
+
+router.put('/add-check-variable-to-questions/page/:page', [testAuth, validatePageParameter], addCheckVariable)
 
 // DELETE
 

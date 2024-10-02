@@ -44,6 +44,10 @@ const Question = model("Question", new Schema({
     active: {
         type: Boolean,
         default: true
+    },
+    check: {
+        type: Boolean,
+        default: false
     }
 }, { timestamps : true }))
 

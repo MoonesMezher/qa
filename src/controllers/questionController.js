@@ -858,6 +858,65 @@ const showQuestionsByCategoryAndTypeAndWord = async (req, res) => {
     }
 }
 
+const showQuestionsByCheck = async (req, res) => {
+    try {
+        const { page } = req.params;
+        const { check } = req.params;
+
+        if(check !== 'check' && check !== 'not-check') {
+            return res.status(400).send({ state: 'failed', message: `Invalid check params` });
+        }
+
+        const count = await Question.countDocuments({ check: (check === 'check') });
+
+        const questions = await Question.find({ check: (check === 'check') }).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
+
+        if(!questions) {
+            return res.status(400).send({ state: 'failed', message: `You dont have any ${check} question` });
+        }
+
+        return res.status(200).send({ state: 'success', message: `Get ${check} questions successfully`, questions: questions, total: count });
+    } catch (error) {
+        return res.status(400).send({ state: 'failed', message: error.message });        
+    }
+}
+
+const checkedQuestion = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const question = await Question.findByIdAndUpdate(id, { check: true }, { new: true });
+
+        return res.status(200).send({ state: 'success', message: `Checked question successfully`, question});
+    } catch (error) {
+        return res.status(400).send({ state: 'failed', message: error.message });        
+    }
+}
+
+const showQuestionsByUserByCheck = async (req, res) => {
+    try {
+        const { page } = req.params;
+        const { check } = req.params;
+        const { id } = req.params;
+
+        if(check !== 'check' && check !== 'not-check') {
+            return res.status(400).send({ state: 'failed', message: `Invalid check params` });
+        }
+
+        const count = await Question.countDocuments({ check: (check === 'check'), user_ids: { $in: [id] } });
+
+        const questions = await Question.find({ check: (check === 'check'), user_ids: { $in: [id] } }).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
+
+        if(!questions) {
+            return res.status(400).send({ state: 'failed', message: `You dont have any ${check} question` });
+        }
+
+        return res.status(200).send({ state: 'success', message: `Get ${check} questions for user successfully`, questions: questions, total: count });
+    } catch (error) {
+        return res.status(400).send({ state: 'failed', message: error.message });        
+    }
+}
+
 module.exports = {
     showQuestion,
     showQuestions,
@@ -878,5 +937,8 @@ module.exports = {
     showQuestionsByCategory,
     showQuestionsByCategoryAndWord,
     showQuestionsByCategoryAndType,
-    showQuestionsByCategoryAndTypeAndWord
+    showQuestionsByCategoryAndTypeAndWord,
+    showQuestionsByCheck,
+    checkedQuestion,
+    showQuestionsByUserByCheck
 }
