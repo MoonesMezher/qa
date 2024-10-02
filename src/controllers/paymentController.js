@@ -68,7 +68,7 @@ const addNewCard = async (req, res) => {
 
         if(paymentMethod.card.brand === 'visa') {
             image = 'uploads/cards/visa.webp'
-        } else if(paymentMethod.card.brand === 'master_card') {
+        } else if(paymentMethod.card.brand === 'mastercard') {
             image = 'uploads/cards/master.webp'
         } else {
             image = 'uploads/cards/default.webp'
@@ -161,7 +161,7 @@ const createPaymentIntent = async (req, res) => {
             paymentIntent = await stripe.paymentIntents.create({
                 amount: Math.round(amount * 100),
                 currency: currency,
-                confirm: true,
+                // confirm: true,
                 customer: user.stripe_customer_id,
                 return_url: 'https://quiz-app2-3q4e.onrender.com/game/api/payments/check',
                 automatic_payment_methods: {
@@ -196,7 +196,7 @@ const createPaymentIntent = async (req, res) => {
             // }
             // Use the client secret to collect payment information from the customer using Apple Pay
 
-            console.log(paymentIntent);
+            // console.log(paymentIntent);
         }
 
         if (paymentIntent?.next_action?.redirect_to_url) {
