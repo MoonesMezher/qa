@@ -45,7 +45,11 @@ const generateRandomQuestions = async (type, limit, typeQuestion) => {
     const selectedQuestions = new Set();
     
     while (selectedQuestions.size < finalLimit) {
-        const randomIndex = Math.floor(Math.random() * flatQuestions.length);
+        const random = Math.random();
+        const length = flatQuestions.length;
+        const by = Math.floor((Math.random() * (length.toString().length - 1)));
+
+        const randomIndex = Math.floor(random * Math.pow(10, -by) * length);
 
         const question = flatQuestions[randomIndex];
 
