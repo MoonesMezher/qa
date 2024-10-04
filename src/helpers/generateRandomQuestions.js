@@ -1,7 +1,8 @@
+const CacheQuestions = require("../database/models/CacheQuestions");
 const Question = require("../database/models/Question");
 const Section = require("../database/models/Section");
 
-const generateRandomQuestions = async (type, limit, typeQuestion) => {
+const generateRandomQuestions = async (userId, type, limit, typeQuestion) => {
     let questions;
 
     if(type.type === 'section') {
@@ -36,11 +37,23 @@ const generateRandomQuestions = async (type, limit, typeQuestion) => {
 
     let finalLimit = limit;
 
-    if(limit > questions.length) {
-        finalLimit = questions.length;
+    let cacheQuestions = await CacheQuestions.findOne({user_id: userId, type_id: type.id});
+
+    let flatQuestions = [].concat(...questions);
+
+    if(cacheQuestions && (flatQuestions.length - cacheQuestions.questions.length) <= limit) {
+        await CacheQuestions.findByIdAndDelete(cacheQuestions._id)
+    } else {
+        if(cacheQuestions) {
+            for(let i = 0; i < cacheQuestions.questions.length; i++) {
+                flatQuestions = flatQuestions.filter(e => e._id.toString() !== cacheQuestions.questions[i].toString())
+            }
+        }
     }
 
-    const flatQuestions = [].concat(...questions);
+    if(limit > flatQuestions.length) {
+        finalLimit = flatQuestions.length;
+    }
 
     const selectedQuestions = new Set();
     
@@ -48,12 +61,20 @@ const generateRandomQuestions = async (type, limit, typeQuestion) => {
         const random = Math.random();
         const length = flatQuestions.length;
         const by = Math.floor((Math.random() * (length.toString().length - 1)));
-
+        
         const randomIndex = Math.floor(random * Math.pow(10, -by) * length);
-
+        
         const question = flatQuestions[randomIndex];
-
+        
         if (!selectedQuestions.has(question._id)) {
+            if(!cacheQuestions) {
+                cacheQuestions = await CacheQuestions.create({user_id: userId, type_id: type.id, questions: [question._id]});
+            } else {
+                console.log(question._id, [...cacheQuestions.questions, question._id])
+
+                await CacheQuestions.findByIdAndUpdate(cacheQuestions._id, {questions: [...cacheQuestions.questions, question._id]});
+            }
+
             selectedQuestions.add(question._id);
         }
     }
@@ -61,12 +82,12 @@ const generateRandomQuestions = async (type, limit, typeQuestion) => {
     return Array.from(selectedQuestions).map((id) => flatQuestions.find((q) => q._id === id));
 }
 
-const generateRandomQuestionsForSpeedGame = async (type) => {
+const generateRandomQuestionsForSpeedGame = async (type, userId) => {
     const limit = 100;
     
-    const q1 = await generateRandomQuestions(type, limit, 'true-false');
+    const q1 = await generateRandomQuestions(userId, type, limit, 'true-false');
 
-    const q2 = await generateRandomQuestions(type, limit, 'normal');
+    const q2 = await generateRandomQuestions(userId, type, limit, 'normal');
 
     let result = [];
 
@@ -80,12 +101,12 @@ const generateRandomQuestionsForSpeedGame = async (type) => {
     return result;
 }
 
-const generateRandomQuestionsForChainGame = async (type) => {
+const generateRandomQuestionsForChainGame = async (type, userId) => {
     const limit = 100;
     
-    const q1 = await generateRandomQuestions(type, limit, 'true-false');
+    const q1 = await generateRandomQuestions(userId, type, limit, 'true-false');
 
-    const q2 = await generateRandomQuestions(type, limit, 'normal');
+    const q2 = await generateRandomQuestions(userId, type, limit, 'normal');
 
     let result = [];
 
@@ -99,14 +120,14 @@ const generateRandomQuestionsForChainGame = async (type) => {
     return result;
 }
 
-const generateRandomQuestionsForOnlineGame = async (type) => {
+const generateRandomQuestionsForOnlineGame = async (type, userId) => {
     // const limit = 10;
     
-    const q1 = await generateRandomQuestions(type, 4, 'true-false');
+    const q1 = await generateRandomQuestions(userId, type, 4, 'true-false');
 
-    const q2 = await generateRandomQuestions(type, 5, 'normal');
+    const q2 = await generateRandomQuestions(userId, type, 5, 'normal');
 
-    const q3 = await generateRandomQuestions(type, 2, 'multipale');
+    const q3 = await generateRandomQuestions(userId, type, 2, 'multipale');
 
     let result = [...q1, ...q2, ...q3];
 
@@ -115,7 +136,7 @@ const generateRandomQuestionsForOnlineGame = async (type) => {
     return result;
 }
 
-const generateRandomQuestionsForCompetion = async (typeId) => {
+const generateRandomQuestionsForCompetion = async (typeId, userId) => {
     const limit = 100;
 
     let type = { id: typeId, type: 'section' }
@@ -126,9 +147,9 @@ const generateRandomQuestionsForCompetion = async (typeId) => {
         type.type = 'category'
     }
     
-    const q1 = await generateRandomQuestions(type, limit, 'true-false');
+    const q1 = await generateRandomQuestions(userId, type, limit, 'true-false');
 
-    const q2 = await generateRandomQuestions(type, limit, 'normal');
+    const q2 = await generateRandomQuestions(userId, type, limit, 'normal');
 
     let result = [];
 

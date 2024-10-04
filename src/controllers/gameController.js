@@ -4,6 +4,8 @@ const { generateRandomQuestionsForSpeedGame, generateRandomQuestionsForChainGame
 const getQuestionsToSpeedGame = async (req, res) => {
     const { id, type } = req.params;
 
+    const userId = req.user._id;
+
     if(!type || !id) {
         return res.status(400).json({ state: 'failed', message: 'You must choose section or category to play this game' })
     }
@@ -21,7 +23,7 @@ const getQuestionsToSpeedGame = async (req, res) => {
     }
 
     try {
-        const questions = await generateRandomQuestionsForSpeedGame({ id, type });
+        const questions = await generateRandomQuestionsForSpeedGame({ id, type }, userId);
 
         const total = questions.length;
 
@@ -38,6 +40,8 @@ const getQuestionsToSpeedGame = async (req, res) => {
 const getQuestionsToChainGame = async (req, res) => {
     const { id, type } = req.params;
 
+    const userId = req.user._id;
+
     if(!type || !id) {
         return res.status(400).json({ state: 'failed', message: 'You must choose section or category to play this game' })
     }
@@ -51,7 +55,7 @@ const getQuestionsToChainGame = async (req, res) => {
     }
 
     try {
-        const questions = await generateRandomQuestionsForChainGame({ id, type });
+        const questions = await generateRandomQuestionsForChainGame({ id, type }, userId);
 
         const total = questions.length;
 

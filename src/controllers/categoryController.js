@@ -186,7 +186,7 @@ const showCategoryBySection = async (req, res) => {
     const categorys = await Promise.all(categoryss.map(async e => {
         const count = await inCategory(e._id);
 
-        return {category: e, total: count.count, trueAndFalseCount: count.countTrueFalse, multipaleCount: count.countMultipale, normalCount: count.countNormal }
+        return {category: e, total: count.count, trueAndFalseCount: count.countTrueFalse, multipaleCount: count.countMultipale, normalCount: count.countNormal, checkCount: count.countCheck, notCheckCount: count.countNotCheck }
     }))
 
     return res.status(200).send({ state: 'success', message: 'Get categorys successfully', categorys: categorys });
@@ -203,7 +203,7 @@ const showCategoryByWord = async (req, res) => {
         const categorys = await Promise.all(categoryss.map(async e => {
             const count = await inCategory(e._id);
     
-            return {category: e, total: count.count, trueAndFalseCount: count.countTrueFalse, multipaleCount: count.countMultipale, normalCount: count.countNormal }
+            return {category: e, total: count.count, trueAndFalseCount: count.countTrueFalse, multipaleCount: count.countMultipale, normalCount: count.countNormal, checkCount: count.countCheck, notCheckCount: count.countNotCheck }
         }))
         
         return res.status(200).send({ state: 'success', message: `Get categorys has word: ${word} successfully`, categorys: categorys });
@@ -222,7 +222,7 @@ const showAllActiveCategorys = async (req, res) => {
     const categorys = await Promise.all(categoryss.map(async e => {
         const count = await inCategory(e._id);
 
-        return {category: e, total: count.count, trueAndFalseCount: count.countTrueFalse, multipaleCount: count.countMultipale, normalCount: count.countNormal }
+        return {category: e, total: count.count, trueAndFalseCount: count.countTrueFalse, multipaleCount: count.countMultipale, normalCount: count.countNormal, checkCount: count.countCheck, notCheckCount: count.countNotCheck }
     }))
 
     return res.status(200).send({ state: 'success', message: 'Get active categorys successfully', categorys: categorys });
@@ -238,7 +238,7 @@ const showAllNotActiveCategorys = async (req, res) => {
     const categorys = await Promise.all(categoryss.map(async e => {
         const count = await inCategory(e._id);
 
-        return {category: e, total: count.count, trueAndFalseCount: count.countTrueFalse, multipaleCount: count.countMultipale, normalCount: count.countNormal }
+        return {category: e, total: count.count, trueAndFalseCount: count.countTrueFalse, multipaleCount: count.countMultipale, normalCount: count.countNormal, checkCount: count.countCheck, notCheckCount: count.countNotCheck }
     }))
 
     return res.status(200).send({ state: 'success', message: 'Get not active categorys successfully', categorys: categorys });

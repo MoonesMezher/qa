@@ -771,7 +771,7 @@ const showQuestionsByCategoryAndType = async (req, res) => {
         return res.status(400).send({ state: 'failed', message: `Type must be string` });
     }
 
-    if(!(type === 'true-false' || type === 'normal' || type === 'multipale')) {
+    if(!(type === 'true-false' || type === 'normal' || type === 'multipale' || type === 'check' || type === 'not-check')) {
         return res.status(400).send({ state: 'failed', message: `This type doesnot exist in the system` });
     }
     
@@ -788,9 +788,17 @@ const showQuestionsByCategoryAndType = async (req, res) => {
             return res.status(400).send({ state: 'failed', message: 'This category not found' });        
         }
 
-        const count = await Question.countDocuments({ section_id: findSection._id, category_ids: { $in: findCategory._id }, type });
+        let count, questions;
 
-        const questions = await Question.find({ section_id: findSection._id,category_ids: { $in: findCategory._id }, type }).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
+        if(type === 'check' || type === 'not-check') {
+            count = await Question.countDocuments({ check: (type === 'check'), section_id: findSection._id, category_ids: { $in: findCategory._id } });
+
+            questions = await Question.find({ check: (type === 'check'), section_id: findSection._id,category_ids: { $in: findCategory._id }}).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
+        } else {
+            count = await Question.countDocuments({ section_id: findSection._id, category_ids: { $in: findCategory._id }, type });
+
+            questions = await Question.find({ section_id: findSection._id,category_ids: { $in: findCategory._id }, type}).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
+        }
 
         return res.status(200).send({ state: 'success', message: `Get questions have ${section} as section and '${type}' in category: ${category} successfully`, questions: questions, total: count });
     } catch (error) {
@@ -825,7 +833,7 @@ const showQuestionsByCategoryAndTypeAndWord = async (req, res) => {
         return res.status(400).send({ state: 'failed', message: `Type must be string` });
     }
 
-    if(!(type === 'true-false' || type === 'normal' || type === 'multipale')) {
+    if(!(type === 'true-false' || type === 'normal' || type === 'multipale' || type === 'check' || type === 'not-check')) {
         return res.status(400).send({ state: 'failed', message: `This type doesnot exist in the system` });
     }
 
@@ -848,9 +856,17 @@ const showQuestionsByCategoryAndTypeAndWord = async (req, res) => {
             return res.status(400).send({ state: 'failed', message: 'This category not found' });        
         }
 
-        const count = await Question.countDocuments({ section_id: findSection._id, category_ids: { $in: findCategory._id }, type, text: { $regex: newRegex } });
+        let count, questions;
 
-        const questions = await Question.find({ section_id: findSection._id, category_ids: { $in: findCategory._id }, type, text: { $regex: newRegex } }).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
+        if(type === 'check' || type === 'not-check') {
+            count = await Question.countDocuments({ check: (type === 'check'),section_id: findSection._id, category_ids: { $in: findCategory._id }, text: { $regex: newRegex } });
+
+            questions = await Question.find({ check: (type === 'check'), section_id: findSection._id, category_ids: { $in: findCategory._id }, text: { $regex: newRegex } }).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit)
+        } else {
+            count = await Question.countDocuments({ section_id: findSection._id, category_ids: { $in: findCategory._id }, type, text: { $regex: newRegex } });
+
+            questions = await Question.find({ section_id: findSection._id, category_ids: { $in: findCategory._id }, type, text: { $regex: newRegex } }).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit);
+        }
 
         return res.status(200).send({ state: 'success', message: `Get questions have ${section} as section and '${type}' and word: ${word} in category: ${category} successfully`, questions: questions, total: count });
     } catch (error) {

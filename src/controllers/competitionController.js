@@ -535,7 +535,7 @@ const getCompetionQuestions = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const questions = await generateRandomQuestionsForCompetion(id);
+        const questions = await generateRandomQuestionsForCompetion(id, req.user._id);
 
         const total = questions.length;
 

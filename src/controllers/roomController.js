@@ -87,7 +87,7 @@ const joinToRoom = async (req, res) => {
 
             return res.status(200).json({ state:'success', message: 'تم انضمام المستخدم الى غرفة بنجاح', data });
         } else {
-            const questions = await generateRandomQuestionsForOnlineGame({ id: subject, type });
+            const questions = await generateRandomQuestionsForOnlineGame({ id: subject, type }, user._id);
 
             if(questions.length === 0) {
                 return res.status(400).json({ state:'failed', message: 'لا يوجد اسئلة تناسب خيارك لذلك لا يمكنك اللعب الآن' });
@@ -175,7 +175,7 @@ const createNewRoomInGroupGame = async (req, res) => {
 
         await Room.deleteMany({ createdAt: { $lt: tenMinutesAgo } });
 
-        const questions = await generateRandomQuestionsForOnlineGame({ id: subject, type });
+        const questions = await generateRandomQuestionsForOnlineGame({ id: subject, type }, user._id);
 
         if(questions.length === 0) {
             return res.status(400).json({ state:'failed', message: 'لا يوجد اسئلة تناسب خيارك لذلك لا يمكنك اللعب الآن' });
@@ -268,7 +268,7 @@ const createNewRoomInOnlineGame = async (req, res) => {
 
         await Room.deleteMany({ createdAt: { $lt: tenMinutesAgo } });
 
-        const questions = await generateRandomQuestionsForOnlineGame({ id: subject, type });
+        const questions = await generateRandomQuestionsForOnlineGame({ id: subject, type }, user._id);
 
         if(questions.length === 0) {
             return res.status(400).json({ state:'failed', message: 'لا يوجد اسئلة تناسب خيارك لذلك لا يمكنك اللعب الآن' });

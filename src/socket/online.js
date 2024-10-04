@@ -339,6 +339,36 @@ const joinMethod = async (item, socket, io, data) => {
 
                 setTimeout(finishPlayer, 10000)
             }
+
+            setTimeout(async () => {
+                const thisRoom2 = Room.findOne({code: item.roomId});
+                if(!thisRoom2) {
+                    return;
+                }
+
+                if(thisRoom2.gameState !== 'waiting') {
+                    return;
+                }
+
+                if(thisRoom2.users.length !== 1) {
+                    return;
+                }
+
+                let newUsers = thisRoom2.users;
+                
+                const bot = generateRandomBot(thisRoom2.questions);
+                
+                newUsers.push( { id: bot.id, name: bot.name, image: bot.image, status: 'finish', score: onlineGameBot(thisRoom2.questions) } );
+                
+                await Room.updateOne({code:item.roomId}, { users: newUsers, gameState: 'start' });
+
+                newUsers[0].status = 'ready';
+                
+                const players = newUsers.sort((a, b) => b.score - a.score)
+
+                io.to(item.roomId).emit('game-waiting', 'start');
+                io.to(item.roomId).emit('player-waiting', userJson(players));
+            },30000)
         } else {
             io.to(socket.id).emit('game', 'remove');
         }
@@ -356,6 +386,12 @@ const playerMethod = async (item, socket, io, event) => {
         
         if(room) {
             const players = room.users.sort((a, b) => b.score - a.score);
+
+            if(event === 'player-finish' && (players[0].score === players[1].score)) {
+                players[0].score = players[0].score + 1;
+
+                await room.save()
+            }
             
             io.to(item.roomId).emit(event, userJson(players));
         }
@@ -606,8 +642,11 @@ const playerMethod2 = async (item, socket, io, event) => {
         return;
     }
     
-    try {                    
-        checkFromBalance(item.roomId);
+    try {            
+        if(event === 'player2-finish') {
+            checkFromBalance(item.roomId);
+        }        
+        
         io.to(item.roomId).emit(event, getRoomPlayers(item.roomId));
     } catch (error) {
         console.log('Error -> Player: ', error.message);            
