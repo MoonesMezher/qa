@@ -72,7 +72,7 @@ const generateRandomQuestions = async (userId, type, limit, typeQuestion) => {
             } else {
                 // console.log(question._id, [...cacheQuestions.questions, question._id])
 
-                await CacheQuestions.findByIdAndUpdate(cacheQuestions._id, {questions: [...cacheQuestions.questions, question._id]});
+                await CacheQuestions.findByIdAndUpdate(cacheQuestions._id, { $push: { questions: question._id } });
             }
 
             selectedQuestions.add(question._id);
