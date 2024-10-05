@@ -23,12 +23,12 @@ const generateRandomQuestions = async (userId, type, limit, typeQuestion) => {
             "text": question?.text,
             "answers": [
                     {
-                        "answer": question.answers[0].state? 'صح': 'خطأ',
-                        "state": true,
+                        "answer": 'خطأ',
+                        "state": question.answers[0].state? false: true,
                     },
                     {
-                        "answer": !question.answers[0].state? 'صح': 'خطأ',
-                        "state": false,
+                        "answer": 'صح',
+                        "state": question.answers[0].state? true: false,
                     }
                 ]
             }
@@ -70,7 +70,7 @@ const generateRandomQuestions = async (userId, type, limit, typeQuestion) => {
             if(!cacheQuestions) {
                 cacheQuestions = await CacheQuestions.create({user_id: userId, type_id: type.id, questions: [question._id]});
             } else {
-                console.log(question._id, [...cacheQuestions.questions, question._id])
+                // console.log(question._id, [...cacheQuestions.questions, question._id])
 
                 await CacheQuestions.findByIdAndUpdate(cacheQuestions._id, {questions: [...cacheQuestions.questions, question._id]});
             }

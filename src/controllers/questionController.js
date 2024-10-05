@@ -901,9 +901,13 @@ const checkedQuestion = async (req, res) => {
     try {
         const { id } = req.params;
 
-        const question = await Question.findByIdAndUpdate(id, { check: true }, { new: true });
+        const question = await Question.findById(id);
 
-        return res.status(200).send({ state: 'success', message: `Checked question successfully`, question});
+        question.check = !question.check;
+
+        await question.save();
+
+        return res.status(200).send({ state: 'success', message: `Change check state question successfully`, question});
     } catch (error) {
         return res.status(400).send({ state: 'failed', message: error.message });        
     }

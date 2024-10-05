@@ -15,7 +15,7 @@ const onlineGameBot = (questions, value = .7) => {
         answers.push(score);
     });
 
-    console.log(answers);
+    // console.log(answers);
 
     return answers.reduce((acc, cur) => +acc + +cur);
 }
@@ -62,11 +62,13 @@ function solveQuestionBot(value) {
 const generateRandomBot = (questions) => {
     const userId = new mongoose.Types.ObjectId();
 
+    const details = generateRandomUserName();
+
     const bot = {
         id: userId,
         score: 100,
-        name: generateRandomUserName(),
-        image: `uploads/profile/profileDefault${Math.floor(Math.random() * 9) + 1}.webp`,
+        name: details,
+        image: `uploads/avatars/${details}.webp`,
         status: 'start',
     }
 
@@ -75,115 +77,28 @@ const generateRandomBot = (questions) => {
 
 const generateRandomUserName = () => {
     const usernames = [
-        "salama",
-        "rama",
-        "rami",
-        "doaa",
-        "mohammed",
-        "salam",
-        "karam",
-        "kareem",
-        "tawfeek",
-        "tarek",
-        "farah",
-        "mais",
-        "zina",
-        "roaa",
-        "sidra",
-        "ghenwa",
-        "fares",
-        "danyal",
-        "naell",
-        "marwan",
-        "anas",
-        "ayham",
-        "yamen",
-        "omar",
-        "amer",
-        "waseem",
-        "sameer",
-        "laith",
-        "raeed",
-        "jneed",
-        "sami",
-        "sara",,
-        "lana",
-        "aya",
-        "ali",
-        'qamar',
-        'odai',
-        "dani",
-        "mahmmoud",
-        "komai",
-        "maged",
-        "mjd",
-        "mera",
-        "sommia",
-        "sonia",
-        "kenaz",
-        "moones",
-        "batoul",
-        "faihaa",
-        "tala",
-        "cristena",
-        "gaith",
-        "habib",
-        "habeb",
-        "ammar",
-        "yousef",
-        "youssef",
-        "hazzar",
-        "louna",
-        'bissan',
-        "bessan",
-        "darween",
-        "david",
-        "joly",
-        "joaa",
-        "martin",
-        "obaida",
-        "obada",
-        "meriana",
-        "soso",
-        "soze",
-        "ward",
-        "ross",
-        "carmen",
-        "Karmen",
-        "dena",
-        "diana",
-        "taleeb",
-        "ahmad",
-        "ahmed",
-        "fouaz",
-        "ibrahim",
-        "ibrahem",
-        "ibraheem",
-        "kenana",
-        "boushra",
-        "taima",
-        "toleen",
-        "dana",
-        "aseel",
-        "candi",
-        "fareed",
-        "khaled",
-        "sameh",
-        "sammeh",
-        "katia",
-        "saly",
-        "lougain",
-        "logain",
-        "hammed",
-        "hadi",
-        "shadi",
-        "shady"
+        "Abood",
+        "Farah",
+        "Ahmad",
+        "Hadi",
+        "Reem",
+        "Lana",
+        "Joury",
+        "Mohammed",
+        "Nada",
+        "Omar",
+        "Rami",
+        "Sawsan"
     ]
 
-    let result = usernames[Math.floor(Math.random() * usernames.length - 1)] +"."+ generateGuid().slice(0, Math.ceil(Math.random() * 5));
+    // console.log()
+
+    let result = usernames[Math.floor(Math.random() * (usernames.length - 1))];
 
     return result;
 }
+
+// console.log(generateRandomBot())
 
 module.exports = {
     onlineGameBot,
