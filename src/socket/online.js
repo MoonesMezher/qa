@@ -341,7 +341,7 @@ const joinMethod = async (item, socket, io, data) => {
             }
 
             setTimeout(async () => {
-                const thisRoom2 = Room.findOne({code: item.roomId});
+                const thisRoom2 = await Room.findOne({code: item.roomId});
                 if(!thisRoom2) {
                     console.log("@#", 1)
                     return;
