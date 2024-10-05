@@ -337,7 +337,7 @@ const joinMethod = async (item, socket, io, data) => {
                     }
                 };
 
-                setTimeout(finishPlayer, 10000)
+                setTimeout(finishPlayer, 25000)
             }
 
             setTimeout(async () => {
@@ -346,6 +346,8 @@ const joinMethod = async (item, socket, io, data) => {
                     console.log("@#", 1)
                     return;
                 }
+
+                console.log(thisRoom2.gameState, thisRoom2);
 
                 if(thisRoom2.gameState !== 'waiting') {
                     console.log("@#", 2)
@@ -375,7 +377,7 @@ const joinMethod = async (item, socket, io, data) => {
 
                 io.to(item.roomId).emit('game-waiting', 'start');
                 io.to(item.roomId).emit('player-waiting', userJson(players));
-            },25000)
+            },30000)
         } else {
             // io.to(socket.id).emit('game', 'remove');
         }
