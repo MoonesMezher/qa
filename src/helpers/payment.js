@@ -18,19 +18,19 @@ const retrieveOrCreateStripeCustomer = async (user) => {
                 await Payment.create({ userId: user._id, stripe_customer_id: customer.id });
             }
 
-            console.log("##@@##",customer);
+            // console.log("##@@##",customer);
 
             return customer;
         } else {
             const response = await stripe.customers.retrieve(payment.stripe_customer_id);
 
-            console.log("Res::",response);
+            // console.log("Res::",response);
 
             return response;
         }
     } catch (error) {
-        console.log("##@@##");
-        console.log(error);
+        // console.log("##@@##");
+        // console.log(error);
         throw new Error(error.message);        
     }
 }

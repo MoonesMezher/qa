@@ -342,24 +342,25 @@ const joinMethod = async (item, socket, io, data) => {
 
             setTimeout(async () => {
                 const thisRoom2 = await Room.findOne({code: item.roomId});
+                
                 if(!thisRoom2) {
-                    console.log("@#", 1)
+                    // console.log("@#", 1);
                     return;
                 }
 
                 console.log(thisRoom2.gameState, thisRoom2);
 
                 if(thisRoom2.gameState !== 'waiting') {
-                    console.log("@#", 2)
+                    // console.log("@#", 2)
                     return;
                 }
 
                 if(thisRoom2.users.length !== 1) {
-                    console.log("@#", 3)
+                    // console.log("@#", 3)
                     return;
                 }
 
-                console.log("@#", 4)
+                // console.log("@#", 4)
 
                 let newUsers = thisRoom2.users;
                 
@@ -373,7 +374,7 @@ const joinMethod = async (item, socket, io, data) => {
                 
                 const players = newUsers.sort((a, b) => b.score - a.score)
 
-                console.log("@#", 5, players, item.roomId)
+                // console.log("@#", 5, players, item.roomId)
 
                 io.to(item.roomId).emit('game-waiting', 'start');
                 io.to(item.roomId).emit('player-waiting', userJson(players));

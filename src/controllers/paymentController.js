@@ -137,13 +137,17 @@ const createPaymentIntent = async (req, res) => {
 
         const user = await Payment.findOne({userId: req.user._id}); // Assuming user is authenticated and available in req.user
 
+        let customer;
+
         if (!user || !user.stripe_customer_id) {
-            return res.status(400).json({ state: 'failed',message: 'No Stripe customer ID found for the user' });
+            customer = await retrieveOrCreateStripeCustomer(req.user);
+            // return res.status(400).json({ state: 'failed',message: 'No Stripe customer ID found for the user' });
         }
 
         // Create a Payment Intent with manual confirmation
         let paymentIntent;
         if(payment_method_id) {
+            console.log(1)
             paymentIntent = await stripe.paymentIntents.create({
                 amount: Math.round(amount * 100), // Convert amount to the smallest currency unit
                 currency: currency,
@@ -158,11 +162,15 @@ const createPaymentIntent = async (req, res) => {
                 }
             });
         } else {
+            console.log(2)
+
+            console.log(customer);
+
             paymentIntent = await stripe.paymentIntents.create({
                 amount: Math.round(amount * 100),
                 currency: currency,
                 // confirm: true,
-                customer: user.stripe_customer_id,
+                customer: customer?.id,
                 // return_url: 'https://quiz-app2-3q4e.onrender.com/game/api/payments/check',
                 automatic_payment_methods: {
                     enabled: true,
@@ -171,7 +179,7 @@ const createPaymentIntent = async (req, res) => {
                 // payment_method: paymentMethod.id,
             })
 
-            const clientSecret = paymentIntent.client_secret;
+            // const clientSecret = paymentIntent.client_secret;
 
             // if(googlePay) {
             //     const googlePayPaymentMethod = await stripe.googlePay.createPaymentMethod({

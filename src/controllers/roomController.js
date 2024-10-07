@@ -66,7 +66,13 @@ const joinToRoom = async (req, res) => {
 
         await Room.deleteMany({ createdAt: { $lt: tenMinutesAgo } });
 
-        const room = await Room.findOne({ invite: false, type: 'Online', subject: subject, users: { $size: 1 }, gameState: 'waiting', _id: { $ne: user._id } });
+        let room = await Room.findOne({ invite: false, type: 'Online', subject: subject, users: { $size: 1 }, gameState: 'waiting' });
+
+        while(room && room?.users.find(e => e.id.toString() === user._id.toString())) {
+            await Room.findByIdAndDelete(room._id);
+
+            room = await Room.findOne({ invite: false, type: 'Online', subject: subject, users: { $size: 1 }, gameState: 'waiting'});
+        }
 
         if(room) {
             room.users.push( { id: user._id, name: user.username, image: profile.picture, status: 'ready' } );
