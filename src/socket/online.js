@@ -313,7 +313,7 @@ const joinMethod = async (item, socket, io, data) => {
                         let newUsers = thisRoom.users.filter(e => e.status !== 'ready');
 
                         if(newUsers.length === 0) {
-                            await Room.deleteOne({code: item.roomId})
+                            await Room.deleteOne({code: item.roomId});
 
                             return;
                         }
@@ -324,15 +324,17 @@ const joinMethod = async (item, socket, io, data) => {
                         
                         await Room.updateOne({code:item.roomId}, { users: newUsers });
                         
-                        const players = newUsers.sort((a, b) => b.score - a.score)
+                        const players = newUsers.sort((a, b) => b.score - a.score);                      
                         
-                        io.to(item.roomId).emit('player', userJson(players));
-
                         if(newUsers.length === 2 && newUsers[0].status === 'finish' && newUsers[1].status === 'finish') {
                             // console.log('check now 3');
-                            await Room.deleteOne({code: item.roomId})
-
-                            io.to(item.roomId).emit('game-waiting', 'finish');
+                            await Room.deleteOne({ code: item.roomId });
+                            
+                            io.to(item.roomId).emit('player-finish', userJson(players));
+                            io.to(item.roomId).emit('game-finish', 'finish');
+                        } else {
+                            io.to(item.roomId).emit('player-waiting', userJson(players));
+                            io.to(item.roomId).emit('player-start', userJson(players));
                         }
                     }
                 };

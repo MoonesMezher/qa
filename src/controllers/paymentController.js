@@ -5,7 +5,8 @@ const Offer = require("../database/models/Offer");
 const retrieveOrCreateStripeCustomer = require("../helpers/payment");
 const PaymentDetails = require("../database/models/PaymentDetails");
 const User = require("../database/models/User");
-const stripe = require('stripe')(process.env.STRIPE_KEY_TEST);
+// const stripe = require('stripe')(process.env.STRIPE_KEY_TEST);
+const stripe = require('stripe')(process.env.STRIPE_KEY_REAL);
 
 const createPaymentMethod = async (req, res) => {
     try {
@@ -38,7 +39,6 @@ const addNewCard = async (req, res) => {
             return res.status(400).json({ state: 'failed',message: 'You must insert a payment method' });
         }
 
-        // const stripeSecret = process.env.STRIPE_KEY_TEST; // Set your Stripe Secret Key
         const user = await User.findById(req.user._id); // Assume you have the user authenticated and available in req.user
 
         // Create or retrieve Stripe customer
